@@ -70,7 +70,7 @@ using Random = UnityEngine.Random;
 
 namespace Quantum.Menu
 {
-    [HarmonyPatch(typeof(global::GorillaLocomotion.GTPlayer), "LateUpdate")]
+    [HarmonyPatch(typeof(global::GorillaLocomotion.Player), "LateUpdate")]
     public class Main : MonoBehaviour
     {
         /// <summary>

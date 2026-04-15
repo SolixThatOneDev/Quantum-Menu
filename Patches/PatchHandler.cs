@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/PatchHandler.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -68,7 +68,6 @@ namespace Quantum.Patches
                     PatchErrors++;
                     if (type.GetCustomAttribute<SecurityPatch>() != null)
                         CriticalPatchFailed = true;
-                    CriticalPatchFailed = true;
                     LogManager.LogError($"Failed to patch {type.FullName}: {ex}");
                 }
             }
