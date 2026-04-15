@@ -1,0 +1,26 @@
+# Build Artifacts
+bin/
+obj/
+
+# References & Dependencies
+# These should not be uploaded as they are provided by the game/environment
+References/
+References/**/*.dll
+References/**/*.xml
+
+# Visual Studio / IDE
+.vs/
+*.user
+*.userprep
+*.sln.docstates
+
+# Local Config & Logs
+Quantum/Quantum_Preferences.txt
+Quantum/Quantum_HideGUI.txt
+Quantum/Quantum_HideDonationButton.txt
+Quantum/Quantum_DisableTelemetry.txt
+*.log
+
+# Unity/OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,335 @@
+﻿/*
+ * Quantum Menu  Managers/URLBlocker.cs
+ * A community driven mod menu for Gorilla Tag with over 1000+ mods
+ *
+ * Copyright (C) 2026  Quantum Software
+ * https://github.com/Quantum/Quantum-Menu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// The purpose of this class is to block known malicious URLs from being accessed by the game or mods
+using HarmonyLib;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+using Valve.Newtonsoft.Json;
+using Quantum.Managers;
+
+namespace Quantum.Patches.Safety
+{
+    public class URLBlocker
+    {
+        private static Dictionary<string, string> banned = new Dictionary<string, string>();
+        private static readonly object locker = new object();
+        private static bool loaded = false;
+
+        static URLBlocker()
+        {
+            LoadBanList();
+        }
+
+        private static async void LoadBanList()
+        {
+            while (true)
+            {
+                try
+                {
+                    using (HttpClient client = new HttpClient())
+                    {
+                        string json = await client.GetStringAsync("https://menu.Quantum.software/banned_urls");
+                        var parsed = JsonConvert.DeserializeObject<BanResponse>(json);
+
+                        if (parsed?.banned != null)
+                        {
+                            lock (locker)
+                            {
+                                banned = parsed.banned;
+                                loaded = true;
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                await Task.Delay(30000);
+            }
+        }
+
+        private static void Notify(string url, string reason) // TODO: Notify user through menu, only show once per detected assembly.
+        {
+            string assemblyName = "Unknown";
+            string fileName = "Unknown";
+
+            try
+            {
+                var stack = new StackTrace();
+
+                for (int i = 0; i < stack.FrameCount; i++)
+                {
+                    var method = stack.GetFrame(i)?.GetMethod();
+                    var asm = method?.DeclaringType?.Assembly;
+
+                    if (asm == null)
+                        continue;
+
+                    string name = asm.GetName().Name;
+
+                    // this is ugly
+                    if (name.StartsWith("Unity") ||
+                        name.StartsWith("System") ||
+                        name.StartsWith("Mono") ||
+                        name.StartsWith("mscorlib") ||
+                        name.StartsWith("Harmony"))
+                        continue;
+
+                    assemblyName = name;
+
+                    try
+                    {
+                        fileName = System.IO.Path.GetFileName(asm.Location);
+                    }
+                    catch { }
+
+                    break;
+                }
+            }
+            catch { }
+
+            LogManager.Log($"HEY!! Quantum Menu blocked a potentionally DANGEROUS URL: {url} | Reason: {reason} | Assumed Assembly: {assemblyName} | Assumed File: {fileName}");
+        }
+
+        private static bool IsBanned(string url, out string reason)
+        {
+            reason = null;
+
+            if (string.IsNullOrEmpty(url))
+                return false;
+
+            try
+            {
+                Uri uri = new Uri(url);
+                string host = uri.Host;
+
+                Dictionary<string, string> snapshot;
+
+                lock (locker)
+                {
+                    if (!loaded || banned == null)
+                        return false;
+
+                    snapshot = banned;
+                }
+
+                foreach (var entry in snapshot)
+                {
+                    if (host == entry.Key || host.EndsWith("." + entry.Key))
+                    {
+                        reason = entry.Value;
+                        return true;
+                    }
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private static List<string> ExtractUrls(string input)
+        {
+            var results = new List<string>();
+
+            if (string.IsNullOrEmpty(input))
+                return results;
+
+            string[] parts = input.Split(' ');
+
+            foreach (var part in parts)
+            {
+                string cleaned = part.Trim('"');
+
+                if (cleaned.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                    cleaned.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    results.Add(cleaned);
+                }
+            }
+
+            return results;
+        }
+
+        private static bool IsBase64String(string s)
+        {
+            if (string.IsNullOrEmpty(s) || s.Length % 4 != 0)
+                return false;
+
+            foreach (char c in s)
+            {
+                if (!(char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '='))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static List<string> ExtractAndDecodeBase64(string input)
+        {
+            var results = new List<string>();
+
+            if (string.IsNullOrEmpty(input))
+                return results;
+
+            string[] parts = input.Split(' ');
+
+            foreach (var part in parts)
+            {
+                string cleaned = part.Trim('"');
+
+                if (cleaned.Length > 20 && IsBase64String(cleaned))
+                {
+                    try
+                    {
+                        byte[] data = Convert.FromBase64String(cleaned);
+                        string decoded = System.Text.Encoding.Unicode.GetString(data);
+                        results.Add(decoded);
+                    }
+                    catch { }
+                }
+            }
+
+            return results;
+        }
+
+        private static bool IsBlockedProcess(string args)
+        {
+            if (string.IsNullOrEmpty(args))
+                return false;
+
+            var urls = ExtractUrls(args);
+            foreach (var url in urls)
+            {
+                if (IsBanned(url, out var reason))
+                {
+                    Notify(url, reason);
+                    return true;
+                }
+            }
+
+            var decodedStrings = ExtractAndDecodeBase64(args);
+            foreach (var decoded in decodedStrings)
+            {
+                var innerUrls = ExtractUrls(decoded);
+
+                foreach (var url in innerUrls)
+                {
+                    if (IsBanned(url, out var reason))
+                    {
+                        Notify(url, reason);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private class BanResponse
+        {
+            public Dictionary<string, string> banned;
+        }
+
+        [HarmonyPatch(typeof(UnityWebRequest), "SendWebRequest")]
+        private class Patch_UnityWebRequest
+        {
+            static bool Prefix(UnityWebRequest __instance)
+            {
+                if (IsBanned(__instance.url, out var reason))
+                {
+                    Notify(__instance.url, reason);
+                    __instance.Abort();
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(HttpClient), "SendAsync", new[] { typeof(HttpRequestMessage), typeof(CancellationToken) })]
+        private class Patch_HttpClient
+        {
+            static bool Prefix(HttpRequestMessage request, ref Task<HttpResponseMessage> __result)
+            {
+                if (request?.RequestUri != null &&
+                    IsBanned(request.RequestUri.ToString(), out var reason))
+                {
+                    Notify(request.RequestUri.ToString(), reason);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.Forbidden)
+                    {
+                        Content = new StringContent("This request has been blocked by Quantum Menu, as it has been marked as a unsafe site.")
+                    };
+
+                    __result = Task.FromResult(response);
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(WebRequest), "Create", new[] { typeof(string) })]
+        private class Patch_WebRequest
+        {
+            static bool Prefix(string requestUriString, ref WebRequest __result)
+            {
+                if (IsBanned(requestUriString, out var reason))
+                {
+                    Notify(requestUriString, reason);
+                    __result = null;
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(Process), "Start", new[] { typeof(string), typeof(string) })]
+        private class Patch_ProcessStart_String
+        {
+            static bool Prefix(string fileName, string arguments)
+            {
+                if (IsBlockedProcess(arguments))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(Process), "Start", new[] { typeof(ProcessStartInfo) })]
+        private class Patch_ProcessStart_Info
+        {
+            static bool Prefix(ProcessStartInfo startInfo)
+            {
+                if (startInfo != null && IsBlockedProcess(startInfo.Arguments))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+    }
+}
