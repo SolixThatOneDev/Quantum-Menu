@@ -74,7 +74,44 @@ namespace Quantum.Patches
 
             LogManager.Log($"Patched with {PatchErrors} errors");
 
+            ManualPatches();
+
             IsPatched = !awake;
+        }
+
+        private static void ManualPatches()
+        {
+            try
+            {
+                // Dynamic Locomotion Hook
+                Type playerType = AccessTools.TypeByName("GorillaLocomotion.Player") 
+                               ?? AccessTools.TypeByName("GorillaLocomotion.GTPlayer");
+
+                if (playerType != null)
+                {
+                    MethodInfo lateUpdate = playerType.GetMethod("LateUpdate", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (lateUpdate != null)
+                    {
+                        MethodInfo prefix = typeof(Quantum.Menu.Main).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static);
+                        instance.Patch(lateUpdate, prefix: new HarmonyMethod(prefix));
+                        LogManager.Log($"Successfully dynamic-patched {playerType.FullName}");
+                    }
+                    else
+                    {
+                        LogManager.LogError("Dynamic Patch Error: LateUpdate not found on Player type.");
+                    }
+                }
+                else
+                {
+                    LogManager.LogError("Dynamic Patch Error: Could not find GorillaLocomotion.Player or GTPlayer.");
+                    CriticalPatchFailed = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError($"Manual Patching Error: {ex}");
+                CriticalPatchFailed = true;
+            }
         }
 
         public static void UnpatchAll()
