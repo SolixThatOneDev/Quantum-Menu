@@ -3,10 +3,10 @@ bin/
 obj/
 
 # References & Dependencies
-# These should not be uploaded as they are provided by the game/environment
-References/
-References/**/*.dll
-References/**/*.xml
+# Temporarily un-ignored for automated release build
+# References/
+# References/**/*.dll
+# References/**/*.xml
 
 # Visual Studio / IDE
 .vs/
