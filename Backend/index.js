@@ -11,8 +11,9 @@ app.use(cors()); // Allows your mod menu to talk to this server
 app.use(bodyParser.json());
 
 // Serve static files (Your sounds/images)
-// Put your "Resources" folder inside the "public" folder on your server
 app.use('/assets', express.static(path.join(__dirname, 'public')));
+// Fallback for internal /Resources/Server paths
+app.use('/Resources/Server', express.static(path.join(__dirname, 'public/Resources/Server')));
 
 // --- Endpoints ---
 

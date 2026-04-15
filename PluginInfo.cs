@@ -26,17 +26,17 @@ namespace Quantum
         public const string GUID = "org.quantum.gorillatag.quantummenu";
         public const string Name = "Quantum Menu";
         public const string Description = "Community powered mod menu for Gorilla Tag.";
-        public const string BuildTimestamp = "2026-04-15T20:34:33Z";
+        public const string BuildTimestamp = "2026-04-15T21:05:57Z";
         public const string Version = "114";
 
         public const string BaseDirectory = "Quantum";
         public const string ClientResourcePath = "QuantumMenu.Resources.Client";
 
-        // GITHUB SETUP: Replace 'YOUR_USERNAME/YOUR_REPO' with your actual GitHub details
-        public const string ServerResourcePath = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/master/Resources/Server";
+        // RENDER SETUP: Replace 'YOUR-RENDER-NAME' with your actual Render service name
+        public const string ServerResourcePath = "https://YOUR-RENDER-NAME.onrender.com/Resources/Server";
         
-        // BACKEND SETUP: Point this to your custom API (e.g., https://api.yourdomain.com)
-        public const string ServerAPI = "https://YOUR_API_SUBDOMAIN.com";
+        // BACKEND SETUP: Replace 'YOUR-RENDER-NAME' with your actual Render service name
+        public const string ServerAPI = "https://YOUR-RENDER-NAME.onrender.com";
         public const string Logo = @"
                                       ################                                      
                                   ########################                                  
@@ -63,7 +63,7 @@ namespace Quantum
 #endif
 
         // Configuration Flags
-        public static bool UseRemoteResources = false; // Set to true once you upload assets to GitHub
-        public static bool UseServerAPI = false;      // Set to true once your backend is online
+        public static bool UseRemoteResources = true; // Enabled for your new Backend
+        public static bool UseServerAPI = true;      // Enabled for your new Backend
     }
 }
