@@ -1,12 +1,10 @@
-# Credits to The-Graze/Grate for the auto-build setup
-
 name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -26,13 +24,24 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
+      continue-on-error: true # Might fail if missing References
 
     - name: Build
       run: dotnet build --no-restore -c Debug
+      continue-on-error: true # Might fail without game references in cloud
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v4
+    - name: Get DLL
+      id: find_dll
+      run: |
+        echo "path=$(find . -name 'Quantum Menu.dll' | head -n 1)" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      if: success()
+      uses: softprops/action-gh-release@v2
       with:
-        name: build-output
-        path: |
-          **/bin/Debug/netstandard2.1/ii's Stupid Menu.dll
+        tag_name: latest
+        name: Latest Build
+        body: "Automated build from the latest commit."
+        files: ${{ steps.find_dll.outputs.path }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
