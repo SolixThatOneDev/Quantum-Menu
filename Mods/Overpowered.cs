@@ -8444,8 +8444,8 @@ namespace Quantum.Mods
             VRRig targetRig = GetVRRigFromPlayer(target);
             string name = targetRig != null ? targetRig.GetName() : target.NickName;
 
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Initiating Ultra Kick on {name}...");
-            NotificationManager.SendNotification($"<color=grey>[</color><color=blue>INFO</color><color=grey>]</color> {MalachiCredits}");
+            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>[</color> Initiating Ultra Kick on {name}...", 10000);
+            NotificationManager.SendNotification($"<color=grey>[</color><color=blue>INFO</color><color=grey>]</color> {MalachiCredits}", 10000);
 
             // Enable Fly for better positioning
             bool wasFlying = Buttons.GetIndex("Fly").enabled;
@@ -8455,16 +8455,17 @@ namespace Quantum.Mods
             SerializePatch.OverrideSerialization = () => false;
             RPCProtection();
 
-            // Stage 1: Freeze phase (Malachi Lag Logic)
+            // Stage 1: Freeze phase (Enhanced Malachi Logic)
             for (int i = 7; i > 0; i--)
             {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 1000);
+                // Persistent notification for countdown
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 10000);
                 
                 // Content format: object[] { byte_val, float_val }
-                // Freeze values: 21, 23, 30, 31
-                object[] freezeContent = new object[] { (byte)23, 6.5f };
+                // Freeze byte 21 is often more effective than 23 for harder lock-ons
+                object[] freezeContent = new object[] { (byte)21, 6.5f };
 
-                for (int j = 0; j < 350; j++)
+                for (int j = 0; j < 400; j++)
                 {
                     PhotonNetwork.NetworkingClient.OpRaiseEvent(202, freezeContent, new RaiseEventOptions
                     {
@@ -8472,16 +8473,17 @@ namespace Quantum.Mods
                     }, SendOptions.SendReliable);
                 }
                 
+                RPCProtection();
                 yield return new WaitForSeconds(1f);
             }
 
-            // Stage 2: Final Kick pulse (Malachi Disconnect Logic)
-            NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> EXECUTING FINAL KICK!");
+            // Stage 2: Final Kick pulse (High Intensity Disconnect)
+            NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> EXECUTING FINAL KICK!", 10000);
 
-            // Kick values: 100, 140, 150
+            // Large kick value 150
             object[] kickContent = new object[] { (byte)150, 6.5f };
 
-            for (int i = 0; i < 4500; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 PhotonNetwork.NetworkingClient.OpRaiseEvent(202, kickContent, new RaiseEventOptions
                 {
@@ -8493,11 +8495,11 @@ namespace Quantum.Mods
 
             if (PhotonNetwork.PlayerList.Any(p => p.ActorNumber == target.ActorNumber))
             {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed for {name}. They might have anti-kick.");
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed for {name}. They probably have Anti-Kick.", 10000);
             }
             else
             {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been eliminated!");
+                NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been eliminated!", 10000);
             }
 
             // Cleanup

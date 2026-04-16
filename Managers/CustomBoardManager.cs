@@ -171,7 +171,7 @@ namespace Quantum.Managers
         public const int StumpLeaderboardIndex = 3;
         public const int ForestLeaderboardIndex = 3;
 
-        public static string motdTemplate = "You are using Build {0} (The v1.20 Update!). This menu was created by Solix. credits to kingofnetflix. " +
+        public static string motdTemplate = "You are using Build {0} (The v1.21 Update!). This menu was created by Solix. credits to kingofnetflix. " +
         "This menu is completely free and open sourced, if you paid for this menu you have been scammed. " +
         "<color=red>Quantum is not responsible for any bans using this menu.</color> " +
         "If you get banned while using this, it's your responsibility.\n\nCurrent menu status: <color=green><b>Fully working</b></color>\n\n<alpha=128>{2} {0} {3}<alpha=255>";
