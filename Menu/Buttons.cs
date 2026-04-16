@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Menu/Buttons.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -2052,6 +2052,9 @@ namespace Quantum.Menu
 
                 new ButtonInfo { buttonText = "Guardian Kick Gun", method = Overpowered.GuardianKickGun, toolTip = "Kicks whoever your hand desires." },
                 new ButtonInfo { buttonText = "Guardian Kick All <color=grey>[</color><color=green>T</color><color=grey>]</color>", method = Overpowered.GuardianKickAll, toolTip = "Kicks everyone in the room when holding <color=green>trigger</color>." },
+
+                new ButtonInfo { buttonText = "Ultra Kick Gun", method = Overpowered.UltraKickGun, toolTip = "A specialized 7-second kick gun with continuous lag packets and a final disconnection burst. Based on Malachi's Ultra Kick." },
+                new ButtonInfo { buttonText = "Ultra Kick All", method = Overpowered.UltraKickAll, toolTip = "Applies Malachi's 7-second Ultra Kick sequence to everyone in the room." },
 
                 new ButtonInfo { buttonText = "Guardian Crash Gun", method = Overpowered.GuardianCrashGun, toolTip = "Crashes whoever your hand desires." },
 
