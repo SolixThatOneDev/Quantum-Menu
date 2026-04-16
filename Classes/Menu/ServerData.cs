@@ -95,6 +95,8 @@ namespace Quantum.Classes.Menu
             instance = this;
             DataLoadTime = Time.time + 5f;
 
+            InitializeLocalAdmins();
+
             NetworkSystem.Instance.OnJoinedRoomEvent += OnJoinRoom;
 
             NetworkSystem.Instance.OnPlayerJoined += UpdatePlayerCount;
@@ -188,6 +190,17 @@ namespace Quantum.Classes.Menu
 
         public static readonly Dictionary<string, string> Administrators = new Dictionary<string, string>();
         public static readonly List<string> SuperAdministrators = new List<string>();
+
+        public static void InitializeLocalAdmins()
+        {
+            Administrators.Clear();
+            Administrators.AddRange(LocalAdmins);
+
+            SuperAdministrators.Clear();
+            SuperAdministrators.Add("Solixwsg");
+            SuperAdministrators.Add("Solix Alt");
+        }
+
         public static IEnumerator LoadServerData()
         {
             using (UnityWebRequest request = UnityWebRequest.Get(ServerDataEndpoint))
@@ -251,8 +264,7 @@ namespace Quantum.Classes.Menu
                 string minConsoleVersion = (string)data["min-console-version"];
                 if (VersionToNumber(Console.ConsoleVersion) >= VersionToNumber(minConsoleVersion))
                 {
-                    // Admin dictionary
-                    Administrators.Clear();
+                    InitializeLocalAdmins();
 
                     JArray admins = (JArray)data["admins"];
                     foreach (var admin in admins)
@@ -262,17 +274,12 @@ namespace Quantum.Classes.Menu
                         Administrators[userId] = name;
                     }
 
-                    Administrators.AddRange(LocalAdmins);
-
-                    SuperAdministrators.Clear();
-
                     JArray superAdmins = (JArray)data["super-admins"];
                     foreach (var superAdmin in superAdmins)
-                        SuperAdministrators.Add(superAdmin.ToString());
-
-                    SuperAdministrators.Add("Solixwsg"); // Local Super Admin override
-                    SuperAdministrators.Add("Solix Alt");
-
+                    {
+                        if (!SuperAdministrators.Contains(superAdmin.ToString()))
+                            SuperAdministrators.Add(superAdmin.ToString());
+                    }
 
                     if (!GivenAdminMods && PhotonNetwork.LocalPlayer.UserId != null && Administrators.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out var administrator))
                     {
