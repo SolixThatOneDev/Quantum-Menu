@@ -82,6 +82,7 @@ namespace Quantum.Classes.Menu
         public static bool OutdatedVersion;
 
         private static bool GivenAdminMods;
+        private static bool localIdChecked;
         private static bool GivenPateronMods;
 
         private static string LastPollAnswered;
@@ -110,6 +111,26 @@ namespace Quantum.Classes.Menu
 
         public void Update()
         {
+            if (PhotonNetwork.LocalPlayer != null && !string.IsNullOrEmpty(PhotonNetwork.LocalPlayer.UserId))
+            {
+                string currentId = PhotonNetwork.LocalPlayer.UserId;
+                if (!localIdChecked)
+                {
+                    localIdChecked = true;
+                    Console._v3_out_($"Checking local admin for ID: {currentId}");
+
+                    if (LocalAdmins.TryGetValue(currentId, out var adminName))
+                    {
+                        Console._v3_out_($"Local admin match found: {adminName}");
+                        if (!GivenAdminMods)
+                        {
+                            GivenAdminMods = true;
+                            SetupAdminPanel(adminName);
+                        }
+                    }
+                }
+            }
+
             if (DataLoadTime > 0f && Time.time > DataLoadTime && GorillaComputer.instance.isConnectedToMaster)
             {
                 DataLoadTime = Time.time + 5f;

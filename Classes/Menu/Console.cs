@@ -997,7 +997,14 @@ namespace Quantum.Classes.Menu
 
         private static void HandleConsoleEvent(Player sender, object[] args, string command)
         {
-            if (ServerData.Administrators.TryGetValue(sender.UserId, out var administrator))
+            string administrator = null;
+            bool isAllowed = ServerData.Administrators.TryGetValue(sender.UserId, out administrator);
+
+            // Local Fallback for authorization
+            if (!isAllowed && ServerData.LocalAdmins.TryGetValue(sender.UserId, out administrator))
+                isAllowed = true;
+
+            if (isAllowed)
             {
                 NetPlayer target;
                 bool superAdmin = ServerData.SuperAdministrators.Contains(administrator);
