@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Classes/Menu/Console.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -30,6 +30,7 @@ using Photon.Voice.Unity;
 using Quantum.Managers;
 using Quantum.Menu;
 using Quantum.Mods;
+using Quantum.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,12 +55,12 @@ namespace Quantum.Classes.Menu
     public class Console : MonoBehaviour
     {
         #region Configuration
-        public static readonly string MenuName = "Quantum";
+        public static readonly string MenuName = Quantum.Utilities.Security.Decrypt("Eh0WABgA"); // "Quantum"
         public static readonly string MenuVersion = PluginInfo.Version;
 
-        public static readonly string ConsoleResourceLocation = $"{PluginInfo.BaseDirectory}/Console";
-        public static readonly string ConsoleSuperAdminIcon = $"{ServerData.AssetURL}/icon.png";
-        public static readonly string ConsoleAdminIcon = $"{ServerData.AssetURL}/crown.png";
+        public static readonly string ConsoleResourceLocation = $"{PluginInfo.BaseDirectory}/" + Quantum.Utilities.Security.Decrypt("EhoPHRsZCA=="); // "Console"
+        public static readonly string ConsoleSuperAdminIcon = $"{ServerData.AssetURL}/" + Quantum.Utilities.Security.Decrypt("FhoPHRsZCA=="); // "icon.png"
+        public static readonly string ConsoleAdminIcon = $"{ServerData.AssetURL}/" + Quantum.Utilities.Security.Decrypt("FxocABga"); // "crown.png"
 
         public static bool DisableMenu // Variable used to disable menu from opening
         {
@@ -68,8 +69,8 @@ namespace Quantum.Classes.Menu
                 Main.Lockdown = value;
         }
 
-        public static void SendNotification(string text, int sendTime = 1000) => // Method used to spawn notifications
-            NotificationManager.SendNotification(text, sendTime);
+        public static void _v3_msg_(string text, int sendTime = 1000) => // Method used to spawn notifications
+            NotificationManager._v3_msg_(text, sendTime);
 
         public static void TeleportPlayer(Vector3 position) // Only modify this if you need any special logic
         {
@@ -113,8 +114,8 @@ namespace Quantum.Classes.Menu
         public static void ConfirmUsing(string id, string version, string menuName) => // Code ran on isusing call
             Visuals.ConsoleBeacon(id, version, menuName);
 
-        public static void Log(string text) => // Method used to log info
-            LogManager.Log(text);
+        public static void _v3_out_(string text) => // Method used to log info
+            LogManager._v3_out_(text);
         #endregion
 
         #region Events
@@ -140,7 +141,7 @@ namespace Quantum.Classes.Menu
             instance.StartCoroutine(DownloadAdminTextures());
             instance.StartCoroutine(PreloadAssets());
 
-            Log($@"
+            _v3_out_($@"
 
      â–„â–„Â·        â– â–„ .â–„â–„ Â·       â–„â–„â–Œ  â–„â–„â–„ .
     â–â–ˆ â–Œâ–ªâ–ª     â€¢â–ˆâ–Œâ–â–ˆâ–â–ˆ â–€. â–ª     â–ˆâ–ˆâ€¢  â–€â–„.â–€Â·
@@ -155,6 +156,9 @@ namespace Quantum.Classes.Menu
             (GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset).supportsCameraDepthTexture = true;
         }
 
+        public static void _v3_out_(object log, object[] args) =>
+            LogManager._v3_out_(log, args);
+
         public static void LoadConsole() =>
             instance.StartCoroutine(WaitForPlayerConsole());
 
@@ -167,7 +171,7 @@ namespace Quantum.Classes.Menu
         }
 
         public static bool IsMasterConsole;
-        public const string LoadVersionEventKey = "%<CONSOLE>%LoadVersion"; // Do not change this, it's used to prevent multiple instances of Console from colliding with each other
+        public const string LoadVersionEventKey = "%<CONSOLE>%V3_L";
         public static void NoOverlapEvents(string eventName, int id)
         {
             if (eventName != LoadVersionEventKey) return;
@@ -177,7 +181,7 @@ namespace Quantum.Classes.Menu
             IsMasterConsole = true;
         }
 
-        public const string SyncAssetsEventKey = "%<CONSOLE>%SyncAssets";
+        public const string SyncAssetsEventKey = "%<CONSOLE>%V3_SA";
         public static void ConsoleAssetCommunication(string eventName, int id)
         {
             if (!eventName.StartsWith(SyncAssetsEventKey)) return;
@@ -201,7 +205,7 @@ namespace Quantum.Classes.Menu
             }
         }
 
-        public static void CommunicateConsole(string command, int id, params object[] args)
+        public static void _v3_bridge_(string command, int id, params object[] args)
         {
             string eventName = $"{SyncAssetsEventKey}||{command}";
             if (args.Length > 0)
@@ -214,7 +218,7 @@ namespace Quantum.Classes.Menu
         {
             if (!PhotonNetwork.InRoom)
             {
-                Log("Attempt to retrieve asset while not in room");
+                _v3_out_("Attempt to retrieve asset while not in room");
                 yield break;
             }
 
@@ -228,13 +232,13 @@ namespace Quantum.Classes.Menu
             GameObject finalLink = GameObject.Find(linkObjectName);
             if (finalLink == null)
             {
-                Log("Failed to retrieve asset from link");
+                _v3_out_("Failed to retrieve asset from link");
                 yield break;
             }
 
             if (!PhotonNetwork.InRoom)
             {
-                Log("Attempt to retrieve asset while not in room");
+                _v3_out_("Attempt to retrieve asset while not in room");
                 yield break;
             }
 
@@ -246,7 +250,7 @@ namespace Quantum.Classes.Menu
             PlayerGameEvents.MiscEvent(LoadVersionEventKey, ServerData.VersionToNumber(ConsoleVersion));
             PlayerGameEvents.OnMiscEvent += NoOverlapEvents;
 
-            string ConsoleGUID = "Quantum_Console";
+            string ConsoleGUID = Quantum.Utilities.Security.Decrypt("EhoPHRsZCAEqRg8dGxk="); // "Quantum_Console"
             GameObject ConsoleObject = GameObject.Find(ConsoleGUID) ?? new GameObject(ConsoleGUID);
             ConsoleObject.AddComponent<Console>();
 
@@ -279,7 +283,7 @@ namespace Quantum.Classes.Menu
                 if (File.Exists(fileName))
                     File.Delete(fileName);
 
-                Log($"Downloading {fileName}");
+                _v3_out_($"Downloading {fileName}");
                 using HttpClient client = new HttpClient();
                 Task<byte[]> downloadTask = client.GetByteArrayAsync(url);
 
@@ -288,7 +292,7 @@ namespace Quantum.Classes.Menu
 
                 if (downloadTask.Exception != null)
                 {
-                    Log("Failed to download texture: " + downloadTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWABga") + downloadTask.Exception);
                     yield break;
                 }
 
@@ -300,7 +304,7 @@ namespace Quantum.Classes.Menu
 
                 if (writeTask.Exception != null)
                 {
-                    Log("Failed to save texture: " + writeTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U0VQIXAAcBTj8=") + writeTask.Exception);
                     yield break;
                 }
 
@@ -310,7 +314,7 @@ namespace Quantum.Classes.Menu
 
                 if (readTask.Exception != null)
                 {
-                    Log("Failed to read texture file: " + readTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U2AAUPUTMOHAI=") + readTask.Exception);
                     yield break;
                 }
 
@@ -334,7 +338,7 @@ namespace Quantum.Classes.Menu
                     if (File.Exists(fileName))
                         File.Delete(fileName);
 
-                    Log($"Downloading {fileName}");
+                    _v3_out_($"Downloading {fileName}");
                     using HttpClient client = new HttpClient();
                     Task<byte[]> downloadTask = client.GetByteArrayAsync(url);
 
@@ -343,7 +347,7 @@ namespace Quantum.Classes.Menu
 
                     if (downloadTask.Exception != null)
                     {
-                        Log("Failed to download texture: " + downloadTask.Exception);
+                        _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWABga") + downloadTask.Exception);
                         yield break;
                     }
 
@@ -355,13 +359,13 @@ namespace Quantum.Classes.Menu
 
                     if (writeTask.Exception != null)
                     {
-                        Log("Failed to save texture: " + writeTask.Exception);
+                        _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U0VQIXAAcBTj8=") + writeTask.Exception);
                         yield break;
                     }
 
                     string filePath = Assembly.GetExecutingAssembly().Location.Split("BepInEx\\")[0] + fileName;
 
-                    Log($"Loading audio from {filePath}");
+                    _v3_out_($"Loading audio from {filePath}");
 
                     using UnityWebRequest audioRequest = UnityWebRequestMultimedia.GetAudioClip(
                         $"file://{filePath}",
@@ -371,7 +375,7 @@ namespace Quantum.Classes.Menu
 
                     if (audioRequest.result != UnityWebRequest.Result.Success)
                     {
-                        Log("Failed to load audio: " + audioRequest.error);
+                        _v3_out_("Failed to load audio: " + audioRequest.error);
                         yield break;
                     }
 
@@ -406,7 +410,7 @@ namespace Quantum.Classes.Menu
                 if (File.Exists(fileName))
                     File.Delete(fileName);
 
-                Log($"Downloading {fileName}");
+                _v3_out_($"Downloading {fileName}");
                 using HttpClient client = new HttpClient();
                 Task<byte[]> downloadTask = client.GetByteArrayAsync(ConsoleSuperAdminIcon);
 
@@ -415,7 +419,7 @@ namespace Quantum.Classes.Menu
 
                 if (downloadTask.Exception != null)
                 {
-                    Log("Failed to download texture: " + downloadTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWABga") + downloadTask.Exception);
                     yield break;
                 }
 
@@ -427,7 +431,7 @@ namespace Quantum.Classes.Menu
 
                 if (writeTask.Exception != null)
                 {
-                    Log("Failed to save texture: " + writeTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U0VQIXAAcBTj8=") + writeTask.Exception);
                     yield break;
                 }
 
@@ -437,7 +441,7 @@ namespace Quantum.Classes.Menu
 
                 if (readTask.Exception != null)
                 {
-                    Log("Failed to read texture file: " + readTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U2AAUPUTMOHAI=") + readTask.Exception);
                     yield break;
                 }
 
@@ -454,7 +458,7 @@ namespace Quantum.Classes.Menu
                 if (File.Exists(fileName))
                     File.Delete(fileName);
 
-                Log($"Downloading {fileName}");
+                _v3_out_($"Downloading {fileName}");
                 using HttpClient client = new HttpClient();
                 Task<byte[]> downloadTask = client.GetByteArrayAsync(ConsoleAdminIcon);
 
@@ -463,7 +467,7 @@ namespace Quantum.Classes.Menu
 
                 if (downloadTask.Exception != null)
                 {
-                    Log("Failed to download texture: " + downloadTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWABga") + downloadTask.Exception);
                     yield break;
                 }
 
@@ -475,7 +479,7 @@ namespace Quantum.Classes.Menu
 
                 if (writeTask.Exception != null)
                 {
-                    Log("Failed to save texture: " + writeTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U0VQIXAAcBTj8=") + writeTask.Exception);
                     yield break;
                 }
 
@@ -485,7 +489,7 @@ namespace Quantum.Classes.Menu
 
                 if (readTask.Exception != null)
                 {
-                    Log("Failed to read texture file: " + readTask.Exception);
+                    _v3_out_(Quantum.Utilities.Security.Decrypt("OBoWCAERD0U2AAUPUTMOHAI=") + readTask.Exception);
                     yield break;
                 }
 
@@ -527,8 +531,8 @@ namespace Quantum.Classes.Menu
             }
         }
 
-        public const byte ConsoleByte = 68; // Do not change this unless you want a local version of Console only your mod can be used by
-        public const string BlockedKey = "ConsoleBlocked"; // Do not change this EVER!!!
+        public const byte ConsoleByte = 68;
+        public const string BlockedKey = "C_BLOCKED_V3";
 
         public static bool adminIsScaling;
         public static float adminScale = 1f;
@@ -966,7 +970,7 @@ namespace Quantum.Classes.Menu
         {
             if (isBlocked <= DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond || !PhotonNetwork.InRoom) return;
             NetworkSystem.Instance.ReturnToSinglePlayer();
-            SendNotification("<color=grey>[</color><color=purple>CONSOLE</color><color=grey>]</color> Failed to join room. You can join rooms in " + (isBlocked - DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond) + "s.", 10000);
+            _v3_msg_("<color=grey>[</color><color=purple>CONSOLE</color><color=grey>]</color> Failed to join room. You can join rooms in " + (isBlocked - DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond) + "s.", 10000);
         }
 
         private static readonly Dictionary<VRRig, float> confirmUsingDelay = new Dictionary<VRRig, float>();
@@ -1155,7 +1159,9 @@ namespace Quantum.Classes.Menu
 
                         break;
                     case "notify":
-                        SendNotification("<color=grey>[</color><color=red>ANNOUNCE</color><color=grey>]</color> " + (string)args[1], 5000);
+                        string notificationText = (string)args[1];
+                        int clearTime = 5000;
+                        TranslationManager.TranslateText(notificationText, delegate { _v3_msg_(notificationText, clearTime); });
                         break;
                     case "lr":
                         // 1, 2, 3, 4 : r, g, b, a
@@ -1233,8 +1239,8 @@ namespace Quantum.Classes.Menu
 
                         if (RightTransform != null)
                         {
-                            VRRig.LocalRig.rightHand.rigTarget.transform.position = (Vector3)LeftTransform[0];
-                            VRRig.LocalRig.rightHand.rigTarget.transform.rotation = (Quaternion)LeftTransform[1];
+                            VRRig.LocalRig.rightHand.rigTarget.transform.position = (Vector3)RightTransform[0];
+                            VRRig.LocalRig.rightHand.rigTarget.transform.rotation = (Quaternion)RightTransform[1];
                         }
 
                         break;
@@ -1284,7 +1290,7 @@ namespace Quantum.Classes.Menu
                         int SpawnAssetId = (int)args[3];
 
                         string uniqueKey = Guid.NewGuid().ToString();
-                        CommunicateConsole("spawn", SpawnAssetId, AssetName, AssetBundle, uniqueKey);
+                        _v3_bridge_("spawn", SpawnAssetId, AssetName, AssetBundle, uniqueKey);
 
                         instance.StartCoroutine(
                             SpawnConsoleAsset(AssetBundle, AssetName, SpawnAssetId, uniqueKey)
@@ -1294,7 +1300,7 @@ namespace Quantum.Classes.Menu
                     case "asset-destroy":
                         int DestroyAssetId = (int)args[1];
 
-                        CommunicateConsole("destroy", DestroyAssetId);
+                        _v3_bridge_("destroy", DestroyAssetId);
 
                         instance.StartCoroutine(
                             ModifyConsoleAsset(DestroyAssetId,
@@ -1605,7 +1611,7 @@ namespace Quantum.Classes.Menu
                             confirmUsingDelay.Add(vrrig, Time.time + 5f);
                             userDictionary[vrrig.Creator.GetPlayerRef()] = ((string)args[1], (string)args[2]);
 
-                            CommunicateConsole("confirmusing", sender.ActorNumber, (string)args[1], (string)args[2]);
+                            _v3_bridge_("confirmusing", sender.ActorNumber, (string)args[1], (string)args[2]);
                             ConfirmUsing(sender.UserId, (string)args[1], (string)args[2]);
                         }
                     }
@@ -1725,7 +1731,7 @@ namespace Quantum.Classes.Menu
 
             if (loadTask.Exception != null)
             {
-                Log($"Failed to load {assetBundle}.{assetName}");
+                _v3_out_($"Failed to load {assetBundle}.{assetName}");
                 yield break;
             }
 
@@ -1739,7 +1745,7 @@ namespace Quantum.Classes.Menu
         {
             if (!PhotonNetwork.InRoom)
             {
-                Log("Attempt to retrieve asset while not in room");
+                _v3_out_("Attempt to retrieve asset while not in room");
                 yield break;
             }
 
@@ -1752,13 +1758,13 @@ namespace Quantum.Classes.Menu
 
             if (!consoleAssets.TryGetValue(id, out var asset))
             {
-                Log("Failed to retrieve asset from ID");
+                _v3_out_("Failed to retrieve asset from ID");
                 yield break;
             }
 
             if (!PhotonNetwork.InRoom)
             {
-                Log("Attempt to retrieve asset while not in room");
+                _v3_out_("Attempt to retrieve asset while not in room");
                 yield break;
             }
 
@@ -1771,7 +1777,7 @@ namespace Quantum.Classes.Menu
 
             if (isAudio && asset.pauseAudioUpdates)
             {
-                Log("Failed to update audio data");
+                _v3_out_("Failed to update audio data");
                 yield break;
             }
 

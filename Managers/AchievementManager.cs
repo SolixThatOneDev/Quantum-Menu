@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/AchievementManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -94,7 +94,7 @@ namespace Quantum.Managers
                 return;
 
             LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/achievement.ogg", "Audio/Menu/achievement.ogg", clip => Play2DAudio(clip, buttonClickVolume / 10f));
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>ACHIEVEMENT</color><color=grey>]</color> Achievement unlocked! \"{achievement.name}\"");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>ACHIEVEMENT</color><color=grey>]</color> Achievement unlocked! \"{achievement.name}\"");
 
             Achievements.Add(achievement);
             File.WriteAllText($"{PluginInfo.BaseDirectory}/Achievements/{achievement.name.Hash()}.json", achievement.ToJObject().ToString());
@@ -124,4 +124,5 @@ namespace Quantum.Managers
         }
     }
 }
+
 

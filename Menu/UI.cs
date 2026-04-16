@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Menu/UI.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -58,7 +58,7 @@ namespace Quantum.Menu
                 return;
             }
 
-            LogManager.Log("Quantum Menu: uiPrefab loaded. Initializing canvas elements...");
+            LogManager._v3_out_("Quantum Menu: uiPrefab loaded. Initializing canvas elements...");
             Transform canvas = uiPrefab.transform.Find("Canvas");
             if (canvas == null)
             {
@@ -556,3 +556,4 @@ namespace Quantum.Menu
         }
     }
 }
+

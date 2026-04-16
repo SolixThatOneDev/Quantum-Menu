@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/CustomMaps/Manager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -81,7 +81,7 @@ namespace Quantum.Mods.CustomMaps
             foreach (var (lineIndex, value) in replacements)
             {
                 if (lineIndex < 0 || lineIndex >= lines.Length) continue;
-                LogManager.Log("Replacing " + lines[lineIndex] + " with " + value);
+                LogManager._v3_out_("Replacing " + lines[lineIndex] + " with " + value);
                 lines[lineIndex] = value;
             }
 
@@ -160,4 +160,5 @@ namespace Quantum.Mods.CustomMaps
         }
     }
 }
+
 

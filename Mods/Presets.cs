@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Presets.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -57,7 +57,7 @@ namespace Quantum.Mods
             foreach (string mod in presetMods)
                 Toggle(mod);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Legitimate preset enabled successfully.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Legitimate preset enabled successfully.");
         }
 
         public static void GhostPreset()
@@ -79,7 +79,7 @@ namespace Quantum.Mods
             foreach (string mod in presetMods)
                 Toggle(mod);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Ghost preset enabled successfully.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Ghost preset enabled successfully.");
         }
 
         public static void SaveCustomPreset(int id)
@@ -95,7 +95,7 @@ namespace Quantum.Mods
             if (Directory.Exists($"{PluginInfo.BaseDirectory}/SavedPresets"))
             {
                 string text = File.ReadAllText($"{PluginInfo.BaseDirectory}/SavedPresets/Preset_" + id + ".txt");
-                LogManager.Log(text);
+                LogManager._v3_out_(text);
                 Settings.LoadPreferencesFromText(text);
             }
         }
@@ -122,7 +122,7 @@ namespace Quantum.Mods
             foreach (string mod in presetMods)
                 Toggle(mod);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Performance preset enabled successfully.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Performance preset enabled successfully.");
         }
 
         public static void SafetyPreset()
@@ -149,7 +149,7 @@ namespace Quantum.Mods
             foreach (string mod in presetMods)
                 Toggle(mod);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Safety preset enabled successfully.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Safety preset enabled successfully.");
         }
 
         public static void SimplePreset()
@@ -166,8 +166,9 @@ namespace Quantum.Mods
             foreach (string mod in presetMods)
                 Toggle(mod);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Simple preset enabled successfully.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PRESET</color><color=grey>]</color> Simple preset enabled successfully.");
         }
     }
 }
+
 

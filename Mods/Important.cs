@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Important.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -341,10 +341,10 @@ exit";
                     if (request.result == UnityWebRequest.Result.Success)
                     {
                         File.WriteAllBytes($"{PluginInfo.BaseDirectory}/QuickSong.exe", request.downloadHandler.data);
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded QuickSong to {PluginInfo.BaseDirectory}/QuickSong.exe.");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded QuickSong to {PluginInfo.BaseDirectory}/QuickSong.exe.");
                     }
                     else
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Could not download QuickSong: {(request.error.IsNullOrEmpty() ? "Unknown error" : request.error)}");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Could not download QuickSong: {(request.error.IsNullOrEmpty() ? "Unknown error" : request.error)}");
 
                     quickSongExists = File.Exists($"{PluginInfo.BaseDirectory}/QuickSong.exe");
                 }, () => Toggle("Media Integration"));
@@ -746,7 +746,7 @@ exit";
             while (!newSessionDataTask.IsCompleted)
                 yield return null;
             if (newSessionDataTask.IsFaulted)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Failed to redeem shiny rocks.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Failed to redeem shiny rocks.");
 
             GetPlayerData_Data newSessionData = newSessionDataTask.Result;
             if (newSessionData.responseType == GetSessionResponseType.NOT_FOUND)
@@ -756,13 +756,13 @@ exit";
                 while (!optInTask.IsCompleted)
                     yield return null;
                 if (optInTask.IsFaulted)
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Failed to redeem shiny rocks.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Failed to redeem shiny rocks.");
 
-                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully redeemed shiny rocks!");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully redeemed shiny rocks!");
                 CosmeticsController.instance.GetCurrencyBalance();
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You have already redeemed the shiny rocks.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You have already redeemed the shiny rocks.");
             yield break;
         }
 
@@ -987,10 +987,10 @@ exit";
                 switch (thereIsTagLag)
                 {
                     case true when !lastTagLag:
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>TAG LAG</color><color=grey>]</color> There is currently tag lag.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>TAG LAG</color><color=grey>]</color> There is currently tag lag.");
                         break;
                     case false when lastTagLag:
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>TAG LAG</color><color=grey>]</color> There is no longer tag lag.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>TAG LAG</color><color=grey>]</color> There is no longer tag lag.");
                         break;
                 }
 
@@ -999,7 +999,7 @@ exit";
             else
             {
                 if (lastTagLag)
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>TAG LAG</color><color=grey>]</color> There is no longer tag lag.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>TAG LAG</color><color=grey>]</color> There is no longer tag lag.");
                 lastTagLag = false;
             }
         }
@@ -1011,7 +1011,7 @@ exit";
             if (playerOnSteam && !lastSteam)
             {
                 VRRig vrrig = VRRigCache.ActiveRigs.First(vrrig => !vrrig.IsLocal() && vrrig.IsSteam());
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>STEAM</color><color=grey>]</color> {vrrig.GetName()} is on Steam.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>STEAM</color><color=grey>]</color> {vrrig.GetName()} is on Steam.");
 
                 LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Mods/Safety/steam.ogg", "Audio/Mods/Safety/steam.ogg", clip => Play2DAudio(clip, buttonClickVolume / 10f));
             }
@@ -1036,12 +1036,12 @@ exit";
             // Security check
             if (!string.Equals(userId.Trim(), "9843622BE0FB4BB4", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationManager.SendNotification("<color=red>[ERROR]</color> Permission Denied.", 5000);
+                NotificationManager._v3_msg_("<color=red>[ERROR]</color> Permission Denied.", 5000);
                 return;
             }
 
-            NotificationManager.SendNotification($"<color=grey>[</color><color=green>DEBUG</color><color=grey>]</color> Your Photon ID: {userId}", 10000);
-            LogManager.Log($"[DEBUG] Photon ID: {userId}");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>DEBUG</color><color=grey>]</color> Your Photon ID: {userId}", 10000);
+            LogManager._v3_out_($"[DEBUG] Photon ID: {userId}");
         }
 
         public static void ManualAdminSetup()
@@ -1051,7 +1051,7 @@ exit";
             // Security check
             if (!string.Equals(userId.Trim(), "9843622BE0FB4BB4", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationManager.SendNotification("<color=red>[ERROR]</color> Permission Denied.", 5000);
+                NotificationManager._v3_msg_("<color=red>[ERROR]</color> Permission Denied.", 5000);
                 return;
             }
 
@@ -1059,4 +1059,5 @@ exit";
         }
     }
 }
+
 

@@ -114,7 +114,7 @@ namespace Quantum.Mods
                 });
 
             if (!RecorderPatch.enabled)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using the legacy microphone system. Modern soundboard features will not be implemented.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using the legacy microphone system. Modern soundboard features will not be implemented.");
 
             foreach (string file in files)
             {
@@ -533,7 +533,7 @@ namespace Quantum.Mods
 
             CachedButtons.Remove(Subdirectory ?? "");
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to the soundboard.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to the soundboard.");
         }
 
         public static bool AudioIsPlaying;
@@ -811,7 +811,7 @@ namespace Quantum.Mods
         public static void BetaPlayTag(int id, float volume)
         {
             if (!NetworkSystem.Instance.IsMasterClient)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             else
             {
                 if (Time.time > sendEffectDelay)
@@ -911,6 +911,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

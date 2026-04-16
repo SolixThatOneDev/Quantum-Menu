@@ -44,7 +44,7 @@ namespace Quantum.Utilities
             try
             {
                 string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-                LogManager.Log($"Quantum Menu: Searching for asset bundle in {resourceNames.Length} resources...");
+                LogManager._v3_out_($"Quantum Menu: Searching for asset bundle in {resourceNames.Length} resources...");
 
                 // Look for a resource that ends with "quantummenu" (case-insensitive)
                 string targetName = resourceNames.FirstOrDefault(n => n.EndsWith("quantummenu", StringComparison.OrdinalIgnoreCase));
@@ -58,7 +58,7 @@ namespace Quantum.Utilities
 
                 if (!string.IsNullOrEmpty(targetName))
                 {
-                    LogManager.Log($"Quantum Menu: Loading asset bundle from {targetName}...");
+                    LogManager._v3_out_($"Quantum Menu: Loading asset bundle from {targetName}...");
                     using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(targetName))
                     {
                         if (stream != null)
@@ -66,23 +66,23 @@ namespace Quantum.Utilities
                             assetBundle = AssetBundle.LoadFromStream(stream);
                             if (assetBundle != null)
                             {
-                                LogManager.Log("Quantum Menu: Asset bundle loaded successfully!");
+                                LogManager._v3_out_("Quantum Menu: Asset bundle loaded successfully!");
                             }
                             else
                             {
-                                LogManager.Log("Quantum Menu: Failed to load asset bundle from stream (is it a valid bundle?)");
+                                LogManager._v3_out_("Quantum Menu: Failed to load asset bundle from stream (is it a valid bundle?)");
                             }
                         }
                     }
                 }
                 else
                 {
-                    LogManager.Log("Quantum Menu: Could not find asset bundle in manifest resources.");
+                    LogManager._v3_out_("Quantum Menu: Could not find asset bundle in manifest resources.");
                 }
             }
             catch (Exception ex)
             {
-                LogManager.Log($"Quantum Menu: Critical error loading asset bundle: {ex.Message}");
+                LogManager._v3_out_($"Quantum Menu: Critical error loading asset bundle: {ex.Message}");
             }
         }
 
@@ -123,7 +123,7 @@ namespace Quantum.Utilities
         {
             if (!PluginInfo.UseRemoteResources && !File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, PluginInfo.BaseDirectory, fileName)))
             {
-                LogManager.Log($"Quantum Menu: Skipping remote load for {fileName} (UseRemoteResources is false and file is missing locally).");
+                LogManager._v3_out_($"Quantum Menu: Skipping remote load for {fileName} (UseRemoteResources is false and file is missing locally).");
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace Quantum.Utilities
             }
             catch (Exception ex)
             {
-                LogManager.Log($"Quantum Menu: Failed to load texture from file {filePath}! Reason: {ex.Message}");
+                LogManager._v3_out_($"Quantum Menu: Failed to load texture from file {filePath}! Reason: {ex.Message}");
             }
             return Texture2D.whiteTexture;
         }
@@ -184,7 +184,7 @@ namespace Quantum.Utilities
             }
             catch (Exception ex)
             {
-                LogManager.Log($"Quantum Menu: Failed to load texture from resource {resourcePath}! Reason: {ex.Message}");
+                LogManager._v3_out_($"Quantum Menu: Failed to load texture from resource {resourcePath}! Reason: {ex.Message}");
             }
             return Texture2D.whiteTexture;
         }
@@ -196,7 +196,7 @@ namespace Quantum.Utilities
 
             if (!File.Exists(filePath))
             {
-                LogManager.Log($"Quantum Menu: Pulling audio clip {fileName} from {url}...");
+                LogManager._v3_out_($"Quantum Menu: Pulling audio clip {fileName} from {url}...");
                 var handler = new DownloadHandlerAudioClip(url, GetAudioType(GetFileExtension(fileName)));
 
                 using UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, handler, null);
@@ -212,16 +212,16 @@ namespace Quantum.Utilities
                     File.WriteAllBytes(filePath, data);
                     callback?.Invoke(handler.audioClip);
 
-                    LogManager.Log($"Quantum Menu: Pulled {fileName} successfully!");
+                    LogManager._v3_out_($"Quantum Menu: Pulled {fileName} successfully!");
                 }
                 else
                 {
-                    LogManager.Log($"Quantum Menu: Failed to pull {fileName}! Reason: {request.error}");
+                    LogManager._v3_out_($"Quantum Menu: Failed to pull {fileName}! Reason: {request.error}");
                 }
             }
             else
             {
-                LogManager.Log($"Quantum Menu: Loading local audio clip {fileName}...");
+                LogManager._v3_out_($"Quantum Menu: Loading local audio clip {fileName}...");
                 var handler = new DownloadHandlerAudioClip(filePath, GetAudioType(GetFileExtension(fileName)));
 
                 using UnityWebRequest request = new UnityWebRequest(filePath, UnityWebRequest.kHttpVerbGET, handler, null);
@@ -234,7 +234,7 @@ namespace Quantum.Utilities
                 }
                 else
                 {
-                    LogManager.Log($"Quantum Menu: Failed to load local {fileName}! Reason: {request.error}");
+                    LogManager._v3_out_($"Quantum Menu: Failed to load local {fileName}! Reason: {request.error}");
                 }
             }
         }
@@ -248,7 +248,7 @@ namespace Quantum.Utilities
 
             if (!shouldDownload)
             {
-                LogManager.Log($"Quantum Menu: Checking for updates for {fileName}...");
+                LogManager._v3_out_($"Quantum Menu: Checking for updates for {fileName}...");
 
                 using UnityWebRequest request = UnityWebRequest.Get(resourcePath);
                 yield return request.SendWebRequest();
@@ -264,7 +264,7 @@ namespace Quantum.Utilities
 
                     if (remoteHash != localHash)
                     {
-                        LogManager.Log($"Quantum Menu: Update found for {fileName}!");
+                        LogManager._v3_out_($"Quantum Menu: Update found for {fileName}!");
                         shouldDownload = true;
                     }
                 }
@@ -272,7 +272,7 @@ namespace Quantum.Utilities
 
             if (shouldDownload)
             {
-                LogManager.Log($"Quantum Menu: Downloading {fileName} from {resourcePath}...");
+                LogManager._v3_out_($"Quantum Menu: Downloading {fileName} from {resourcePath}...");
                 using UnityWebRequest request = UnityWebRequest.Get(resourcePath);
                 yield return request.SendWebRequest();
 
@@ -285,19 +285,20 @@ namespace Quantum.Utilities
                     File.WriteAllBytes(filePath, data);
                     callback?.Invoke(AssetBundle.LoadFromMemory(data));
 
-                    LogManager.Log($"Quantum Menu: Downloaded {fileName} successfully!");
+                    LogManager._v3_out_($"Quantum Menu: Downloaded {fileName} successfully!");
                 }
                 else
                 {
-                    LogManager.Log($"Quantum Menu: Failed to download {fileName}! Reason: {request.error}");
+                    LogManager._v3_out_($"Quantum Menu: Failed to download {fileName}! Reason: {request.error}");
                 }
             }
             else
             {
-                LogManager.Log($"Quantum Menu: Loading local asset bundle {fileName}...");
+                LogManager._v3_out_($"Quantum Menu: Loading local asset bundle {fileName}...");
                 callback?.Invoke(AssetBundle.LoadFromFile(filePath));
             }
         }
         #endregion
     }
 }
+

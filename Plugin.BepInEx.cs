@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Plugin.BepInEx.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -60,11 +60,11 @@ namespace Quantum
                 }
             });
 
-            LogManager.Log("Quantum Menu: Awake started!");
+            LogManager._v3_out_("Quantum Menu: Awake started!");
             try
             {
                 Bootstrapper.Initialize();
-                LogManager.Log("Quantum Menu: Awake finished successfully!");
+                LogManager._v3_out_("Quantum Menu: Awake finished successfully!");
             }
             catch (Exception ex)
             {
@@ -77,4 +77,5 @@ namespace Quantum
             Main.UnloadMenu();
     }
 }
+
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/AIManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -102,7 +102,7 @@ namespace Quantum.Managers
                     if (!string.IsNullOrEmpty(request.downloadHandler?.text))
                         LogManager.LogError($"Response Body: {request.downloadHandler.text}");
                 }
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> There was an issue generating your response. {request.error}", 4000);
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> There was an issue generating your response. {request.error}", 4000);
                 LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg", clip => Settings.DictationPlay(clip, Main.buttonClickVolume / 10f));
                 if (!Buttons.GetIndex("Chain Voice Commands").enabled)
                     CoroutineManager.instance.StartCoroutine(Settings.DictationRestart());
@@ -111,7 +111,7 @@ namespace Quantum.Managers
 
             string response = request.downloadHandler.text;
             if (Settings.debugDictation)
-                LogManager.Log($"AI Response: {response}");
+                LogManager._v3_out_($"AI Response: {response}");
 
             MatchCollection matches = Regex.Matches(response, @"<([A-Z]+)(?:_""([^""]*)"")?>");
 
@@ -126,10 +126,10 @@ namespace Quantum.Managers
             switch (Main.narratorName)
             {
                 case "Mommy ASMR":
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> {formatResponse}", Duration(formatResponse));
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> {formatResponse}", Duration(formatResponse));
                     break;
                 default:
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=blue>AI</color><color=grey>]</color> {formatResponse}", Duration(formatResponse));
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=blue>AI</color><color=grey>]</color> {formatResponse}", Duration(formatResponse));
                     break;
             }
 
@@ -170,10 +170,10 @@ namespace Quantum.Managers
                                 if (!button.enabled)
                                     Main.Toggle(button.buttonText, true);
                                 else
-                                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod is already enabled.");
+                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod is already enabled.");
                             }
                             else
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
 
                             break;
                         }
@@ -196,10 +196,10 @@ namespace Quantum.Managers
                                 if (button.enabled)
                                     Main.Toggle(button.buttonText, true);
                                 else
-                                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod is already enabled.");
+                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod is already enabled.");
                             }
                             else
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
 
                             break;
                         }
@@ -220,7 +220,7 @@ namespace Quantum.Managers
                             if (button != null)
                                 Main.Toggle(button.buttonText, true);
                             else
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{argument}\" does not exist.");
                             break;
                         }
                     case "JOINROOM":
@@ -253,4 +253,5 @@ namespace Quantum.Managers
         }
     }
 }
+
 

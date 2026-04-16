@@ -78,7 +78,7 @@ namespace Quantum.Menu
         /// </summary>
         public static void OnLaunch()
         {
-            LogManager.Log("Quantum Menu: OnLaunch() triggered.");
+            LogManager._v3_out_("Quantum Menu: OnLaunch() triggered.");
             if (CoroutineManager.instance == null)
                 LogManager.LogError("CoroutineManager instance is null on menu launch. Features may not function properly.");
 
@@ -238,13 +238,13 @@ namespace Quantum.Menu
                 if (PatchHandler.CriticalPatchFailed)
                 {
                     string message = "A critical patch has failed, and you have been blocked from joining rooms for safety reasons. Please report this as an issue to the GitHub repository.";
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {message}", 10000);
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {message}", 10000);
                     GorillaComputer.instance.GeneralFailureMessage(message);
                     if (NetworkSystem.Instance.InRoom)
                         NetworkSystem.Instance.ReturnToSinglePlayer();
                 }
                 else
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {PatchHandler.PatchErrors} patch{(PatchHandler.PatchErrors > 1 ? "es" : "")} failed to initialize. Please report this as an issue to the GitHub repository.", 10000);
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {PatchHandler.PatchErrors} patch{(PatchHandler.PatchErrors > 1 ? "es" : "")} failed to initialize. Please report this as an issue to the GitHub repository.", 10000);
             }
 
         }
@@ -253,7 +253,7 @@ namespace Quantum.Menu
         {
             if (!HasLoaded)
             {
-                LogManager.Log("Quantum Menu: First LateUpdate hook hit!");
+                LogManager._v3_out_("Quantum Menu: First LateUpdate hook hit!");
             }
             #region Controls
             try
@@ -737,7 +737,7 @@ namespace Quantum.Menu
                     {
                         VRRig.LocalRig.PlayHandTapLocal(84, true, 0.4f);
                         VRRig.LocalRig.PlayHandTapLocal(84, false, 0.4f);
-                        NotificationManager.SendNotification("<color=grey>[</color><color=#FF00FF>FUN FACT</color><color=grey>]</color> " + facts[Random.Range(0, facts.Length - 1)] + "");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=#FF00FF>FUN FACT</color><color=grey>]</color> " + facts[Random.Range(0, facts.Length - 1)] + "");
                     }
                 }
 
@@ -748,7 +748,7 @@ namespace Quantum.Menu
                     {
                         partyLastCode = null;
                         partyKickReconnecting = false;
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully " + (waitForPlayerJoin ? "banned" : "kicked") + " " + amountPartying + " party member.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully " + (waitForPlayerJoin ? "banned" : "kicked") + " " + amountPartying + " party member.");
                         FriendshipGroupDetection.Instance.LeaveParty();
                     }
                     else
@@ -757,13 +757,13 @@ namespace Quantum.Menu
                         {
                             if (Buttons.GetIndex("Rejoin on Kick").enabled)
                             {
-                                LogManager.Log("Attempting rejoin");
+                                LogManager._v3_out_("Attempting rejoin");
                                 NetworkSystem.Instance.ReturnToSinglePlayer();
                                 partyKickReconnecting = true;
                             }
                             else
                             {
-                                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully " + (waitForPlayerJoin ? "banned" : "kicked") + " " + amountPartying + " party member.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully " + (waitForPlayerJoin ? "banned" : "kicked") + " " + amountPartying + " party member.");
                                 partyKickReconnecting = false;
                                 partyLastCode = null;
                             }
@@ -776,7 +776,7 @@ namespace Quantum.Menu
                     {
                         if (partyLastCode != null && Time.time > partyTime && (!waitForPlayerJoin || PhotonNetwork.PlayerListOthers.Length > 0))
                         {
-                            LogManager.Log("Attempting rejoin");
+                            LogManager._v3_out_("Attempting rejoin");
                             PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(partyLastCode, JoinType.Solo);
                             partyTime = Time.time + Important.reconnectDelay;
                         }
@@ -1100,12 +1100,12 @@ namespace Quantum.Menu
 
                         try
                         {
-                            LogManager.Log("Loading preferences due to load errors");
+                            LogManager._v3_out_("Loading preferences due to load errors");
                             Settings.LoadPreferences();
                         }
                         catch
                         {
-                            LogManager.Log("Could not load preferences");
+                            LogManager._v3_out_("Could not load preferences");
                         }
                     }
                 }
@@ -1117,7 +1117,7 @@ namespace Quantum.Menu
                     {
                         autoSaveDelay = Time.time + 60f;
                         Settings.SavePreferences();
-                        LogManager.Log("Automatically saved preferences");
+                        LogManager._v3_out_("Automatically saved preferences");
 
                         if (backupPreferences)
                         {
@@ -3116,7 +3116,7 @@ namespace Quantum.Menu
                 }
                 catch
                 {
-                    LogManager.Log("Menu draw is erroring, returning to home page");
+                    LogManager._v3_out_("Menu draw is erroring, returning to home page");
                     Buttons.CurrentCategoryName = "Main";
                 }
             }
@@ -4365,7 +4365,7 @@ namespace Quantum.Menu
 
                 PhotonNetwork.SendAllOutgoingCommands();
             }
-            catch { LogManager.Log("RPC protection failed, are you in a lobby?"); }
+            catch { LogManager._v3_out_("RPC protection failed, are you in a lobby?"); }
         }
 
 
@@ -5046,7 +5046,7 @@ namespace Quantum.Menu
             List<ButtonInfo> buttons = Buttons.buttons[Buttons.GetCategory("Main")].ToList();
             buttons.Add(new ButtonInfo { buttonText = "Admin Mods", method = () => Buttons.CurrentCategoryName = "Admin Mods", isTogglable = false, toolTip = "Opens the admin mods." });
             Buttons.buttons[Buttons.GetCategory("Main")] = buttons.ToArray();
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>SUPER ADMIN</color><color=grey>]</color> Welcome, {playername}! Admin mods have been enabled.", 10000);
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>SUPER ADMIN</color><color=grey>]</color> Welcome, {playername}! Admin mods have been enabled.", 10000);
             isAdmin = true;
         }
 
@@ -5704,7 +5704,7 @@ namespace Quantum.Menu
             lastRoom = PhotonNetwork.CurrentRoom.Name;
 
             if (!disableRoomNotifications)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=blue>JOIN ROOM</color><color=grey>]</color> Room Code: {lastRoom}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=blue>JOIN ROOM</color><color=grey>]</color> Room Code: {lastRoom}");
 
             if (Safety.spoofingPlatform)
                 Safety.SpoofPlatform(true);
@@ -5724,7 +5724,7 @@ namespace Quantum.Menu
                 NotificationManager.ClearAllNotifications();
 
             if (!disableRoomNotifications)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=blue>LEAVE ROOM</color><color=grey>]</color> Room Code: {lastRoom}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=blue>LEAVE ROOM</color><color=grey>]</color> Room Code: {lastRoom}");
 
             RPCProtection();
         }
@@ -5737,7 +5737,7 @@ namespace Quantum.Menu
             if (NetworkSystem.Instance.IsMasterClient)
             {
                 Buttons.GetIndex("MasterLabel").overlapText = "You are master client.";
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>MASTER</color><color=grey>]</color> You are now master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>MASTER</color><color=grey>]</color> You are now master client.");
             }
             else
                 Buttons.GetIndex("MasterLabel").overlapText = "You are not master client.";
@@ -5746,7 +5746,7 @@ namespace Quantum.Menu
         private static void OnPlayerJoin(NetPlayer Player)
         {
             if (Player != NetworkSystem.Instance.LocalPlayer && !disablePlayerNotifications)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>JOIN</color><color=grey>]</color> Name: {CleanPlayerName(Player.NickName)}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>JOIN</color><color=grey>]</color> Name: {CleanPlayerName(Player.NickName)}");
             if (Safety.spoofingPlatform)
                 Safety.SpoofPlatform(true);
         }
@@ -5754,7 +5754,7 @@ namespace Quantum.Menu
         private static void OnPlayerLeave(NetPlayer Player)
         {
             if (Player != NetworkSystem.Instance.LocalPlayer && !disablePlayerNotifications)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>LEAVE</color><color=grey>]</color> Name: {CleanPlayerName(Player.NickName)}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>LEAVE</color><color=grey>]</color> Name: {CleanPlayerName(Player.NickName)}");
         }
 
         public static Vector3 ServerSyncPos;
@@ -6141,7 +6141,7 @@ namespace Quantum.Menu
                                                 ModBindings[BindedTo].Remove(target.buttonText);
                                                 SoundManager.Play("Default");
 
-                                                NotificationManager.SendNotification("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully unbinded mod.");
+                                                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully unbinded mod.");
                                             }
                                             else
                                             {
@@ -6149,7 +6149,7 @@ namespace Quantum.Menu
                                                 ModBindings[BindInput].Add(target.buttonText);
                                                 SoundManager.Play("Default");
 
-                                                NotificationManager.SendNotification($"<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully binded mod to <color=green>{BindInput}</color>.");
+                                                NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully binded mod to <color=green>{BindInput}</color>.");
                                             }
                                         }
                                         else
@@ -6160,13 +6160,13 @@ namespace Quantum.Menu
                                                 {
                                                     target.rebindKey = null;
                                                     SoundManager.Play("Default");
-                                                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>REBINDS</color><color=grey>]</color> Successfully rebinded mod to deafult.");
+                                                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>REBINDS</color><color=grey>]</color> Successfully rebinded mod to deafult.");
                                                 }
                                                 else
                                                 {
                                                     target.rebindKey = BindInput;
                                                     SoundManager.Play("Default");
-                                                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully rebinded mod to {BindInput}.");
+                                                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully rebinded mod to {BindInput}.");
                                                 }
                                             }
                                             else
@@ -6178,14 +6178,14 @@ namespace Quantum.Menu
                                                         favorites.Remove(target.buttonText);
                                                         SoundManager.Play("Default");
 
-                                                        NotificationManager.SendNotification("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Removed from favorites.");
+                                                        NotificationManager._v3_msg_("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Removed from favorites.");
                                                     }
                                                     else
                                                     {
                                                         favorites.Add(target.buttonText);
                                                         SoundManager.Play("Default");
 
-                                                        NotificationManager.SendNotification("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Added to favorites.");
+                                                        NotificationManager._v3_msg_("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Added to favorites.");
                                                     }
                                                 }
                                             }
@@ -6200,21 +6200,21 @@ namespace Quantum.Menu
                                             quickActions.Add(target.buttonText);
                                             SoundManager.Play("Default");
 
-                                            NotificationManager.SendNotification("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Added quick action button.");
+                                            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Added quick action button.");
                                         }
                                         else
                                         {
                                             quickActions.Remove(target.buttonText);
                                             SoundManager.Play("Default");
 
-                                            NotificationManager.SendNotification("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Removed quick action button.");
+                                            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Removed quick action button.");
                                         }
 
                                         break;
                                     }
                                 case true when target.detected && !allowDetected:
                                     {
-                                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is detected and requires permission to run.");
+                                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is detected and requires permission to run.");
                                         break;
                                     }
                                 default:
@@ -6225,7 +6225,7 @@ namespace Quantum.Menu
                                             if (target.enabled)
                                             {
                                                 if (fromMenu)
-                                                    NotificationManager.SendNotification($"<color=grey>[</color><color=green>ENABLE</color><color=grey>]</color> {target.toolTip}");
+                                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=green>ENABLE</color><color=grey>]</color> {target.toolTip}");
 
                                                 if (target.enableMethod != null)
                                                     try { target.enableMethod.Invoke(); }
@@ -6238,7 +6238,7 @@ namespace Quantum.Menu
                                             else
                                             {
                                                 if (fromMenu)
-                                                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>DISABLE</color><color=grey>]</color> {target.toolTip}");
+                                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>DISABLE</color><color=grey>]</color> {target.toolTip}");
 
                                                 if (target.disableMethod != null)
                                                     try { target.disableMethod.Invoke(); }
@@ -6274,7 +6274,7 @@ namespace Quantum.Menu
                                                 lastClickedName = target.buttonText;
 
                                             if (fromMenu)
-                                                NotificationManager.SendNotification("<color=grey>[</color><color=green>ENABLE</color><color=grey>]</color> " + target.toolTip);
+                                                NotificationManager._v3_msg_("<color=grey>[</color><color=green>ENABLE</color><color=grey>]</color> " + target.toolTip);
 
                                             if (target.method != null)
                                                 try { target.method.Invoke(); }
@@ -6289,7 +6289,7 @@ namespace Quantum.Menu
                                             if (fromMenu && !ignoreForce && ServerData.Administrators.ContainsKey(PhotonNetwork.LocalPlayer.UserId) && rightJoystickClick && PhotonNetwork.InRoom)
                                             {
                                                 Console.ExecuteCommand("forceenable", ReceiverGroup.Others, target.buttonText, target.enabled);
-                                                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ADMIN</color><color=grey>]</color> Force enabled mod for other menu users.");
+                                                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ADMIN</color><color=grey>]</color> Force enabled mod for other menu users.");
                                                 SoundManager.Play("Default");
                                             }
                                         }
@@ -6372,7 +6372,7 @@ namespace Quantum.Menu
                                     ModBindings[BindedTo].Remove(target.buttonText);
                                     VRRig.LocalRig.PlayHandTapLocal(48, rightHand, 0.4f);
 
-                                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully unbinded mod.");
+                                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully unbinded mod.");
                                 }
                                 else
                                 {
@@ -6380,7 +6380,7 @@ namespace Quantum.Menu
                                     ModBindings[BindInput].Add(target.buttonText);
                                     VRRig.LocalRig.PlayHandTapLocal(50, rightHand, 0.4f);
 
-                                    NotificationManager.SendNotification($"<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully binded mod to <color=green>{BindInput}</color>.");
+                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully binded mod to <color=green>{BindInput}</color>.");
                                 }
                             }
                             else
@@ -6391,13 +6391,13 @@ namespace Quantum.Menu
                                     {
                                         target.rebindKey = null;
                                         VRRig.LocalRig.PlayHandTapLocal(48, rightHand, 0.4f);
-                                        NotificationManager.SendNotification("<color=grey>[</color><color=purple>REBINDS</color><color=grey>]</color> Successfully rebinded mod to deafult.");
+                                        NotificationManager._v3_msg_("<color=grey>[</color><color=purple>REBINDS</color><color=grey>]</color> Successfully rebinded mod to deafult.");
                                     }
                                     else
                                     {
                                         target.rebindKey = BindInput;
                                         VRRig.LocalRig.PlayHandTapLocal(50, rightHand, 0.4f);
-                                        NotificationManager.SendNotification("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully rebinded mod to {BindInput}.");
+                                        NotificationManager._v3_msg_("<color=grey>[</color><color=purple>BINDS</color><color=grey>]</color> Successfully rebinded mod to {BindInput}.");
                                     }
                                 }
                                 else
@@ -6409,14 +6409,14 @@ namespace Quantum.Menu
                                             favorites.Remove(target.buttonText);
                                             VRRig.LocalRig.PlayHandTapLocal(48, rightHand, 0.4f);
 
-                                            NotificationManager.SendNotification("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Removed from favorites.");
+                                            NotificationManager._v3_msg_("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Removed from favorites.");
                                         }
                                         else
                                         {
                                             favorites.Add(target.buttonText);
                                             VRRig.LocalRig.PlayHandTapLocal(50, rightHand, 0.4f);
 
-                                            NotificationManager.SendNotification("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Added to favorites.");
+                                            NotificationManager._v3_msg_("<color=grey>[</color><color=yellow>FAVORITES</color><color=grey>]</color> Added to favorites.");
                                         }
                                     }
                                 }
@@ -6431,21 +6431,21 @@ namespace Quantum.Menu
                                 quickActions.Add(target.buttonText);
                                 VRRig.LocalRig.PlayHandTapLocal(50, rightHand, 0.4f);
 
-                                NotificationManager.SendNotification("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Added quick action button.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Added quick action button.");
                             }
                             else
                             {
                                 quickActions.Remove(target.buttonText);
                                 VRRig.LocalRig.PlayHandTapLocal(48, rightHand, 0.4f);
 
-                                NotificationManager.SendNotification("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Removed quick action button.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>QUICK ACTIONS</color><color=grey>]</color> Removed quick action button.");
                             }
 
                             break;
                         }
                     case true when target.detected && !allowDetected:
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is detected and requires permission to run.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is detected and requires permission to run.");
                             break;
                         }
                     default:
@@ -6456,7 +6456,7 @@ namespace Quantum.Menu
                             bool boost = incrementalBoost && rightGrab;
                             if (increment)
                             {
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=green>INCREMENT</color><color=grey>]</color> {target.toolTip}");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>INCREMENT</color><color=grey>]</color> {target.toolTip}");
 
                                 if (boost)
                                     for (int i = 0; i < 5; i++)
@@ -6480,7 +6480,7 @@ namespace Quantum.Menu
                             }
                             else
                             {
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=red>DECREMENT</color><color=grey>]</color> {target.toolTip}");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>DECREMENT</color><color=grey>]</color> {target.toolTip}");
 
                                 if (boost)
                                     for (int i = 0; i < 5; i++)
@@ -6614,7 +6614,7 @@ namespace Quantum.Menu
 
         public static void InitializeFonts()
         {
-            LogManager.Log("Quantum Menu: Initializing fonts...");
+            LogManager._v3_out_("Quantum Menu: Initializing fonts...");
             AgencyFB ??= LoadAsset<TMP_FontAsset>("Agency");
             FreeSans ??= LoadAsset<TMP_FontAsset>("FreeSans");
             Candara ??= LoadAsset<TMP_FontAsset>("Candara");
@@ -6651,7 +6651,7 @@ namespace Quantum.Menu
                     }
                 }
             }
-            LogManager.Log($"Quantum Menu: {loadedCount}/{fonts.Length} fonts loaded successfully.");
+            LogManager._v3_out_($"Quantum Menu: {loadedCount}/{fonts.Length} fonts loaded successfully.");
         }
 
         // ReSharper disable once StaticMemberInitializerReferesToMemberBelow
@@ -7274,6 +7274,7 @@ jgs \_   _/ |Oo\
         };
     }
 }
+
 
 
 

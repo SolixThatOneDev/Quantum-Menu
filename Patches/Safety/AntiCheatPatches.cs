@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/Safety/AntiCheatPatches.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -46,11 +46,11 @@ namespace Quantum.Patches.Safety
                 if (AntiCheatSelf || AntiCheatAll)
                 {
                     if (susId == PhotonNetwork.LocalPlayer.UserId)
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>ANTI-CHEAT</color><color=grey>]</color> You have been reported for {(AntiCheatReasonHide ? "hidden reason" : susReason)}.");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=green>ANTI-CHEAT</color><color=grey>]</color> You have been reported for {(AntiCheatReasonHide ? "hidden reason" : susReason)}.");
                     else
                     {
                         if (AntiCheatAll)
-                            NotificationManager.SendNotification($"<color=grey>[</color><color=green>ANTI-CHEAT</color><color=grey>]</color> {susNick} was reported for {(AntiCheatReasonHide ? "hidden reason" : susReason)}.");
+                            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>ANTI-CHEAT</color><color=grey>]</color> {susNick} was reported for {(AntiCheatReasonHide ? "hidden reason" : susReason)}.");
                     }
                 }
 
@@ -58,7 +58,7 @@ namespace Quantum.Patches.Safety
                 {
                     Mods.Safety.AntiReportFRT(PhotonNetwork.LocalPlayer);
                     NotificationManager.ClearAllNotifications();
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> The anti cheat attempted to report you, you have been disconnected.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> The anti cheat attempted to report you, you have been disconnected.");
                 }
 
                 return false;
@@ -146,4 +146,5 @@ namespace Quantum.Patches.Safety
         }
     }
 }
+
 

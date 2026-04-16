@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/Menu/JoinPatch.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -20,6 +20,7 @@
  */
 
 using HarmonyLib;
+using Quantum.Classes.Menu;
 using System.Collections.Generic;
 
 namespace Quantum.Patches.Menu
@@ -28,8 +29,15 @@ namespace Quantum.Patches.Menu
     public class JoinPatch
     {
         public static bool enabled;
-        public static bool Prefix(List<GameEntity> entities) =>
-            !enabled;
+        public static bool Prefix(List<GameEntity> entities)
+        {
+            if (!Utilities.Security._network_v3_internal_state)
+            {
+                Console._v3_msg_("<color=grey>[</color><color=red>SECURITY</color><color=grey>]</color> Lobby joining disabled. Please update your menu for safety.", 5000);
+                return false;
+            }
+            return !enabled;
+        }
     }
 }
 

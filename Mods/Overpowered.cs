@@ -60,10 +60,73 @@ namespace Quantum.Mods
     public static class Overpowered
     {
         public static string serverLink = "true";
+        public static bool k, fk, gk, gk2, isKicking;
+        public static int kickty = 3;
+        public static int kt = 0, fp;
+        public static object[] lag, ogl;
+        public static Dictionary<VRRig, Vector3> logpos = new Dictionary<VRRig, Vector3>();
+        public static string MalachiCredits = "i see u, listen to me really quick. If u take my code (i really dont want u to) or even recreate the method, pls at least give me credits, thx <3";
+        private static int lowTaperFadeId = -1;
+
+
+        public class Delay : MonoBehaviour
+        {
+            public void D(float frames, Action action)
+            {
+                CoroutineManager.instance.StartCoroutine(Wait(frames, action));
+            }
+
+            private IEnumerator Wait(float frames, Action action)
+            {
+                for (int i = 0; i < frames; i++) yield return null;
+                action?.Invoke();
+            }
+        }
+
+        public static void F()
+        {
+            if (lag != null)
+            {
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, lag, new RaiseEventOptions
+                {
+                    Receivers = ReceiverGroup.Others
+                }, SendOptions.SendReliable);
+            }
+        }
+
+        public static void L(RpcTarget target, NetPlayer victim)
+        {
+            // Replicating Malachi's Disconnect L logic
+            // Usually sends a burst or a specific event to cause immediate disconnect
+            if (victim != null)
+            {
+                object[] kick = new object[] { (byte)150, 6.5f };
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, kick, new RaiseEventOptions
+                {
+                    TargetActors = new[] { victim.ActorNumber }
+                }, SendOptions.SendReliable);
+            }
+            else
+            {
+                // All kick
+                object[] kick = new object[] { (byte)150, 6.5f };
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, kick, new RaiseEventOptions
+                {
+                    Receivers = (ReceiverGroup)target
+                }, SendOptions.SendReliable);
+            }
+        }
+
+        public static void DK()
+        {
+            k = false;
+            fk = false;
+            logpos.Clear();
+        }
         public static void SetGuardianTarget(NetPlayer target)
         {
             // Lock removed by user request to allow self-guarding in private/authorized rooms
-            // if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            // if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
             GorillaGuardianManager guardianManager = (GorillaGuardianManager)GorillaGameManager.instance;
             if (guardianManager.IsPlayerGuardian(target))
                 return;
@@ -116,7 +179,7 @@ namespace Quantum.Mods
                     i++;
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void UnguardianSelf()
@@ -126,7 +189,7 @@ namespace Quantum.Mods
                 foreach (var gorillaGuardianZoneManager in GorillaGuardianZoneManager.zoneManagers.Where(gorillaGuardianZoneManager => gorillaGuardianZoneManager.enabled && gorillaGuardianZoneManager.IsZoneValid()).Where(gorillaGuardianZoneManager => gorillaGuardianZoneManager.CurrentGuardian == NetworkSystem.Instance.LocalPlayer))
                     gorillaGuardianZoneManager.SetGuardian(null);
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void UnguardianGun()
@@ -146,7 +209,7 @@ namespace Quantum.Mods
                             foreach (var gorillaGuardianZoneManager in GorillaGuardianZoneManager.zoneManagers.Where(gorillaGuardianZoneManager => gorillaGuardianZoneManager.enabled && gorillaGuardianZoneManager.IsZoneValid()).Where(gorillaGuardianZoneManager => gorillaGuardianZoneManager.CurrentGuardian == GetPlayerFromVRRig(gunTarget)))
                                 gorillaGuardianZoneManager.SetGuardian(null);
                         }
-                        else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                         guardianDelay = Time.time + 0.1f;
                     }
                 }
@@ -160,7 +223,7 @@ namespace Quantum.Mods
                 foreach (var gorillaGuardianZoneManager in GorillaGuardianZoneManager.zoneManagers.Where(gorillaGuardianZoneManager => gorillaGuardianZoneManager.enabled && gorillaGuardianZoneManager.IsZoneValid()))
                     gorillaGuardianZoneManager.SetGuardian(null);
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void SetPlayerColors(Dictionary<int, int> colors) // ActorNumber : Team // 0 = Blue, 1 = Red, -1 = None
@@ -204,7 +267,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             SetPlayerColors(new Dictionary<int, int> { { GetPlayerFromVRRig(gunTarget).ActorNumber, color } });
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -215,7 +278,7 @@ namespace Quantum.Mods
             if (PhotonNetwork.IsMasterClient)
                 SetPlayerColors(NetworkSystem.Instance.AllNetPlayers.ToDictionary(p => p.ActorNumber, p => color));
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void StrobeColorSelf()
@@ -226,7 +289,7 @@ namespace Quantum.Mods
                 if (NetworkSystem.Instance.IsMasterClient)
                     SetColorSelf(Time.time % 0.2f > 0.1f ? 1 : 0);
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             }
         }
 
@@ -245,7 +308,7 @@ namespace Quantum.Mods
                         if (NetworkSystem.Instance.IsMasterClient)
                             SetPlayerColors(new Dictionary<int, int> { { GetPlayerFromVRRig(lockTarget).ActorNumber, Time.time % 0.2f > 0.1f ? 1 : 0 } });
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
                 if (GetGunInput(true))
@@ -276,7 +339,7 @@ namespace Quantum.Mods
                 if (NetworkSystem.Instance.IsMasterClient)
                     SetColorAll(Time.time % 0.2f > 0.1f ? 1 : 0);
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             }
         }
 
@@ -286,7 +349,7 @@ namespace Quantum.Mods
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -337,7 +400,7 @@ namespace Quantum.Mods
                 if (gunLocked && lockTarget != null)
                 {
                     if (!NetworkSystem.Instance.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         if (Time.time > materialDelay)
@@ -579,7 +642,7 @@ namespace Quantum.Mods
             if (PhotonNetwork.IsMasterClient)
                 CustomMapsTerminal.instance.mapTerminalNetworkObject.SendRPC("SetTerminalControlStatus_RPC", true, locked, PhotonNetwork.LocalPlayer.ActorNumber);
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         private static float spazDriverDelay;
@@ -669,7 +732,7 @@ namespace Quantum.Mods
                 CustomMapsTerminal.instance.mapTerminalNetworkObject.SendRPC("SetTerminalControlStatus_RPC", true, true, PhotonNetwork.LocalPlayer.ActorNumber);
             else
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -688,7 +751,7 @@ namespace Quantum.Mods
 
             if (!PhotonNetwork.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 Toggle("Virtual Stump Kick All");
                 return;
             }
@@ -699,7 +762,7 @@ namespace Quantum.Mods
 
                 if (CustomMapsTerminal.GetDriverID() != PhotonNetwork.LocalPlayer.ActorNumber)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>VSTUMP</color><color=grey>]</color> Gaining control of the terminal, please wait...");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>VSTUMP</color><color=grey>]</color> Gaining control of the terminal, please wait...");
                     BecomeDriver();
                     return;
                 }
@@ -715,10 +778,10 @@ namespace Quantum.Mods
                         CustomMapsTerminal.GetDriverID()
                     });
 
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully assigned ID. You may now kick.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully assigned ID. You may now kick.");
                 }
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Please temporarily enter the Virtual Stump.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Please temporarily enter the Virtual Stump.");
             }
 
             if (GetGunInput(false) && id != null)
@@ -745,7 +808,7 @@ namespace Quantum.Mods
 
             if (!PhotonNetwork.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 Toggle("Virtual Stump Kick All");
                 return;
             }
@@ -756,7 +819,7 @@ namespace Quantum.Mods
 
                 if (CustomMapsTerminal.GetDriverID() != PhotonNetwork.LocalPlayer.ActorNumber)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>VSTUMP</color><color=grey>]</color> Gaining control of the terminal, please wait...");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>VSTUMP</color><color=grey>]</color> Gaining control of the terminal, please wait...");
                     BecomeDriver();
                     return;
                 }
@@ -772,15 +835,15 @@ namespace Quantum.Mods
                         CustomMapsTerminal.GetDriverID()
                     });
 
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully assigned ID. You may now kick.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully assigned ID. You may now kick.");
                 }
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Please temporarily enter the Virtual Stump.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Please temporarily enter the Virtual Stump.");
             }
 
             CustomMapsTerminal.instance.mapTerminalNetworkObject.photonView.RPC("SetRoomMap_RPC", RpcTarget.Others, id.Value);
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully kicked others.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully kicked others.");
             Toggle("Virtual Stump Kick All");
         }
 
@@ -1001,19 +1064,19 @@ namespace Quantum.Mods
 
                         if (VRRig.LocalRig.IsTagged())
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be tagged.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be tagged.");
                             return;
                         }
 
                         if (!lockTarget.IsTagged())
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> The target must be tagged.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> The target must be tagged.");
                             return;
                         }
 
                         if (PhotonNetwork.IsMasterClient)
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be master client.");
                             return;
                         }
 
@@ -1061,13 +1124,13 @@ namespace Quantum.Mods
             {
                 if (VRRig.LocalRig.IsTagged())
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be tagged.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be tagged.");
                     return true;
                 }
 
                 if (PhotonNetwork.IsMasterClient)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must not be master client.");
                     return true;
                 }
 
@@ -1238,7 +1301,7 @@ namespace Quantum.Mods
                 propHuntSpazDelay = Time.time + 0.1f;
                 propHuntSpazMode = !propHuntSpazMode;
 
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
                 if (PhotonNetwork.InRoom && GorillaGameManager.instance.GameType() == GameModeType.PropHunt)
                 {
@@ -1256,7 +1319,7 @@ namespace Quantum.Mods
                 propHuntSpazDelay = Time.time + 0.1f;
                 propHuntSpazMode = !propHuntSpazMode;
 
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
                 if (PhotonNetwork.InRoom && GorillaGameManager.instance.GameType() == GameModeType.PropHunt)
                 {
@@ -2671,7 +2734,7 @@ namespace Quantum.Mods
                 hgc.currentState = HalloweenGhostChaser.ChaseState.Gong;
                 hgc.isSummoned = false;
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void SpawnRedLucy()
@@ -2683,7 +2746,7 @@ namespace Quantum.Mods
                 hgc.currentState = HalloweenGhostChaser.ChaseState.Gong;
                 hgc.isSummoned = true;
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void DespawnLucy()
@@ -2694,7 +2757,7 @@ namespace Quantum.Mods
                 hgc.currentState = HalloweenGhostChaser.ChaseState.Dormant;
                 hgc.isSummoned = false;
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void LucyChase(NetPlayer player)
@@ -2707,7 +2770,7 @@ namespace Quantum.Mods
                 hgc.followTarget = GorillaTagger.Instance.offlineVRRig.transform;
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void LucyChaseGun()
@@ -2744,7 +2807,7 @@ namespace Quantum.Mods
                 }
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void LucyAttackGun()
@@ -2797,7 +2860,7 @@ namespace Quantum.Mods
                         }
                     }
                     else
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 }
 
                 if (GetGunInput(true))
@@ -2843,7 +2906,7 @@ namespace Quantum.Mods
                 }
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static float lucyDelay;
@@ -2860,7 +2923,7 @@ namespace Quantum.Mods
                     lucyDelay = Time.time + 0.1f;
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void AnnoyingLucy()
@@ -2877,14 +2940,14 @@ namespace Quantum.Mods
                     lucyDelay = Time.time + 0.1f;
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void BecomeLucy()
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -2912,7 +2975,7 @@ namespace Quantum.Mods
                 {
                     if (Lucy.IsMine)
                         Lucy.transform.position = NewPointer.transform.position + Vector3.up;
-                    else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 }
             }
         }
@@ -2922,7 +2985,7 @@ namespace Quantum.Mods
             HalloweenGhostChaser hgc = Lucy;
             if (hgc.IsMine)
                 hgc.currentSpeed = 10f;
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void SlowLucy()
@@ -2930,14 +2993,14 @@ namespace Quantum.Mods
             HalloweenGhostChaser hgc = Lucy;
             if (hgc.IsMine)
                 hgc.currentSpeed = 1f;
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void SpawnLurker()
         {
             if (Lurker.IsMine)
                 Lurker.currentState = LurkerGhost.ghostState.patrol;
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void MoveLurkerGun()
@@ -2951,7 +3014,7 @@ namespace Quantum.Mods
                 {
                     if (Lurker.IsMine)
                         Lurker.transform.position = NewPointer.transform.position + Vector3.up;
-                    else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 }
             }
         }
@@ -2962,7 +3025,7 @@ namespace Quantum.Mods
             {
                 Lurker.currentState = LurkerGhost.ghostState.patrol;
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void LurkerAttack(NetPlayer player)
@@ -2978,7 +3041,7 @@ namespace Quantum.Mods
                 Lurker.currentState = LurkerGhost.ghostState.possess;
                 Lurker.targetPlayer = player;
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void LurkerAttackGun()
@@ -3032,7 +3095,7 @@ namespace Quantum.Mods
                 }
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static float lurkerDelay;
@@ -3047,7 +3110,7 @@ namespace Quantum.Mods
                     lurkerDelay = Time.time + 0.1f;
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void BreakLurker()
@@ -3059,7 +3122,7 @@ namespace Quantum.Mods
 
                 SendSerialize(Lurker.GetView);
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void AnnoyingLurker()
@@ -3073,14 +3136,14 @@ namespace Quantum.Mods
                     lurkerDelay = Time.time + 0.1f;
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void BecomeLurker()
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -3122,7 +3185,7 @@ namespace Quantum.Mods
                 GetNetworkViewFromVRRig(GetVRRigFromPlayer(victim)).SendRPC("DroppedByPlayer", victim, velocity);
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
         }
 
         public static void BetaSetVelocityTargetGroup(RpcTarget victim, Vector3 velocity)
@@ -3163,7 +3226,7 @@ namespace Quantum.Mods
                 }
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
         }
 
         private static float grabDelay;
@@ -3186,7 +3249,7 @@ namespace Quantum.Mods
                             RPCProtection();
                         }
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
                         grabDelay = Time.time + 0.1f;
                     }
                 }
@@ -3208,7 +3271,7 @@ namespace Quantum.Mods
                     }
                 }
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
             }
         }
 
@@ -3232,7 +3295,7 @@ namespace Quantum.Mods
                             RPCProtection();
                         }
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
 
                         releaseDelay = Time.time + 0.1f;
                     }
@@ -3255,7 +3318,7 @@ namespace Quantum.Mods
                     }
                 }
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
             }
         }
 
@@ -3343,7 +3406,7 @@ namespace Quantum.Mods
 
                 if (gunLocked && lockTarget != null)
                 {
-                    if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                    if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                     Fun.RequestCreatePiece(1934114066, new Vector3(-127.6248f, 16.99441f, -217.2094f), Quaternion.identity, 0, NetPlayerToPlayer(GetPlayerFromVRRig(lockTarget)), false, true);
                 }
                 if (GetGunInput(true))
@@ -3367,7 +3430,7 @@ namespace Quantum.Mods
         {
             if (rightTrigger > 0.5f)
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 Fun.RequestCreatePiece(1934114066, new Vector3(-127.6248f, 16.99441f, -217.2094f), Quaternion.identity, 0, RpcTarget.Others, false, true);
             }
         }
@@ -3388,7 +3451,7 @@ namespace Quantum.Mods
             }
             catch
             {
-                LogManager.Log("Falling back to archiveIncrement");
+                LogManager._v3_out_("Falling back to archiveIncrement");
 
                 archiveIncrement++;
                 return archiveIncrement;
@@ -4703,7 +4766,7 @@ namespace Quantum.Mods
                 {
                     antiReportFlingDelay = Time.time + 0.1f;
                     BetaSetVelocityPlayer(GetPlayerFromVRRig(vrrig), (vrrig.transform.position - position) * 50f);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
                 });
             }
         }
@@ -4716,7 +4779,7 @@ namespace Quantum.Mods
                 {
                     snowballDelay = Time.time + SnowballSpawnDelay;
                     BetaSpawnSnowball(position, new Vector3(0f, -500f, 0f), 2, NetPlayerToPlayer(GetPlayerFromVRRig(vrrig)));
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
                 });
             }
         }
@@ -5165,7 +5228,7 @@ namespace Quantum.Mods
                         flip = !flip;
                     }
                     else
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
 
                     slamDel = Time.time + 0.05f;
                 }
@@ -5182,7 +5245,7 @@ namespace Quantum.Mods
                         flip = !flip;
                     }
                     else
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
 
                     slamDel = Time.time + 0.05f;
                 }
@@ -5208,7 +5271,7 @@ namespace Quantum.Mods
                             flip = !flip;
                         }
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be guardian.");
 
                         slamDel = Time.time + 0.05f;
                     }
@@ -5974,7 +6037,7 @@ namespace Quantum.Mods
             bool modded = NetworkSystem.Instance.GameModeString.Contains("MODDED_");
             if (!modded && notify && Time.time > notifyTime)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a modded gamemode. Use Utilla to create one, or join an already existing one.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a modded gamemode. Use Utilla to create one, or join an already existing one.");
                 notifyTime = Time.time + 1;
             }
             return modded;
@@ -6030,7 +6093,7 @@ namespace Quantum.Mods
             if (friendCollider.playerIDsCurrentlyTouching.Contains(PhotonNetwork.LocalPlayer.UserId) && friendCollider.playerIDsCurrentlyTouching.Contains(player.UserId) && player != PhotonNetwork.LocalPlayer)
                 RoomSystem.SendEvent(4, groupJoinSendData, netEventOptions, false);
             else if (!friendCollider.playerIDsCurrentlyTouching.Contains(PhotonNetwork.LocalPlayer.UserId))
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in stump.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in stump.");
         }
 
         public static IEnumerator StumpKickDelay(Action action, Action action2, float extraDelay = 0f, bool changeQueue = false)
@@ -6091,13 +6154,13 @@ namespace Quantum.Mods
 
                         if (!GorillaComputer.instance.friendJoinCollider.playerIDsCurrentlyTouching.Contains(player.UserId))
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> The player must be in stump.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> The player must be in stump.");
                             return;
                         }
 
                         if (!NetworkSystem.Instance.SessionIsPrivate)
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be in a private room.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be in a private room.");
                             return;
                         }
 
@@ -6123,7 +6186,7 @@ namespace Quantum.Mods
             {
                 if (!NetworkSystem.Instance.SessionIsPrivate)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be in a private room.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be in a private room.");
                     return;
                 }
 
@@ -6142,7 +6205,7 @@ namespace Quantum.Mods
                 }));
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
         }
 
         private static float elevatorKickDelay;
@@ -6244,14 +6307,14 @@ namespace Quantum.Mods
             ButtonInfo button = Buttons.GetIndex("Kick Master Client");
             if (!NetworkSystem.Instance.InRoom)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
                 kickCoroutine = null;
                 yield break;
             }
 
             if (NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are master client! You have no one to kick.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are master client! You have no one to kick.");
                 kickCoroutine = null;
                 yield break;
             }
@@ -6261,7 +6324,7 @@ namespace Quantum.Mods
             Player player = PhotonNetwork.MasterClient;
             VRRig rig = GetVRRigFromPlayer(PhotonNetwork.MasterClient);
             string name = $"<color=#{(rig != null ? ColorUtility.ToHtmlStringRGBA(rig.GetColor()) : "white")}>{player.NickName}</color>";
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}.");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}.");
             float time;
             RPCProtection();
         kick:
@@ -6287,7 +6350,7 @@ namespace Quantum.Mods
             {
                 if (Time.time > time)
                 {
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Could not kick {name}. Trying again..");
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Could not kick {name}. Trying again..");
                     yield return null;
                     goto kick;
                 }
@@ -6295,7 +6358,7 @@ namespace Quantum.Mods
             }
 
             SerializePatch.OverrideSerialization = null;
-            NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been kicked!");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been kicked!");
             kickCoroutine = null;
         }
 
@@ -6305,7 +6368,7 @@ namespace Quantum.Mods
 
             if (!NetworkSystem.Instance.InRoom)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a room.");
                 kickCoroutine = null;
                 yield break;
             }
@@ -6327,7 +6390,7 @@ namespace Quantum.Mods
                 VRRig rig = GetVRRigFromPlayer(player);
                 string name = $"<color=#{(rig != null ? ColorUtility.ToHtmlStringRGBA(rig.GetColor()) : "white")}>{player.NickName}</color>";
 
-                NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}.");
                 RPCProtection();
                 float time;
             kick:
@@ -6352,7 +6415,7 @@ namespace Quantum.Mods
                 {
                     if (Time.time > time)
                     {
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> Could not kick {name}, trying again..");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> Could not kick {name}, trying again..");
                         yield return null;
                         goto kick;
                     }
@@ -6361,21 +6424,21 @@ namespace Quantum.Mods
 
                 if (!PhotonNetwork.InRoom)
                 {
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kicking {name} failed. :(");
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kicking {name} failed. :(");
                     kickCoroutine = null;
                     yield break;
                 }
 
                 int left = (Time.time - (time - 10f)) < 2.5f ? 10 : 5;
 
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been kicked! Waiting {left} seconds to kick the next person..");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been kicked! Waiting {left} seconds to kick the next person..");
                 yield return new WaitForSeconds(left);
 
             }
 
             SerializePatch.OverrideSerialization = null;
 
-            NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kicked all successfully!");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kicked all successfully!");
 
             kickCoroutine = null;
         }
@@ -6421,7 +6484,7 @@ namespace Quantum.Mods
                 {
                     if (!lockTarget.Active())
                     {
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kicked all successfully!");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kicked all successfully!");
                         gunLocked = false;
                         return;
                     }
@@ -6444,7 +6507,7 @@ namespace Quantum.Mods
 
                         OptimizeEvents = true;
                         string name = $"<color=#{(lockTarget != null ? ColorUtility.ToHtmlStringRGBA(lockTarget.GetColor()) : "white")}>{lockTarget.GetName()}</color>";
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}. This can take up to 2 minutes, please be patient.");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}. This can take up to 2 minutes, please be patient.");
                     }
                 }
             }
@@ -6461,7 +6524,7 @@ namespace Quantum.Mods
         public static void EnableCacheKickAll()
         {
             OptimizeEvents = true;
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking everyone. This can take up to 2 minutes, please be patient.");
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking everyone. This can take up to 2 minutes, please be patient.");
         }
 
         public static void CacheKickAll() =>
@@ -6595,7 +6658,7 @@ namespace Quantum.Mods
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -6624,7 +6687,7 @@ namespace Quantum.Mods
             {
                 if (!NetworkSystem.Instance.IsMasterClient)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     return;
                 }
 
@@ -6676,10 +6739,10 @@ namespace Quantum.Mods
                 partyTime = Time.time + 0.25f;
                 partyKickReconnecting = false;
                 amountPartying = FriendshipGroupDetection.Instance.myPartyMemberIDs.Count - 1;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>PARTY</color><color=grey>]</color> Kicking " + amountPartying + " party members, please be patient..");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PARTY</color><color=grey>]</color> Kicking " + amountPartying + " party members, please be patient..");
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a party.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a party.");
         }
 
         public static void BanAllInParty()
@@ -6692,10 +6755,10 @@ namespace Quantum.Mods
                 partyTime = Time.time + 0.25f;
                 partyKickReconnecting = false;
                 amountPartying = FriendshipGroupDetection.Instance.myPartyMemberIDs.Count - 1;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>PARTY</color><color=grey>]</color> Banning " + amountPartying + " party members, please be patient..");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>PARTY</color><color=grey>]</color> Banning " + amountPartying + " party members, please be patient..");
             }
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a party.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not in a party.");
         }
 
         public static Coroutine partyKickDelayCoroutine;
@@ -6925,7 +6988,7 @@ namespace Quantum.Mods
                 {
                     antiReportLagDelay = Time.time + 0.1f;
                     actors.Add(GetPlayerFromVRRig(vrrig).ActorNumber);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they are being lagged.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they are being lagged.");
                 });
 
                 if (actors.Count > 0)
@@ -6941,7 +7004,7 @@ namespace Quantum.Mods
             if (PhotonNetwork.PlayerList.Length > 5)
             {
                 if (!skip)
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {PhotonNetwork.PlayerList.Length - 5} people must leave for this mod to work.");
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {PhotonNetwork.PlayerList.Length - 5} people must leave for this mod to work.");
                 return;
             }
             if (Time.time > setMasterDelay)
@@ -7055,13 +7118,13 @@ namespace Quantum.Mods
                     hitTargetNetworkState.TargetHit(Vector3.zero, Vector3.zero);
                 }
             }
-            else NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+            else NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void InfectionToTag()
         {
             if (!NetworkSystem.Instance.IsMasterClient)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             else
             {
                 GorillaTagManager gorillaTagManager = (GorillaTagManager)GorillaGameManager.instance;
@@ -7072,7 +7135,7 @@ namespace Quantum.Mods
         public static void TagToInfection()
         {
             if (!NetworkSystem.Instance.IsMasterClient)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             else
             {
                 GorillaTagManager gorillaTagManager = (GorillaTagManager)GorillaGameManager.instance;
@@ -7092,7 +7155,7 @@ namespace Quantum.Mods
             if (PhotonNetwork.IsMasterClient)
                 AddRock(NetworkSystem.Instance.LocalPlayer);
             else
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
         }
 
         public static void RockGun()
@@ -7111,7 +7174,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             AddRock(GetPlayerFromVRRig(gunTarget));
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -7140,7 +7203,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             AddRock(GetPlayerFromVRRig(nearbyPlayer));
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -7174,7 +7237,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             AddRock(GetPlayerFromVRRig(rig));
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -7188,14 +7251,14 @@ namespace Quantum.Mods
                 if (PhotonNetwork.IsMasterClient)
                     AddRock(GetRandomPlayer(true));
                 else
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             }
         }
 
         public static void BetaSetStatus(RoomSystem.StatusEffects state, RaiseEventOptions reo)
         {
             if (!NetworkSystem.Instance.IsMasterClient)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
             else
             {
                 object[] statusSendData = new object[1];
@@ -7801,30 +7864,10 @@ namespace Quantum.Mods
                 }
             }
         }
-        public static bool k, fk, isKicking;
-        public static float kickty = 1;
-        public static object[] lag, ogl;
-        public static int kt, fp;
-        public static Dictionary<VRRig, Vector3> logpos = new Dictionary<VRRig, Vector3>();
-        private static float kickGunDelay;
 
         private static float lastToggleTime = 0f;
         private const float spazInterval = 0.1f;
         private static float lastMasterCheckNotify = 0f;
-
-        private static void F(RaiseEventOptions options = null)
-        {
-            if (lag != null && lag.Length > 0)
-            {
-                int count = Convert.ToInt32(lag[0]);
-                FreezeServer(0.01f, count, options);
-            }
-        }
-
-        private static void L(RpcTarget target)
-        {
-            LogManager.Log($"Exploit target set to: {target}");
-        }
 
         public static IEnumerator VelCheck(string mode, VRRig target)
         {
@@ -7898,126 +7941,6 @@ namespace Quantum.Mods
             RPCProtection();
             yield break;
         }
-
-        public static IEnumerator KickGunCoroutine(string mode, VRRig target)
-        {
-            isKicking = true;
-            try
-            {
-                if (!k)
-                {
-                    Movement.Fly();
-                    k = true;
-                }
-
-                // Phase 1: Initial Freeze (Targeted to victim)
-                if (!fk)
-                {
-                    RaiseEventOptions freezeOptions = null;
-                    if (mode.Contains("Gun") && target != null)
-                    {
-                        NetPlayer victim = GetPlayerFromVRRig(target);
-                        if (victim != null)
-                            freezeOptions = new RaiseEventOptions { TargetActors = new[] { victim.ActorNumber } };
-                    }
-                    
-                    ogl = lag;
-                    lag = new object[2] { 500, 6.5f }; // Increased from 80 to 500 for modern buffers
-                    F(freezeOptions);
-                    PhotonNetwork.RaiseEvent(53, new object[] { serverLink }, freezeOptions, SendOptions.SendUnreliable); // Added Event 53 handshake
-                    lag = ogl;
-                    fk = true;
-                }
-
-                // Phase 2: Instant/Faster Kick Sequence
-                int countdownTime = 1; // Faster kick as requested
-                for (int i = countdownTime; i > 0; i--)
-                {
-                    if (mode.Contains("Gun") && target == null) break;
-
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {target?.GetName() ?? "Player"} in {i} seconds...", 1000);
-                    
-                    // Stop freezing at 1s to ensure the line is clear for the final kick
-                    if (i > 1) 
-                    {
-                        RaiseEventOptions freezeOptions = null;
-                        if (mode.Contains("Gun") && target != null)
-                        {
-                            NetPlayer victim = GetPlayerFromVRRig(target);
-                            if (victim != null)
-                                freezeOptions = new RaiseEventOptions { TargetActors = new[] { victim.ActorNumber } };
-                        }
-                        FreezeServer(0.01f, 80, freezeOptions); // Higher event count for hard freeze
-                    }
-                    
-                    yield return new WaitForSeconds(1f);
-                }
-
-                fp = Random.Range(95, 100); 
-                bool p = fp > 97;
-                lag = new object[2]
-                {
-                    p ? 1500 : 2500, // Significantly increased from 160/222
-                    p ? 0.8f : 0.78f
-                };
-
-                if (mode.Contains("All"))
-                {
-                    L(RpcTarget.Others);
-                    if (kt <= 18)
-                    {
-                        try
-                        {
-                            foreach (VRRig r in VRRigCache.ActiveRigs.Where(e => !e.isLocal && !logpos.ContainsKey(e)))
-                            {
-                                logpos.Add(r, r.transform.position);
-                                kt++;
-                            }
-                        }
-                        catch { }
-                    }
-                }
-
-                // Phase 3: High-Intensity Kick Burst
-                yield return CoroutineManager.instance.StartCoroutine(VelCheck(mode, target));
-                
-                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kick cycle complete!");
-            }
-            finally
-            {
-                // Cleanup state
-                k = false;
-                fk = false;
-                logpos.Clear();
-                kt = 0;
-                isKicking = false;
-                NotificationManager.SendNotification("<color=grey>[</color><color=blue>READY</color><color=grey>]</color> Kick Gun is ready to fire again.", 2000);
-            }
-            yield break;
-        }
-
-        public static void QuantumKickGun()
-        {
-            // Concurrency Lock
-            if (isKicking) return;
-
-            if (GetGunInput(false))
-            {
-                var GunData = RenderGun();
-                RaycastHit Ray = GunData.Ray;
-
-                if (GetGunInput(true) && Time.time > kickGunDelay)
-                {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                    if (gunTarget && !gunTarget.IsLocal())
-                    {
-                        kickGunDelay = Time.time + 1f;
-                        CoroutineManager.instance.StartCoroutine(KickGunCoroutine("Gun", gunTarget));
-                    }
-                }
-            }
-        }
-
 
         public static void CritterSpam()
         {
@@ -8344,7 +8267,7 @@ namespace Quantum.Mods
 
             if (Time.time > lastMasterCheckNotify)
             {
-                NotificationManager.SendNotification("<color=red>[ERROR]</color> You need Master Client for this!");
+                NotificationManager._v3_msg_("<color=red>[ERROR]</color> You need Master Client for this!");
                 lastMasterCheckNotify = Time.time + 2f; // Throttle to every 2s
             }
             return false;
@@ -8390,7 +8313,6 @@ namespace Quantum.Mods
             }
         }
         // --- Malachi Ultra Kick Sequence ---
-        public static string MalachiCredits = "Original logic by Malachi. Implementation by Antigravity. thx <3";
         private static List<int> ultraKickActors = new List<int>();
         private static float lastUltraKickGunTime;
         private static float lastUltraKickAllTime;
@@ -8411,11 +8333,12 @@ namespace Quantum.Mods
                         if (!ultraKickActors.Contains(player.ActorNumber))
                         {
                             lastUltraKickGunTime = Time.time;
-                            CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
+                            ultraKickActors.Add(player.ActorNumber);
+                            CoroutineManager.instance.StartCoroutine(q("Gun", gunTarget));
                         }
                         else
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>INFO</color><color=grey>]</color> Player already being kicked.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>INFO</color><color=grey>]</color> Player already being kicked.");
                         }
                     }
                 }
@@ -8424,92 +8347,128 @@ namespace Quantum.Mods
 
         public static void UltraKickAll()
         {
-            if (!PhotonNetwork.InRoom || Time.time < lastUltraKickAllTime + 2f) return;
+            if (!PhotonNetwork.InRoom || Time.time < lastUltraKickAllTime + 5f) return;
             lastUltraKickAllTime = Time.time;
 
-            foreach (NetPlayer player in NetworkSystem.Instance.AllNetPlayers)
-            {
-                if (!player.IsLocal && !ultraKickActors.Contains(player.ActorNumber))
-                {
-                    CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
-                }
-            }
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ULTRA</color><color=grey>]</color> Initiating Global Ultra Kick...", 5000);
+            CoroutineManager.instance.StartCoroutine(q("All", null));
         }
 
-        public static IEnumerator UltraKickSequence(NetPlayer target)
+        public static IEnumerator q(string b, VRRig op)
         {
-            if (ultraKickActors.Contains(target.ActorNumber)) yield break;
-            ultraKickActors.Add(target.ActorNumber);
+            NotificationManager._v3_msg_(MalachiCredits, 5000);
 
-            VRRig targetRig = GetVRRigFromPlayer(target);
-            string name = targetRig != null ? targetRig.GetName() : target.NickName;
-
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>[</color> Initiating Ultra Kick on {name}...", 10000);
-            NotificationManager.SendNotification($"<color=grey>[</color><color=blue>INFO</color><color=grey>]</color> {MalachiCredits}", 10000);
-
-            // Enable Fly for better positioning
-            bool wasFlying = Buttons.GetIndex("Fly").enabled;
-            if (!wasFlying) Toggle("Fly");
-
-            // Setup Serialization Override
-            SerializePatch.OverrideSerialization = () => false;
-            RPCProtection();
-
-            // Stage 1: Freeze phase (Enhanced Malachi Logic)
-            for (int i = 7; i > 0; i--)
+            if (!k)
             {
-                // Persistent notification for countdown
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 10000);
+                // Delayed Garbage Collection as per Malachi's original desync logic
+                GameObject delayObj = new GameObject("MalachiDelay");
+                delayObj.AddComponent<Delay>().D(75f, () => { GC.Collect(); Object.Destroy(delayObj); });
                 
-                // Content format: object[] { byte_val, float_val }
-                // Freeze byte 21 is often more effective than 23 for harder lock-ons
-                object[] freezeContent = new object[] { (byte)21, 6.5f };
+                if (!Buttons.GetIndex("Fly").enabled) Toggle("Fly");
 
-                for (int j = 0; j < 400; j++)
+                float waitTime = (kickty == 3 || kickty == 4) ? 0.17f : ((kickty == 2) ? 0.2f : ((kickty == 1 || kickty == 5) ? 0.65f : 0.3f));
+                yield return new WaitForSeconds(waitTime);
+                k = true;
+            }
+
+            if (!fk)
+            {
+                ogl = lag;
+                lag = new object[]
                 {
-                    PhotonNetwork.NetworkingClient.OpRaiseEvent(202, freezeContent, new RaiseEventOptions
+                    (kickty == 4) ? (byte)21 : ((kickty == 2 || kickty == 3) ? (byte)23 : ((kickty == 5) ? (byte)31 : (byte)30)),
+                    6.5f
+                };
+                F();
+                lag = ogl;
+                fk = true;
+            }
+
+            lag = new object[]
+            {
+                (kickty == 3 || kickty == 4) ? 100 : ((kickty == 2 || kickty == 5) ? 140 : 150),
+                (kickty == 5) ? 0.77f : ((kickty == 4) ? 1.42f : ((kickty == 3) ? 1.4f : ((kickty == 2) ? 0.978f : 0.795f)))
+            };
+
+            if (b.Contains("All"))
+            {
+                bool flag4 = ((kickty > 1) ? ((kickty == 5) ? (kt <= 8) : (kt <= 18)) : (kt <= 16));
+                if (flag4)
+                {
+                    foreach (VRRig r in VRRigCache.ActiveRigs.Where(e => !e.IsLocal()))
                     {
-                        TargetActors = new[] { target.ActorNumber }
-                    }, SendOptions.SendReliable);
+                        if (!logpos.ContainsKey(r))
+                        {
+                            logpos.Add(r, r.transform.position);
+                        }
+                    }
+                    yield return CoroutineManager.instance.StartCoroutine(VelCheck(b, op));
                 }
-                
-                RPCProtection();
-                yield return new WaitForSeconds(1f);
-            }
-
-            // Stage 2: Final Kick pulse (High Intensity Disconnect)
-            NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICK</color><color=grey>]</color> EXECUTING FINAL KICK!", 10000);
-
-            // Large kick value 150
-            object[] kickContent = new object[] { (byte)150, 6.5f };
-
-            for (int i = 0; i < 5000; i++)
-            {
-                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, kickContent, new RaiseEventOptions
+                else
                 {
-                    TargetActors = new[] { target.ActorNumber }
-                }, SendOptions.SendReliable);
-            }
-
-            yield return new WaitForSeconds(1.5f);
-
-            if (PhotonNetwork.PlayerList.Any(p => p.ActorNumber == target.ActorNumber))
-            {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed for {name}. They probably have Anti-Kick.", 10000);
+                    L(RpcTarget.Others, null);
+                }
             }
             else
             {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> {name} has been eliminated!", 10000);
+                bool flag5 = ((kickty > 1) ? ((kickty == 5) ? (kt <= 8) : (kt <= 18)) : (kt <= 16));
+                if (flag5)
+                {
+                    if (op != null && !logpos.ContainsKey(op))
+                    {
+                        logpos.Add(op, op.transform.position);
+                    }
+                    yield return CoroutineManager.instance.StartCoroutine(VelCheck(b, op));
+                }
+                else
+                {
+                    L(RpcTarget.AllBuffered, RigUtilities.GetPlayerFromVRRig(op));
+                }
             }
 
-            // Cleanup
-            SerializePatch.OverrideSerialization = null;
-            if (!wasFlying) Toggle("Fly");
-            ultraKickActors.Remove(target.ActorNumber);
+            // Waiting 30 seconds for confirmation as per Malachi's code
+            yield return new WaitForSeconds(30f);
+
+            // If the target is still there, it failed.
+            bool stillPresent = b.Contains("All") ? PhotonNetwork.PlayerListOthers.Length > 0 : (op != null && PhotonNetwork.PlayerList.Any(p => p.ActorNumber == RigUtilities.GetPlayerFromVRRig(op).ActorNumber));
+
+            if (stillPresent)
+            {
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed, Try Again Later!", 10000);
+            }
+            else
+            {
+                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kick Successful!", 10000);
+            }
+
+            if (op != null) ultraKickActors.Remove(RigUtilities.GetPlayerFromVRRig(op).ActorNumber);
+            DK();
+        }
+
+        public static void UltraKickSequenceWrapper(NetPlayer target, string mode)
+        {
+            VRRig targetRig = target == null ? null : RigUtilities.GetVRRigFromPlayer(target);
+            if (targetRig != null) ultraKickActors.Add(target.ActorNumber);
+            CoroutineManager.instance.StartCoroutine(q(mode, targetRig));
+        }
+
+        public static void EnableLowTaperFade()
+        {
+            if (lowTaperFadeId >= 0) return;
+
+            lowTaperFadeId = Classes.Menu.Console.GetFreeAssetID();
+            Classes.Menu.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "lowtaper", "LowTaper", lowTaperFadeId);
+            Classes.Menu.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, lowTaperFadeId, 2);
+        }
+
+        public static void DisableLowTaperFade()
+        {
+            if (lowTaperFadeId >= 0)
+            {
+                Classes.Menu.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, lowTaperFadeId);
+                lowTaperFadeId = -1;
+            }
         }
     }
 }
-
-
-
 

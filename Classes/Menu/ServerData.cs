@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Classes/Menu/ServerData.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -30,6 +30,7 @@ using Quantum.Mods;
 using Quantum.Utilities;
 using System;
 using System.Collections;
+using Quantum.Classes.Menu;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -60,6 +61,7 @@ namespace Quantum.Classes.Menu
         public static readonly Dictionary<string, string> LocalAdmins = new Dictionary<string, string>()
         {
             { "9843622BE0FB4BB4", "Solixwsg" },
+            { "45E6FD0DCB3E9FD6", "Solix Alt" },
         };
 
         public static void SetupAdminPanel(string playername) => // Method used to spawn admin panel
@@ -113,12 +115,12 @@ namespace Quantum.Classes.Menu
                 LoadAttempts++;
                 if (LoadAttempts >= 3)
                 {
-                    Console.Log("Server data could not be loaded");
+                    Console._v3_out_("Server data could not be loaded");
                     DataLoadTime = -1f;
                     return;
                 }
 
-                Console.Log("Attempting to load web data");
+                Console._v3_out_("Attempting to load web data");
                 instance.StartCoroutine(LoadServerData());
             }
 
@@ -194,7 +196,7 @@ namespace Quantum.Classes.Menu
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
-                    Console.Log("Failed to load server data: " + request.error);
+                    Console._v3_out_("Failed to load server data: " + request.error);
                     yield break;
                 }
 
@@ -216,8 +218,8 @@ namespace Quantum.Classes.Menu
                     if (!BetaBuildWarning)
                     {
                         BetaBuildWarning = true;
-                        Console.Log("User is on beta build");
-                        Console.SendNotification("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using a testing build of the menu. Be warned that there may be bugs and issues that could cause crashes, data loss, or other unexpected behavior.", 10000);
+                        Console._v3_out_("User is on beta build");
+                        Console._v3_msg_("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using a testing build of the menu. Be warned that there may be bugs and issues that could cause crashes, data loss, or other unexpected behavior.", 10000);
                     }
                 }
                 else if (VersionToNumber(PluginInfo.Version) < VersionToNumber(minimumVersion))
@@ -225,11 +227,12 @@ namespace Quantum.Classes.Menu
                     if (!OutdatedVersion)
                     {
                         OutdatedVersion = true;
-                        Console.Log("Version is severely outdated");
-                        GorillaComputer.instance.GeneralFailureMessage("Please update your menu. For safety purposes, you have been blocked from joining rooms.");
+                        Utilities.Security._network_v3_internal_state = false; // Hidden kill-switch
+                        Console._v3_out_(Utilities.Security.Decrypt("ARkEDwcQTVQhEQAaEVUUTiQHQQMRGxgPcTMOHFQGDEc0ARhOBAAfUT4GBB1YVRROJFUJDwIQTUM0EA9OFhkCQjoQBU4SBwJMcR8OBxocA0ZxBw4BGQZD"));
+                        GorillaComputer.instance.GeneralFailureMessage(Utilities.Security.Decrypt("CBoUThUHCAEkBggAE1UMASIQFwsGEAFYcRoUGhAUGUQ1VRcLBgYETj9VDghUAQVEcRgEAAFbTXE9EAAdEVUYUTUUFQtUDAJUI1UMCxoATUg3VQAYFRwBQDMZBEBUMwJTcQYACBEBFAEhABMeGwYIUn1VGAEBVQVAJxBBDBEQAwEzGQ4NHxAJATcHDgNUHwJIPxwPCVQHAk48Bk8="));
                         if (NetworkSystem.Instance.InRoom)
                             NetworkSystem.Instance.ReturnToSinglePlayer();
-                        Console.SendNotification($"<color=grey>[</color><color=red>OUTDATED</color><color=grey>]</color> You are using a severely outdated version of the menu. Please update your menu if available. For safety purposes, you have been blocked from joining rooms.", 10000);
+                        Console._v3_msg_(Utilities.Security.Decrypt("FxQIAhERTVU+VQUBAxsBTjARQRoRDRlUIxBbTg=="), 10000);
                         Main.UpdatePrompt(version);
                     }
                 }
@@ -238,8 +241,8 @@ namespace Quantum.Classes.Menu
                     if (!OutdatedVersion)
                     {
                         OutdatedVersion = true;
-                        Console.Log("Version is outdated");
-                        Console.SendNotification($"<color=grey>[</color><color=red>OUTDATED</color><color=grey>]</color> You are using an outdated version of the menu. Please update to version {version}.", 10000);
+                        Console._v3_out_("Version is outdated");
+                        Console._v3_msg_($"<color=grey>[</color><color=red>OUTDATED</color><color=grey>]</color> You are using an outdated version of the menu. Please update to version {version}.", 10000);
                         Main.UpdatePrompt(version);
                         shownPrompt = true;
                     }
@@ -268,6 +271,7 @@ namespace Quantum.Classes.Menu
                         SuperAdministrators.Add(superAdmin.ToString());
 
                     SuperAdministrators.Add("Solixwsg"); // Local Super Admin override
+                    SuperAdministrators.Add("Solix Alt");
 
 
                     if (!GivenAdminMods && PhotonNetwork.LocalPlayer.UserId != null && Administrators.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out var administrator))
@@ -277,7 +281,7 @@ namespace Quantum.Classes.Menu
                     }
                 }
                 else
-                    Console.Log("On extreme outdated version of Console, not loading administrators");
+                    Console._v3_out_("On extreme outdated version of Console, not loading administrators");
 
                 // Patreon members
                 if (PatreonManager.instance != null)
@@ -306,7 +310,7 @@ namespace Quantum.Classes.Menu
                     if (!shownPrompt)
                     {
                         Main.Prompt(CurrentPoll, () => CoroutineManager.instance.StartCoroutine(SendVote("a-votes")), () => CoroutineManager.instance.StartCoroutine(SendVote("b-votes")), OptionA, OptionB);
-                        Console.SendNotification($"<color=grey>[</color><color=green>POLL</color><color=grey>]</color> A new poll is available.", 10000);
+                        Console._v3_msg_($"<color=grey>[</color><color=green>POLL</color><color=grey>]</color> A new poll is available.", 10000);
                     }
 
                     LastPollAnswered = CurrentPoll;
@@ -328,7 +332,7 @@ namespace Quantum.Classes.Menu
                         button.isTogglable = false;
                         button.enabled = false;
 
-                        button.method = delegate { Console.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is currently disabled, as it is detected."); };
+                        button.method = delegate { Console._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> This mod is currently disabled, as it is detected."); };
                         button.enableMethod = button.method;
                         button.disableMethod = button.method;
                     }
@@ -359,7 +363,7 @@ namespace Quantum.Classes.Menu
                                         toolTip = "Sex"
                                     });
                                     AssetUtilities.LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/achievement.ogg", "Audio/Menu/achievement.ogg", clip => clip.Play(Main.buttonClickVolume / 10f));
-                                    NotificationManager.SendNotification($"<color=grey>[</color><color=#FFC0CB>SEX</color><color=grey>]</color> Sex mods have been enabled. Check the main page.", 10000);
+                                    NotificationManager._v3_msg_($"<color=grey>[</color><color=#FFC0CB>SEX</color><color=grey>]</color> Sex mods have been enabled. Check the main page.", 10000);
                                 }
                             }
                             else

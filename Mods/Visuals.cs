@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Visuals.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -2509,7 +2509,7 @@ namespace Quantum.Mods
             { "GorillaShop", "GorillaShop" },
             { "Fusioned", "Fusioned" },
             { "y u lookin in here weirdo", "Malachi Menu Reborn" },
-            { "Ø????", "Orbit" },
+            { "�????", "Orbit" },
             { "Atlas", "Atlas" }
         };
 
@@ -6307,7 +6307,7 @@ namespace Quantum.Mods
 
             Color userColor = Color.red;
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>ADMIN</color><color=grey>]</color> " + sender.NickName + " is using " + menuName + " version " + version + ".", 3000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ADMIN</color><color=grey>]</color> " + sender.NickName + " is using " + menuName + " version " + version + ".", 3000);
             VRRig.LocalRig.PlayHandTapLocal(29, false, 99999f);
             VRRig.LocalRig.PlayHandTapLocal(29, true, 99999f);
             GameObject line = new GameObject("Line");
@@ -6321,6 +6321,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

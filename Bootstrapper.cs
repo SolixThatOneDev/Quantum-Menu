@@ -22,7 +22,7 @@ namespace Quantum
             if (initialized) return;
             initialized = true;
 
-            LogManager.Log("Quantum Menu: Bootstrapper.Initialize() called.");
+            LogManager._v3_out_("Quantum Menu: Bootstrapper.Initialize() called.");
 
             FirstLaunch = !Directory.Exists(PluginInfo.BaseDirectory);
 
@@ -48,7 +48,7 @@ namespace Quantum
                     Directory.CreateDirectory(target);
             }
 
-            LogManager.Log("Quantum Menu: Patching early security hooks...");
+            LogManager._v3_out_("Quantum Menu: Patching early security hooks...");
             try
             {
                 PatchHandler.PatchAll(true);
@@ -60,7 +60,7 @@ namespace Quantum
 
             if (File.Exists($"{PluginInfo.BaseDirectory}/Quantum_Preferences.txt"))
             {
-                LogManager.Log("Quantum Menu: Loading preferences...");
+                LogManager._v3_out_("Quantum Menu: Loading preferences...");
                 try
                 {
                     if (File.ReadAllLines($"{PluginInfo.BaseDirectory}/Quantum_Preferences.txt")[0]
@@ -79,7 +79,7 @@ namespace Quantum
             if (File.Exists($"{PluginInfo.BaseDirectory}/Quantum_DisableTelemetry.txt"))
                 ServerData.DisableTelemetry = true;
 
-            LogManager.Log("Quantum Menu: Starting spawn wait coroutine...");
+            LogManager._v3_out_("Quantum Menu: Starting spawn wait coroutine...");
             GameObject bootstrapperObject = new GameObject("Quantum_Bootstrapper");
             bootstrapperObject.AddComponent<CoroutineManager>().StartCoroutine(WaitForPlayer());
             UnityEngine.Object.DontDestroyOnLoad(bootstrapperObject);
@@ -90,7 +90,7 @@ namespace Quantum
             while (GorillaTagger.Instance == null)
                 yield return new WaitForSeconds(0.1f);
             
-            LogManager.Log("Quantum Menu: Player spawned! Loading menu...");
+            LogManager._v3_out_("Quantum Menu: Player spawned! Loading menu...");
             try
             {
                 LoadMenu();
@@ -103,7 +103,7 @@ namespace Quantum
 
         private static void LoadMenu()
         {
-            LogManager.Log("Quantum Menu: LoadMenu() started.");
+            LogManager._v3_out_("Quantum Menu: LoadMenu() started.");
             PatchHandler.PatchAll();
 
             Loader = new GameObject("Quantum_Loader");
@@ -114,9 +114,9 @@ namespace Quantum
             Loader.AddComponent<Main>();
             UnityEngine.Object.DontDestroyOnLoad(Loader);
 
-            LogManager.Log("Quantum Menu: Loader components added.");
+            LogManager._v3_out_("Quantum Menu: Loader components added.");
             coroutineManager.StartCoroutine(PatchIntegrityCheck());
-            LogManager.Log("Quantum Menu: Initialization complete!");
+            LogManager._v3_out_("Quantum Menu: Initialization complete!");
         }
 
         private static IEnumerator PatchIntegrityCheck()
@@ -128,3 +128,4 @@ namespace Quantum
         }
     }
 }
+

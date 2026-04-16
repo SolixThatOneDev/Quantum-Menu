@@ -257,7 +257,7 @@ namespace Quantum.Mods
 
             LoadPreferences();
             Sound.LoadSoundboard(false);
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully completed merge. Have fun using Quantum Menu!");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully completed merge. Have fun using Quantum Menu!");
         }
 
         public static void UpdateSoundPreferences()
@@ -702,7 +702,7 @@ namespace Quantum.Mods
                             overlapText = $"User ID: {player.UserId}",
                             method = () =>
                             {
-                                NotificationManager.SendNotification(
+                                NotificationManager._v3_msg_(
                                     $"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully copied {player.UserId} to the clipboard!",
                                     5000);
                                 GUIUtility.systemCopyBuffer = player.UserId;
@@ -837,7 +837,7 @@ namespace Quantum.Mods
                 foreach (ButtonInfo v in buttonlist)
                     v.rebindKey = null;
             }
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Removed all rebinds.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Removed all rebinds.");
         }
 
         // The code below is fully safe. I know, it seems suspicious.
@@ -1024,7 +1024,7 @@ namespace Quantum.Mods
 
             if (!watchUsed && Time.time >= watchTimer)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>WATCH</color><color=grey>]</color> Seems that you got stuck using Watch Menu, automatically disabling..");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>WATCH</color><color=grey>]</color> Seems that you got stuck using Watch Menu, automatically disabling..");
                 Toggle("Watch Menu");
             }
         }
@@ -4295,7 +4295,7 @@ namespace Quantum.Mods
             string filePath = $"{PluginInfo.BaseDirectory}/CustomFont.ttf";
             if (!File.Exists(filePath))
             {
-                LogManager.Log("Downloading CustomFont.ttf");
+                LogManager._v3_out_("Downloading CustomFont.ttf");
                 WebClient stream = new WebClient();
                 stream.DownloadFile($"{PluginInfo.ServerResourcePath}/Fonts/LiberationSans.ttf", filePath);
             }
@@ -4819,7 +4819,7 @@ namespace Quantum.Mods
             else
             {
                 Buttons.GetIndex("Disable Page Buttons").enabled = false;
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>DISABLE</color><color=grey>]</color> Disable Page Buttons can only be used when using Joystick Menu.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>DISABLE</color><color=grey>]</color> Disable Page Buttons can only be used when using Joystick Menu.");
             }
         }
 
@@ -4836,7 +4836,7 @@ namespace Quantum.Mods
         public static void CheckFocus()
         {
             if (!Application.isFocused && lastFocused && Time.time > timeMenuStarted + 5f)
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not focused on Gorilla Tag. Voice transcription mods will not function. Please focus/click on the game.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not focused on Gorilla Tag. Voice transcription mods will not function. Please focus/click on the game.");
 
             lastFocused = Application.isFocused;
         }
@@ -4887,7 +4887,7 @@ namespace Quantum.Mods
             if (dynamicSounds)
                 LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/select.ogg", "Audio/Menu/select.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
 
-            NotificationManager.SendNotification("<color=grey>[</color><color=purple>VOICE</color><color=grey>]</color> Listening...", 3000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=purple>VOICE</color><color=grey>]</color> Listening...", 3000);
         }
 
         public static void ExecuteVoiceCommand(PhraseRecognizedEventArgs args)
@@ -4939,7 +4939,7 @@ namespace Quantum.Mods
             if (modTarget != null)
             {
                 ButtonInfo mod = Buttons.GetIndex(modTarget);
-                NotificationManager.SendNotification("<color=grey>[</color><color=" + (mod.enabled ? "red" : "green") + ">VOICE</color><color=grey>]</color> " + (mod.enabled ? "Disabling " : "Enabling ") + (mod.overlapText ?? mod.buttonText) + "...", 3000);
+                NotificationManager._v3_msg_("<color=grey>[</color><color=" + (mod.enabled ? "red" : "green") + ">VOICE</color><color=grey>]</color> " + (mod.enabled ? "Disabling " : "Enabling ") + (mod.overlapText ?? mod.buttonText) + "...", 3000);
                 if (dynamicSounds)
                     LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/confirm.ogg", "Audio/Menu/confirm.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
 
@@ -4947,7 +4947,7 @@ namespace Quantum.Mods
             }
             else
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>VOICE</color><color=grey>]</color> No command found (" + args.text + ").", 3000);
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>VOICE</color><color=grey>]</color> No command found (" + args.text + ").", 3000);
                 if (dynamicSounds)
                     LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
             }
@@ -4969,7 +4969,7 @@ namespace Quantum.Mods
             }
             catch { }
 
-            NotificationManager.SendNotification($"<color=grey>[</color><color=red>VOICE</color><color=grey>]</color> {(text == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=red>VOICE</color><color=grey>]</color> {(text == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
             if (dynamicSounds)
                 LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
         }
@@ -5043,28 +5043,28 @@ namespace Quantum.Mods
             {
                 case "Mommy ASMR":
                     LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/TTS/yes_sweetheart.ogg", "Audio/TTS/yes_sweetheart.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
-                    NotificationManager.SendNotification("<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> Yes, sweetheart?", 3000);
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> Yes, sweetheart?", 3000);
                     break;
                 default:
                     LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/select.ogg", "Audio/Menu/select.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>VOICE</color><color=grey>]</color> Listening...", 3000);
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>VOICE</color><color=grey>]</color> Listening...", 3000);
                     break;
             }
 
             if (debugDictation)
-                LogManager.Log("Dictation listening");
+                LogManager._v3_out_("Dictation listening");
 
             drec = new DictationRecognizer();
             drec.DictationResult += (text, confidence) =>
             {
                 if (debugDictation)
-                    LogManager.Log($"Dictation result: {text}");
+                    LogManager._v3_out_($"Dictation result: {text}");
                 if (cancelKeywords.Contains(text.ToLower()))
                 {
                     if (dynamicSounds)
                         LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
 
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> {(text.ToLower() == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> {(text.ToLower() == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
                     CoroutineManager.instance.StartCoroutine(DictationRestart());
                     return;
                 }
@@ -5072,10 +5072,10 @@ namespace Quantum.Mods
                 switch (narratorName)
                 {
                     case "Mommy ASMR":
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> Let me get that for you..");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> Let me get that for you..");
                         break;
                     default:
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=blue>AI</color><color=grey>]</color> Generating response..");
+                        NotificationManager._v3_msg_($"<color=grey>[</color><color=blue>AI</color><color=grey>]</color> Generating response..");
                         break;
 
                 }
@@ -5089,12 +5089,12 @@ namespace Quantum.Mods
             drec.DictationComplete += (completionCause) =>
             {
                 if (debugDictation)
-                    LogManager.Log($"completion cause: {completionCause}");
+                    LogManager._v3_out_($"completion cause: {completionCause}");
                 if (completionCause.ToString() == "TimeoutExceeded")
                 {
                     if (dynamicSounds)
                         LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg", clip => DictationPlay(clip, buttonClickVolume / 10f));
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> Cancelling...", 3000);
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> Cancelling...", 3000);
                 }
             };
 
@@ -5106,7 +5106,7 @@ namespace Quantum.Mods
                 {
                     DictationOff();
 
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Online Speech Recognition is not enabled on this device. Either open the menu to enable it, or check your internet connection.", 3000);
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Online Speech Recognition is not enabled on this device. Either open the menu to enable it, or check your internet connection.", 3000);
                     Prompt("Online Speech Recognition is not enabled on your device. Would you like to open the Settings page to enable it?", () => { Process.Start("ms-settings:privacy-speech"); PromptSingle("Once you enable Online Speech Recognition, turn this mod back on!", () => mod.enabled = false, "Ok"); }, () => PromptSingle("You will not be able to use this mod until you enable Online Speech Recognition.", () => mod.enabled = false, "Ok"));
                 }
             };
@@ -5116,10 +5116,10 @@ namespace Quantum.Mods
                 if (AIManager.generating)
                     return;
                 if (debugDictation)
-                    LogManager.Log($"Hypothesis: {text}");
+                    LogManager._v3_out_($"Hypothesis: {text}");
 
                 NotificationManager.ClearAllNotifications();
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
             };
 
             drec?.Start();
@@ -5839,7 +5839,7 @@ namespace Quantum.Mods
                             NavigatePlayer(GetPlayerFromVRRig(rigTarget));
                             ReloadMenu();
 
-                            NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Selected player {GetPlayerFromVRRig(rigTarget).NickName}.");
+                            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Selected player {GetPlayerFromVRRig(rigTarget).NickName}.");
                         }
 
                         lastTriggerSelect = trigger;
@@ -6353,7 +6353,7 @@ namespace Quantum.Mods
 
                 Sound.disableLocalSoundboard = bool.Parse(data[72]);
             }
-            catch { LogManager.Log("Save file out of date"); }
+            catch { LogManager._v3_out_("Save file out of date"); }
 
 
             pageButtonType = int.Parse(textData[3]) - 1;
@@ -6441,7 +6441,7 @@ namespace Quantum.Mods
                 string text = File.ReadAllText($"{PluginInfo.BaseDirectory}/Quantum_Preferences.txt");
                 LoadPreferencesFromText(text);
             }
-            catch (Exception e) { LogManager.Log("Error loading preferences: " + e.Message); }
+            catch (Exception e) { LogManager._v3_out_("Error loading preferences: " + e.Message); }
         }
 
         public static void Panic()
@@ -6608,6 +6608,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

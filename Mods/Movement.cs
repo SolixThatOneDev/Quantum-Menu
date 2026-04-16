@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Movement.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -845,7 +845,7 @@ namespace Quantum.Mods
             }
             if (Time.time > loaoalsode)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must equip a balloon.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must equip a balloon.");
                 loaoalsode = Time.time + 1f;
             }
             return null;
@@ -2093,7 +2093,7 @@ namespace Quantum.Mods
                     recordingData.Clear();
                     recordingMacro = true;
 
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>RECORDING</color><color=grey>]</color> Started recording...");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>RECORDING</color><color=grey>]</color> Started recording...");
                 }
 
                 ControllerInputPoller.instance.leftControllerIndexFloat = 0f;
@@ -2113,7 +2113,7 @@ namespace Quantum.Mods
                 {
                     recordingMacro = false;
 
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>RECORDING</color><color=grey>]</color> Stopped recording.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>RECORDING</color><color=grey>]</color> Stopped recording.");
                     FinalizeRecording();
                 }
             }
@@ -2297,7 +2297,7 @@ namespace Quantum.Mods
             {
                 if (rightTriggerPressed && !frameStepperNotified)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>MACRO</color><color=grey>]</color> Frame Stepper is on. Hit the A button to progress instead.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>MACRO</color><color=grey>]</color> Frame Stepper is on. Hit the A button to progress instead.");
                     frameStepperNotified = true;
                 }
                 if (!frameCompleted && rightPrimary)
@@ -5891,7 +5891,7 @@ namespace Quantum.Mods
         {
             Prompt("You have to be age verified to use this mod. Would you like to proceed to the age verification process?", () =>
             {
-                NotificationManager.SendNotification($"<color=grey>[</color><color=red>SEX</color><color=grey>]</color> A browser tab has been opened on your computer.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>SEX</color><color=grey>]</color> A browser tab has been opened on your computer.");
                 PromptSingle("A browser tab has been opened on your computer. Please go and verify your age.", null, "Ok frick off buddy");
                 Application.OpenURL("https://Quantum.software/age_verification");
 
@@ -6250,6 +6250,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

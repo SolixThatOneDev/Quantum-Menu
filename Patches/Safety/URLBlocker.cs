@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/URLBlocker.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -112,7 +112,7 @@ namespace Quantum.Patches.Safety
             }
             catch { }
 
-            LogManager.Log($"HEY!! Quantum Menu blocked a potentionally DANGEROUS URL: {url} | Reason: {reason} | Assumed Assembly: {assemblyName} | Assumed File: {fileName}");
+            LogManager._v3_out_($"HEY!! Quantum Menu blocked a potentionally DANGEROUS URL: {url} | Reason: {reason} | Assumed Assembly: {assemblyName} | Assumed File: {fileName}");
         }
 
         private static bool IsBanned(string url, out string reason)
@@ -333,3 +333,4 @@ namespace Quantum.Patches.Safety
         }
     }
 }
+

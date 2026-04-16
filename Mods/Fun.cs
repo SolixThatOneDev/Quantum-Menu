@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Fun.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -610,7 +610,7 @@ namespace Quantum.Mods
             {
                 foreach (var keylog in keyLogs.Where(keylog => Time.time > (float)keylog[2]).ToList())
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>KEYLOGS</color><color=grey>]</color> " + (string)keylog[1], 5000);
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>KEYLOGS</color><color=grey>]</color> " + (string)keylog[1], 5000);
                     keyLogs.Remove(keylog);
                 }
             }
@@ -1587,7 +1587,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             GRPlayer.Get(GetPlayerFromVRRig(gunTarget).ActorNumber).shiftCreditCache = currency;
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -1595,7 +1595,7 @@ namespace Quantum.Mods
 
         public static void SetCurrencyAll(int currency = 0)
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
             foreach (Player target in PhotonNetwork.PlayerList)
             {
@@ -1625,7 +1625,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             GRPlayer.Get(GetPlayerFromVRRig(gunTarget).ActorNumber).shiftCreditCache += currency;
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -1633,7 +1633,7 @@ namespace Quantum.Mods
 
         public static void AddCurrencyAll(int currency = 0)
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
             foreach (Player target in PhotonNetwork.PlayerList)
             {
@@ -1663,7 +1663,7 @@ namespace Quantum.Mods
                         if (PhotonNetwork.IsMasterClient)
                             GRPlayer.Get(GetPlayerFromVRRig(gunTarget).ActorNumber).shiftCreditCache = 0;
                         else
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     }
                 }
             }
@@ -1671,7 +1671,7 @@ namespace Quantum.Mods
 
         public static void RemoveCurrencyAll()
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
             foreach (Player target in PhotonNetwork.PlayerList)
             {
@@ -1682,7 +1682,7 @@ namespace Quantum.Mods
 
         public static void Invincibility()
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
             GRPlayer plr = GRPlayer.Get(PhotonNetwork.LocalPlayer.ActorNumber);
 
@@ -1694,21 +1694,21 @@ namespace Quantum.Mods
 
         public static void StartShift()
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
             ManagerRegistry.GhostReactor.GhostReactorManager.RequestShiftStartAuthority(GhostReactor.instance.shiftManager.ShiftState == GhostReactorShiftManager.State.WaitingForFirstShiftStart);
             RPCProtection();
         }
 
         public static void EndShift()
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
             ManagerRegistry.GhostReactor.GhostReactorManager.RequestShiftEnd();
             RPCProtection();
         }
 
         public static void SetQuota()
         {
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
             GhostReactor.instance.shiftManager.shiftStats.SetShiftStat(GRShiftStatType.CoresCollected, GhostReactor.instance.shiftManager.coresRequiredToDelveDeeper);
             RPCProtection();
         }
@@ -1762,7 +1762,7 @@ namespace Quantum.Mods
                 return;
             }
 
-            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+            if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
 
             if (State == GRPlayer.GRPlayerState.Ghost)
                 CoroutineManager.instance.StartCoroutine(KillTarget(Target));
@@ -2049,7 +2049,7 @@ namespace Quantum.Mods
             ButtonInfo button = Buttons.GetIndex("Legacy Microphone");
             if (button.enabled)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
                 button.enabled = false;
                 return;
             }
@@ -2090,7 +2090,7 @@ namespace Quantum.Mods
             ButtonInfo button = Buttons.GetIndex("Legacy Microphone");
             if (button.enabled)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
                 button.enabled = false;
                 return;
             }
@@ -2157,7 +2157,7 @@ namespace Quantum.Mods
             ButtonInfo button = Buttons.GetIndex("Legacy Microphone");
             if (button.enabled)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are using Legacy Microphone. This mod does not support using the old microphone system.");
                 button.enabled = false;
                 return;
             }
@@ -2404,8 +2404,8 @@ namespace Quantum.Mods
             drec.DictationResult += (text, confidence) =>
             {
                 if (Settings.debugDictation)
-                    LogManager.Log($"Dictation result: {text}");
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
+                    LogManager._v3_out_($"Dictation result: {text}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
 
                 if (NetworkSystem.Instance.VoiceConnection.PrimaryRecorder != null)
                 {
@@ -2430,9 +2430,9 @@ namespace Quantum.Mods
             drec.DictationHypothesis += (text) =>
             {
                 if (Settings.debugDictation)
-                    LogManager.Log($"Hypothesis: {text}");
+                    LogManager._v3_out_($"Hypothesis: {text}");
                 NotificationManager.ClearAllNotifications();
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
             };
             drec.Start();
         }
@@ -2607,7 +2607,7 @@ namespace Quantum.Mods
                     {
                         gbgd = Time.time + 0.1f;
                         pieceIdSet = gunTarget.pieceType;
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully selected piece " + gunTarget.displayName + ".");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully selected piece " + gunTarget.displayName + ".");
                     }
                 }
             }
@@ -2629,7 +2629,7 @@ namespace Quantum.Mods
                         GUIUtility.systemCopyBuffer = @$"{gunTarget.displayName}
 Piece Type: {gunTarget.pieceType}
 Piece Name: {gunTarget.name}";
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully copied piece data of " + gunTarget.displayName + ".");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully copied piece data of " + gunTarget.displayName + ".");
                     }
                 }
             }
@@ -2638,7 +2638,7 @@ Piece Name: {gunTarget.name}";
         public static void SelectBlock(int type, string name)
         {
             pieceIdSet = type;
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully selected piece " + name.Replace("(Clone)", "") + ".");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully selected piece " + name.Replace("(Clone)", "") + ".");
         }
 
         private static Dictionary<int, string> blocks;
@@ -4625,7 +4625,7 @@ Piece Name: {gunTarget.name}";
                 if (GetGunInput(true))
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                         CoroutineManager.instance.StartCoroutine(DrawSmallDelay(NewPointer.transform.position));
                 }
@@ -4642,7 +4642,7 @@ Piece Name: {gunTarget.name}";
                 if (GetGunInput(true))
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         RequestCreatePiece(pieceIdSet, NewPointer.transform.position, RandomQuaternion(), 0, null, true);
@@ -4674,7 +4674,7 @@ Piece Name: {gunTarget.name}";
                 if (gunLocked && lockTarget != null)
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         Player target = NetPlayerToPlayer(GetPlayerFromVRRig(lockTarget));
@@ -4708,7 +4708,7 @@ Piece Name: {gunTarget.name}";
                 Player target = GetRandomPlayer(false);
 
                 if (!PhotonNetwork.IsMasterClient)
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 else
                 {
                     GetVRRigFromPlayer(target);
@@ -4731,7 +4731,7 @@ Piece Name: {gunTarget.name}";
                 if (gunLocked && lockTarget != null)
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         floatPower += (0.3f - floatPower) * 0.05f;
@@ -4767,7 +4767,7 @@ Piece Name: {gunTarget.name}";
                 if (gunLocked && lockTarget != null)
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         RequestCreatePiece(-566818631, lockTarget.transform.position + Vector3.down * 0.35f, Quaternion.Euler(0f, Random.Range(0f, 350f), 0f), 0, NetPlayerToPlayer(GetPlayerFromVRRig(lockTarget)), false, true, Vector3.up * 50f);
@@ -4802,7 +4802,7 @@ Piece Name: {gunTarget.name}";
                 if (gunLocked && lockTarget != null)
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         RequestCreatePiece(-566818631, lockTarget.transform.position, Quaternion.Euler(0f, Random.Range(0f, 350f), 0f), 0, NetPlayerToPlayer(GetPlayerFromVRRig(lockTarget)), false, true, (GorillaTagger.Instance.headCollider.transform.position - lockTarget.transform.position).normalized * 50f);
@@ -4837,7 +4837,7 @@ Piece Name: {gunTarget.name}";
                 if (gunLocked && lockTarget != null)
                 {
                     if (!PhotonNetwork.IsMasterClient)
-                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                     else
                     {
                         RequestCreatePiece(-566818631, lockTarget.transform.position, Quaternion.Euler(0f, Random.Range(0f, 350f), 0f), 0, NetPlayerToPlayer(GetPlayerFromVRRig(lockTarget)), false, true, (lockTarget.transform.position - GorillaTagger.Instance.headCollider.transform.position).normalized * 50f);
@@ -4890,7 +4890,7 @@ Piece Name: {gunTarget.name}";
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 yield break;
             }
 
@@ -5537,7 +5537,7 @@ Piece Name: {gunTarget.name}";
         {
             if (!NetworkSystem.Instance.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 yield break;
             }
 
@@ -5814,7 +5814,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 monkeyeAI.speed = 0.02f;
             }
         }
@@ -5823,7 +5823,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 monkeyeAI.speed = 0.5f;
             }
         }
@@ -5832,7 +5832,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 monkeyeAI.speed = 0.1f;
             }
         }
@@ -5843,7 +5843,7 @@ Piece Name: {gunTarget.name}";
             {
                 foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
                 {
-                    if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                    if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                     monkeyeAI.gameObject.transform.position = GorillaTagger.Instance.rightHandTransform.position;
                 }
             }
@@ -5860,7 +5860,7 @@ Piece Name: {gunTarget.name}";
                 {
                     foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
                     {
-                        if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                        if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                         monkeyeAI.gameObject.transform.position = NewPointer.transform.position + Vector3.up;
                     }
                 }
@@ -5871,7 +5871,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 monkeyeAI.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
             }
         }
@@ -5882,7 +5882,7 @@ Piece Name: {gunTarget.name}";
             int index = 0;
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 float offset = 360f / them.Length * index;
                 monkeyeAI.transform.position = GorillaTagger.Instance.headCollider.transform.position + new Vector3(MathF.Cos(offset + (float)Time.frameCount / 30) * 2f, 1f, MathF.Sin(offset + (float)Time.frameCount / 30) * 2f);
                 index++;
@@ -5893,7 +5893,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (MonkeyeAI monkeyeAI in GetAllType<MonkeyeAI>())
             {
-                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
+                if (!NetworkSystem.Instance.IsMasterClient) { NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client."); return; }
                 monkeyeAI.gameObject.transform.position = new Vector3(99999f, 99999f, 99999f);
             }
         }
@@ -6634,7 +6634,7 @@ Piece Name: {gunTarget.name}";
                 CatalogVersion = CosmeticsController.instance.catalog
             }, delegate
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Item \"" + ToTitleCase(hat.overrideDisplayName) + "\" has been purchased.", 5000);
+                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Item \"" + ToTitleCase(hat.overrideDisplayName) + "\" has been purchased.", 5000);
                 CosmeticsController.instance.ProcessExternalUnlock(hat.itemName, false, false);
                 CosmeticsController.instance.currencyBalance -= hat.cost;
                 CosmeticsOwned += hat.itemName;
@@ -6767,7 +6767,7 @@ Piece Name: {gunTarget.name}";
                     {
                         idgundelay = Time.time + 0.5f;
                         string id = GetPlayerFromVRRig(gunTarget).UserId;
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
                         GUIUtility.systemCopyBuffer = id;
                     }
                 }
@@ -6791,7 +6791,7 @@ Piece Name: {gunTarget.name}";
             {
                 foreach (var id in nearbyPlayers.Select(nearbyPlayer => GetPlayerFromVRRig(nearbyPlayer).UserId))
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
                     GUIUtility.systemCopyBuffer = id;
                 }
             }
@@ -6819,7 +6819,7 @@ Piece Name: {gunTarget.name}";
             {
                 foreach (var id in touchedPlayers.Select(rig => GetPlayerFromVRRig(rig).UserId))
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
                     GUIUtility.systemCopyBuffer = id;
                 }
             }
@@ -6829,7 +6829,7 @@ Piece Name: {gunTarget.name}";
         {
             foreach (var id in VRRigCache.ActiveRigs.Select(vrrig => GetPlayerFromVRRig(vrrig).UserId))
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
                 GUIUtility.systemCopyBuffer = id;
             }
         }
@@ -6837,7 +6837,7 @@ Piece Name: {gunTarget.name}";
         public static void CopySelfID()
         {
             string id = PhotonNetwork.LocalPlayer.UserId;
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
             GUIUtility.systemCopyBuffer = id;
         }
 
@@ -7097,7 +7097,7 @@ Piece Name: {gunTarget.name}";
 
         public static void CopyCreationDate(string date)
         {
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + date, 5000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + date, 5000);
             GUIUtility.systemCopyBuffer = date;
         }
 
@@ -7186,13 +7186,13 @@ Piece Name: {gunTarget.name}";
                     b = plr.playerColor.b * 255;
                     cosmetics = plr.Cosmetics();
                 }
-                catch { LogManager.Log("Failed to log colors, rig most likely nonexistent"); }
+                catch { LogManager._v3_out_("Failed to log colors, rig most likely nonexistent"); }
                 try
                 {
                     text += "\n====================================\n";
                     text += string.Concat("Player Name: \"", player.NickName, "\", Player ID: \"", player.UserId, "\", Player Color: (R: ", r.ToString(), ", G: ", g.ToString(), ", B: ", b.ToString(), "), Cosmetics: ", cosmetics);
                 }
-                catch { LogManager.Log("Failed to log player"); }
+                catch { LogManager._v3_out_("Failed to log player"); }
             }
             text += "\n====================================\n";
             text += "Text file generated with Quantum Menu";
@@ -7286,7 +7286,7 @@ Piece Name: {gunTarget.name}";
                             if (selButton != null)
                                 Toggle(selButton.buttonText, true);
                             else
-                                NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{consoleTyped}\" does not exist.");
+                                NotificationManager._v3_msg_($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Mod \"{consoleTyped}\" does not exist.");
                             consoleTyped = "";
                             break;
                         }
@@ -7346,6 +7346,7 @@ $@"{largeNewLine}
         }*/
     }
 }
+
 
 
 

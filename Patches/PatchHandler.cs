@@ -72,7 +72,7 @@ namespace Quantum.Patches
                 }
             }
 
-            LogManager.Log($"Patched with {PatchErrors} errors");
+            LogManager._v3_out_($"Patched with {PatchErrors} errors");
 
             ManualPatches();
 
@@ -94,7 +94,7 @@ namespace Quantum.Patches
                     {
                         MethodInfo prefix = typeof(Quantum.Menu.Main).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static);
                         instance.Patch(lateUpdate, prefix: new HarmonyMethod(prefix));
-                        LogManager.Log($"Successfully dynamic-patched {playerType.FullName}");
+                        LogManager._v3_out_($"Successfully dynamic-patched {playerType.FullName}");
                     }
                     else
                     {
@@ -199,3 +199,4 @@ namespace Quantum.Patches
         public const string InstanceId = PluginInfo.GUID;
     }
 }
+

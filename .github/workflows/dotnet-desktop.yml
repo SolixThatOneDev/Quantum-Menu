@@ -39,8 +39,8 @@ jobs:
       if: success()
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.21.${{ github.run_number }}
-        name: Build 121.${{ github.run_number }}
+        tag_name: v1.22.${{ github.run_number }}
+        name: Build 122.${{ github.run_number }}
         body: "Automated unique build #${{ github.run_number }} from the latest commit."
         files: ${{ steps.find_dll.outputs.path }}
       env:

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/PatreonManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -232,7 +232,7 @@ namespace Quantum.Managers
         #region Patreon Mods
         public static void SetupPatreonMods(string patreonName)
         {
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>PATREON</color><color=grey>]</color> Welcome, {patreonName}! Patreon mods have been enabled.", 10000);
+            NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>PATREON</color><color=grey>]</color> Welcome, {patreonName}! Patreon mods have been enabled.", 10000);
 
             List<ButtonInfo> buttons = Buttons.buttons[Buttons.GetCategory("Main")].ToList();
             buttons.Add(new ButtonInfo { buttonText = "Patreon Mods", method = () => Buttons.CurrentCategoryName = "Patreon Mods", isTogglable = false, toolTip = "Opens the patreon mods." });
@@ -265,4 +265,5 @@ namespace Quantum.Managers
         #endregion
     }
 }
+
 

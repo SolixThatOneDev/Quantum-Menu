@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Safety.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -156,7 +156,7 @@ namespace Quantum.Mods
             {
                 if (!BanPatches.CheckAutoBanListForName.CheckBanList(PhotonNetwork.LocalPlayer.NickName))
                 {
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> Your name, {PhotonNetwork.LocalPlayer.NickName}, is not allowed. It has been reset for your safety.");
+                    NotificationManager._v3_msg_($"<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> Your name, {PhotonNetwork.LocalPlayer.NickName}, is not allowed. It has been reset for your safety.");
                     ChangeName(RandomUtilities.RandomString(8));
                 }
             }
@@ -173,7 +173,7 @@ namespace Quantum.Mods
                 flushCooldown = Time.time + 5f;
                 return;
             }
-            NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not meant to spam Flush RPCs. Only call it once after you are done spamming RPCs.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not meant to spam Flush RPCs. Only call it once after you are done spamming RPCs.");
         }
         public static void AntiLurker()
         {
@@ -320,7 +320,7 @@ namespace Quantum.Mods
 
                 if (!(Time.time > antiReportDelay)) return;
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected.");
             });
         }
 
@@ -333,7 +333,7 @@ namespace Quantum.Mods
                 RPCProtection();
 
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
             });
         }
 
@@ -347,7 +347,7 @@ namespace Quantum.Mods
                 RPCProtection();
 
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
             });
         }
 
@@ -398,7 +398,7 @@ namespace Quantum.Mods
             });
 
             if (notifyText != "")
-                NotificationManager.SendNotification($"<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> {notifyText} {(notifyText.Contains("&") || notifyText.Contains(",") ? "are" : "is")} reporting you.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> {notifyText} {(notifyText.Contains("&") || notifyText.Contains(",") ? "are" : "is")} reporting you.");
         }
 
         public static void AntiReportOverlay()
@@ -449,14 +449,14 @@ namespace Quantum.Mods
                             g = plr.playerColor.r * 255;
                             b = plr.playerColor.r * 255;
                         }
-                        catch { LogManager.Log("Failed to log colors, rig most likely nonexistent"); }
+                        catch { LogManager._v3_out_("Failed to log colors, rig most likely nonexistent"); }
 
                         try
                         {
                             text += "\n====================================\n";
                             text += string.Concat("Player Name: \"", player.NickName, "\", Player ID: \"", player.UserId, "\", Player Color: (R: ", r.ToString(), ", G: ", g.ToString(), ", B: ", b.ToString(), ")");
                         }
-                        catch { LogManager.Log("Failed to log player"); }
+                        catch { LogManager._v3_out_("Failed to log player"); }
 
                         text += "\n====================================\n";
                         text += "Text file generated with Quantum Menu";
@@ -467,7 +467,7 @@ namespace Quantum.Mods
                 }
                 catch { }
                 NetworkSystem.Instance.ReturnToSinglePlayer();
-                NotificationManager.SendNotification($"<color=grey>[</color><color=purple>ANTI-MODERATOR</color><color=grey>]</color> {vrrig.GetName()} is a moderator, you have been disconnected. Their player ID and room code have been saved to a file.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>ANTI-MODERATOR</color><color=grey>]</color> {vrrig.GetName()} is a moderator, you have been disconnected. Their player ID and room code have been saved to a file.");
             }
         }
 
@@ -493,14 +493,14 @@ namespace Quantum.Mods
                             g = plr.playerColor.r * 255;
                             b = plr.playerColor.r * 255;
                         }
-                        catch { LogManager.Log("Failed to log colors, rig most likely nonexistent"); }
+                        catch { LogManager._v3_out_("Failed to log colors, rig most likely nonexistent"); }
 
                         try
                         {
                             text += "\n====================================\n";
                             text += string.Concat("Player Name: \"", player.NickName, "\", Player ID: \"", player.UserId, "\", Player Color: (R: ", r.ToString(), ", G: ", g.ToString(), ", B: ", b.ToString(), ")");
                         }
-                        catch { LogManager.Log("Failed to log player"); }
+                        catch { LogManager._v3_out_("Failed to log player"); }
 
                         text += "\n====================================\n";
                         text += "Text file generated with Quantum Menu";
@@ -511,7 +511,7 @@ namespace Quantum.Mods
                 }
                 catch { }
                 NetworkSystem.Instance.ReturnToSinglePlayer();
-                NotificationManager.SendNotification($"<color=grey>[</color><color=purple>ANTI-CONTENT CREATOR</color><color=grey>]</color> {vrrig.GetName()} is a content creator, you have been disconnected. Their player ID and room code have been saved to a file.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=purple>ANTI-CONTENT CREATOR</color><color=grey>]</color> {vrrig.GetName()} is a content creator, you have been disconnected. Their player ID and room code have been saved to a file.");
             }
         }
 
@@ -535,7 +535,7 @@ namespace Quantum.Mods
             }
 
             if (specialRig != null && !previousSpecial)
-                NotificationManager.SendNotification($"<color=grey>[</color><color=#{specialRig.GetColor().ToHex()}>COSMETIC</color><color=grey>]</color> {specialRig.GetName()} has {specialCosmetic}.");
+                NotificationManager._v3_msg_($"<color=grey>[</color><color=#{specialRig.GetColor().ToHex()}>COSMETIC</color><color=grey>]</color> {specialRig.GetName()} has {specialCosmetic}.");
 
             previousSpecial = specialRig != null;
         }
@@ -920,6 +920,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

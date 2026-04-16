@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Projectiles.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -582,7 +582,7 @@ namespace Quantum.Mods
                 projDebounceIndex = 20;
 
             if (projDebounceIndex < 8 && fromMenu && (!Buttons.GetIndex("Friend Sided Projectiles").enabled || !Buttons.GetIndex("Client Sided Projectiles").enabled))
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> Using a projectile delay lower than 0.8 could get you banned. Use at your own caution.", 5000);
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> Using a projectile delay lower than 0.8 could get you banned. Use at your own caution.", 5000);
 
             projDebounceType = projDebounceIndex / 20f;
             Overpowered.SnowballSpawnDelay = Mathf.Max(projDebounceType, 0.1f);
@@ -1470,6 +1470,7 @@ namespace Quantum.Mods
         public static void ProjectileLagPlayer(VRRig player) => ProjectileLagPlayer(GetPlayerFromVRRig(player));
     }
 }
+
 
 
 

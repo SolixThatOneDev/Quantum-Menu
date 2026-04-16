@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/LogManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -52,9 +52,9 @@ namespace Quantum.Managers
             _sink(level, msg);
         }
 
-        public static void Log(object log) => Write(Level.Info, log);
+        public static void _v3_out_(object log) => Write(Level.Info, log);
 
-        public static void Log(object log, object[] args) =>
+        public static void _v3_out_(object log, object[] args) =>
             Write(Level.Info, string.Format(log?.ToString() ?? "", args));
 
         public static void LogError(object log) => Write(Level.Error, log);

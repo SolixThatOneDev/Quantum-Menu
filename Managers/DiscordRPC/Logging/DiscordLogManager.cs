@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Quantum.Managers.DiscordRPC.Logging
 {
@@ -51,10 +51,10 @@ namespace Quantum.Managers.DiscordRPC.Logging
             string text = "TRACE: " + message;
             if (args.Length != 0)
             {
-                LogManager.Log(text, args);
+                LogManager._v3_out_(text, args);
                 return;
             }
-            LogManager.Log(text);
+            LogManager._v3_out_(text);
         }
 
         public void Info(string message, params object[] args)
@@ -66,10 +66,10 @@ namespace Quantum.Managers.DiscordRPC.Logging
             string text = "INFO: " + message;
             if (args.Length != 0)
             {
-                LogManager.Log(text, args);
+                LogManager._v3_out_(text, args);
                 return;
             }
-            LogManager.Log(text);
+            LogManager._v3_out_(text);
         }
 
         public void Warning(string message, params object[] args)
@@ -103,4 +103,5 @@ namespace Quantum.Managers.DiscordRPC.Logging
         }
     }
 }
+
 

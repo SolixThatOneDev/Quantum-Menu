@@ -68,7 +68,7 @@ namespace Quantum.Mods
                     previousNames.Add(button.buttonText);
                 }
             }
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully fixed " + duplicateButtons + " broken buttons.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully fixed " + duplicateButtons + " broken buttons.");
         }
 
         private static readonly Dictionary<Renderer, Material> oldMats = new Dictionary<Renderer, Material>();
@@ -119,7 +119,7 @@ namespace Quantum.Mods
                     text += "\n====================================\n";
                     text += i + " ; " + oneshot.matName + " ; " + oneshot.slidePercent + "% ; " + (oneshot.audio == null ? "none" : oneshot.audio.name);
                 }
-                catch { LogManager.Log("Failed to log sound"); }
+                catch { LogManager._v3_out_("Failed to log sound"); }
                 i++;
             }
             text += "\n====================================\n";
@@ -142,7 +142,7 @@ namespace Quantum.Mods
                     text += "\n====================================\n";
                     text += hat.itemName + " ; " + hat.displayName + " (override " + hat.overrideDisplayName + ") ; " + hat.cost + "SR ; canTryOn = " + hat.canTryOn;
                 }
-                catch { LogManager.Log("Failed to log hat"); }
+                catch { LogManager._v3_out_("Failed to log hat"); }
             }
             text += "\n====================================\n";
             text += "Text file generated with Quantum Menu";
@@ -163,7 +163,7 @@ namespace Quantum.Mods
                 {
                     text += hat.itemName + ";;" + hat.overrideDisplayName + ";;" + hat.cost + "\n";
                 }
-                catch { LogManager.Log("Failed to log hat"); }
+                catch { LogManager._v3_out_("Failed to log hat"); }
             }
             string fileName = $"{PluginInfo.BaseDirectory}/DecryptableCosmeticData.txt";
 
@@ -184,7 +184,7 @@ namespace Quantum.Mods
                     text += "\n====================================\n";
                     text += i + " ; " + name;
                 }
-                catch { LogManager.Log("Failed to log RPC"); }
+                catch { LogManager._v3_out_("Failed to log RPC"); }
                 i++;
             }
             text += "\n====================================\n";
@@ -205,14 +205,14 @@ namespace Quantum.Mods
 
         public static void CopyCustomGamemodeScript()
         {
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Copied map script to your clipboard.", 5000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Copied map script to your clipboard.", 5000);
             GUIUtility.systemCopyBuffer = CustomGameMode.LuaScript;
         }
 
         public static void CopyCustomMapID()
         {
             string id = CustomMapManager.currentRoomMapModId._id.ToString();
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> " + id, 5000);
             GUIUtility.systemCopyBuffer = id;
         }
 
@@ -264,7 +264,7 @@ namespace Quantum.Mods
                     {
                         TeleportPlayer(restartPosition);
                         File.Delete(restartDataPath);
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Restarted game with information.");
+                        NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Restarted game with information.");
                         restartIndex = 4;
                         Buttons.GetIndex("Safe Restart Game").enabled = false;
                         Settings.SavePreferences();
@@ -313,20 +313,20 @@ namespace Quantum.Mods
                             if (!platExcluded.Contains(id))
                             {
                                 platExcluded.Add(id);
-                                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Player is now excluded.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Player is now excluded.");
                             }
                             else
-                                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Player is already excluded!");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Player is already excluded!");
                         }
                         else
                         {
                             if (platExcluded.Contains(id))
                             {
                                 platExcluded.Remove(id);
-                                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Player is now included.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Player is now included.");
                             }
                             else
-                                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Player is already included!");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Player is already included!");
                         }
                     }
                 }
@@ -1482,12 +1482,12 @@ namespace Quantum.Mods
             {
                 if (isUserFound)
                 {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Found menu user!");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Found menu user!");
                     Buttons.GetIndex("Admin Find User").enabled = false;
                     isUserFound = false;
                     return;
                 }
-                NotificationManager.SendNotification("Nobody found, searching for players.");
+                NotificationManager._v3_msg_("Nobody found, searching for players.");
                 NetworkSystem.Instance.ReturnToSinglePlayer();
                 FindUserTime = Time.time + 2f;
             }
@@ -1782,6 +1782,7 @@ namespace Quantum.Mods
         }
     }
 }
+
 
 
 

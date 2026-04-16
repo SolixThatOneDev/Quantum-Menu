@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/Menu/BanPatches.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -112,9 +112,9 @@ namespace Quantum.Patches.Menu
                         if (error.ErrorMessage.ToLower().Contains("ban") || error.ErrorMessage.ToLower().Contains("banned") || error.ErrorMessage.ToLower().Contains("suspended") || error.ErrorMessage.ToLower().Contains("suspension"))
                         {
                             if (error.ErrorMessage.ToLower().Contains("this ip"))
-                                NotificationManager.SendNotification("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your IP address is currently banned.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your IP address is currently banned.");
                             else
-                                NotificationManager.SendNotification("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your account is currently banned.");
+                                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your account is currently banned.");
                             Dictionary<string, List<string>>.Enumerator enumerator = error.ErrorDetails.GetEnumerator();
                             PlayFabError fakeError = null;
                             if (enumerator.Current.Value[0] != "Indefinite")
@@ -164,7 +164,7 @@ namespace Quantum.Patches.Menu
                     {
                         if (error.ErrorMessage.Contains("ban") || error.ErrorMessage.Contains("banned") || error.ErrorMessage.Contains("suspended") || error.ErrorMessage.Contains("suspension"))
                         {
-                            NotificationManager.SendNotification("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your account is currently banned.");
+                            NotificationManager._v3_msg_("<color=grey>[</color><color=red>ANTI-BAN</color><color=grey>]</color> Your account is currently banned.");
                             PlayFabError fakeError = new PlayFabError
                             {
                                 Error = PlayFabErrorCode.UnknownError,
@@ -185,4 +185,5 @@ namespace Quantum.Patches.Menu
         }
     }
 }
+
 

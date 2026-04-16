@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/CustomMaps/Maps/MonkeMagic.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -305,10 +305,11 @@ namespace Quantum.Mods.CustomMaps.Maps
                     NetPlayer Player = GetPlayerFromVRRig(vrrig);
                     CrashPlayer(Player.ActorNumber);
                     crashDelay = Time.time + 0.5f;
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been crashed.");
+                    NotificationManager._v3_msg_("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been crashed.");
                 }
             });
         }
     }
 }
+
 

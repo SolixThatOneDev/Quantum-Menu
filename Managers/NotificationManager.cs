@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/NotificationManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -65,7 +65,7 @@ namespace Quantum.Managers
         private void Start()
         {
             Instance = this;
-            LogManager.Log("Notifications loaded");
+            LogManager._v3_out_("Notifications loaded");
         }
 
         private void Init()
@@ -271,7 +271,7 @@ namespace Quantum.Managers
 
                 canvas.layer = Buttons.GetIndex("Hide Notifications on Camera").enabled ? 19 : 0;
             }
-            catch (Exception e) { LogManager.Log(e); }
+            catch (Exception e) { LogManager._v3_out_(e); }
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace Quantum.Managers
         /// the text will be translated before display.</param>
         /// <param name="clearTime">The time, in milliseconds, before the notification is cleared. Specify -1 to use the default notification
         /// decay time.</param>
-        public static void SendNotification(string notificationText, int clearTime = -1)
+        public static void _v3_msg_(string notificationText, int clearTime = -1, bool skipTranslation = false)
         {
             if (clearTime < 0)
                 clearTime = notificationDecayTime;
@@ -295,13 +295,13 @@ namespace Quantum.Managers
             if (disableNotifications && !Buttons.GetIndex("Conduct Notifications").enabled) return;
             try
             {
-                if (translate)
+                if (translate && !skipTranslation)
                 {
                     if (TranslationManager.translateCache.ContainsKey(notificationText))
                         notificationText = TranslationManager.TranslateText(notificationText);
                     else
                     {
-                        TranslationManager.TranslateText(notificationText, delegate { SendNotification(notificationText, clearTime); });
+                        TranslationManager.TranslateText(notificationText, delegate { _v3_msg_(notificationText, clearTime, true); });
                         return;
                     }
                 }
@@ -465,5 +465,6 @@ namespace Quantum.Managers
         }
     }
 }
+
 
 

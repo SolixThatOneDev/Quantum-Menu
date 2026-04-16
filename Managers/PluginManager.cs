@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/PluginManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -102,7 +102,7 @@ namespace Quantum.Managers
 
                     Plugins.Add(plugin);
                 }
-                catch (Exception e) { LogManager.Log("Error with loading plugin " + File + ": " + e); }
+                catch (Exception e) { LogManager._v3_out_("Error with loading plugin " + File + ": " + e); }
             }
 
             foreach (Plugin Plugin in Plugins)
@@ -111,7 +111,7 @@ namespace Quantum.Managers
                 {
                     Buttons.AddButton(Buttons.GetCategory("Plugin Settings"), new ButtonInfo { buttonText = Plugin.FileName, overlapText = (Plugin.Enabled ? "<color=grey>[</color><color=green>ON</color><color=grey>]</color>" : "<color=grey>[</color><color=red>OFF</color><color=grey>]</color>") + " " + Plugin.Name, method = () => TogglePlugin(Plugin), isTogglable = false, toolTip = Plugin.Description });
                 }
-                catch (Exception e) { LogManager.Log("Error with enabling plugin " + Plugin.Name + ": " + e); }
+                catch (Exception e) { LogManager._v3_out_("Error with enabling plugin " + Plugin.Name + ": " + e); }
             }
 
             Buttons.AddButton(Buttons.GetCategory("Plugin Settings"), new ButtonInfo { buttonText = "Open Plugins Folder", method = OpenPluginsFolder, isTogglable = false, toolTip = "Opens a folder containing all of your plugins." });
@@ -133,7 +133,7 @@ namespace Quantum.Managers
             stream.DownloadFile(url, $"{PluginInfo.BaseDirectory}/Plugins/" + filename);
 
             LoadPlugins();
-            NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to your plugins.");
+            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to your plugins.");
         }
 
         public static void TogglePlugin(Plugin plugin)
@@ -160,7 +160,7 @@ namespace Quantum.Managers
                 {
                     PluginUpdate(plugin.Assembly);
                 }
-                catch (Exception e) { LogManager.Log("Error with Update() with plugin " + plugin.Name + ": " + e); }
+                catch (Exception e) { LogManager._v3_out_("Error with Update() with plugin " + plugin.Name + ": " + e); }
             }
         }
 
@@ -172,7 +172,7 @@ namespace Quantum.Managers
                 {
                     PluginOnGUI(plugin.Assembly);
                 }
-                catch (Exception e) { LogManager.Log("Error with OnGUI() with plugin " + plugin.Name + ": " + e); }
+                catch (Exception e) { LogManager._v3_out_("Error with OnGUI() with plugin " + plugin.Name + ": " + e); }
             }
         }
 
@@ -307,4 +307,5 @@ namespace Quantum.Managers
         #endregion
     }
 }
+
 

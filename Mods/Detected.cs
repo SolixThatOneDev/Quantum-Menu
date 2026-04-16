@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Detected.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -1471,7 +1471,7 @@ namespace Quantum.Mods
         {
             if (!PhotonNetwork.IsMasterClient)
             {
-                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
+                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not master client.");
                 return;
             }
 
@@ -1497,4 +1497,5 @@ namespace Quantum.Mods
         }
     }
 }
+
 
