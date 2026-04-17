@@ -1293,23 +1293,25 @@ namespace Quantum.Mods
                         }
                     };
                     break;
-                case 6: // Rainbow
+                case 6: // Rainbow (disabled – use static Quantum theme)
+                    // Replicate the Quantum theme (case 1) to avoid rainbow effect
                     backgroundColor = new ExtGradient
                     {
-                        colors = ExtGradient.GetSolidGradient(Color.black),
-                        rainbow = true
+                        colors = ExtGradient.GetSolidGradient(new Color32(45, 45, 45, 180))
                     };
-                    menuBackgroundColor = backgroundColor;
+                    menuBackgroundColor = new ExtGradient
+                    {
+                        colors = ExtGradient.GetSolidGradient(new Color32(22, 22, 22, 128))
+                    };
                     buttonColors = new[]
                     {
                         new ExtGradient // Released
                         {
-                            colors = ExtGradient.GetSolidGradient(Color.black)
+                            colors = ExtGradient.GetSolidGradient(new Color32(65, 65, 65, 255))
                         },
                         new ExtGradient // Pressed
                         {
-                            colors = ExtGradient.GetSolidGradient(Color.black),
-                            rainbow = true
+                            colors = ExtGradient.GetSolidGradient(new Color32(30, 30, 30, 255))
                         }
                     };
                     textColors = new[]

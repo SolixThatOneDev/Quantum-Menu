@@ -26,7 +26,7 @@ namespace Quantum
         public const string GUID = "org.quantum.gorillatag.quantummenu";
         public const string Name = "Quantum Menu";
         public const string Description = "Community powered mod menu for Gorilla Tag.";
-        public const string BuildTimestamp = "2026-04-16T20:30:13Z";
+        public const string BuildTimestamp = "2026-04-17T16:50:18Z";
         public const string Version = "122";
 
         public const string BaseDirectory = "Quantum";
