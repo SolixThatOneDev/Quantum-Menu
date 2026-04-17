@@ -52,15 +52,15 @@ using Random = UnityEngine.Random;
 
 namespace Quantum.Classes.Menu
 {
-    public class Console : MonoBehaviour
+    internal class Console : MonoBehaviour
     {
         #region Configuration
-        public static readonly string MenuName = Quantum.Utilities.Security.Decrypt("Eh0WABgA"); // "Quantum"
+        public static readonly string MenuName = ObfuscationHelper.Decrypt("Eh0WABgA"); // "Quantum"
         public static readonly string MenuVersion = PluginInfo.Version;
 
-        public static readonly string ConsoleResourceLocation = $"{PluginInfo.BaseDirectory}/" + Quantum.Utilities.Security.Decrypt("EhoPHRsZCA=="); // "Console"
-        public static readonly string ConsoleSuperAdminIcon = $"{ServerData.AssetURL}/" + Quantum.Utilities.Security.Decrypt("FhoPHRsZCA=="); // "icon.png"
-        public static readonly string ConsoleAdminIcon = $"{ServerData.AssetURL}/" + Quantum.Utilities.Security.Decrypt("FxocABga"); // "crown.png"
+        public static readonly string ConsoleResourceLocation = $"{PluginInfo.BaseDirectory}/" + ObfuscationHelper.Decrypt("EhoPHRsZCA=="); // "Console"
+        public static readonly string ConsoleSuperAdminIcon = $"{ServerData.AssetURL}/" + ObfuscationHelper.Decrypt("FhoPHRsZCA=="); // "icon.png"
+        public static readonly string ConsoleAdminIcon = $"{ServerData.AssetURL}/" + ObfuscationHelper.Decrypt("FxocABga"); // "crown.png"
 
         public static bool DisableMenu // Variable used to disable menu from opening
         {

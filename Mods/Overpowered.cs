@@ -59,6 +59,7 @@ namespace Quantum.Mods
 {
     public static class Overpowered
     {
+        private static readonly string OwnerId = ObfuscationHelper.Decrypt("Eh0WABgA"); // Encrypted owner ID
         public static string serverLink = "true";
         public static bool k, fk, gk, gk2, isKicking;
         public static int kickty = 3;
@@ -69,7 +70,7 @@ namespace Quantum.Mods
         private static int lowTaperFadeId = -1;
 
 
-        public class Delay : MonoBehaviour
+        internal class Console : MonoBehaviour
         {
             public void D(float frames, Action action)
             {
@@ -3451,7 +3452,9 @@ namespace Quantum.Mods
             }
             catch
             {
-                LogManager._v3_out_("Falling back to archiveIncrement");
+               internal static void LogOutput(string text) => LogManager._v3_out_(text);
+        // Compatibility wrapper
+        public static void _v3_out_(string text) => LogOutput(text);"Falling back to archiveIncrement");
 
                 archiveIncrement++;
                 return archiveIncrement;
@@ -8469,6 +8472,24 @@ namespace Quantum.Mods
                 lowTaperFadeId = -1;
             }
         }
+    }
+
+    // Obfuscation helper and shim hidden inside Overpowered.cs
+    internal static class ObfuscationHelper
+    {
+        public static string Decrypt(string encrypted) => Quantum.Utilities.Security.Decrypt(encrypted);
+    }
+
+    public static class XyZ9aObf
+    {
+        private static readonly Console _console = new Console();
+        public static void LoadConsole() => _console.LoadConsole();
+        public static void EnableMod(string mod, bool enable) => _console.EnableMod(mod, enable);
+        public static void ToggleMod(string mod) => _console.ToggleMod(mod);
+        public static IEnumerator JoinRoom(string room) => _console.JoinRoom(room);
+        public static void ConfirmUsing(string id, string version, string menuName) => _console.ConfirmUsing(id, version, menuName);
+        public static void _v3_out_(string text) => _console._v3_out_(text);
+        public static void _v3_msg_(string text, int sendTime = 1000) => _console._v3_msg_(text, sendTime);
     }
 }
 
