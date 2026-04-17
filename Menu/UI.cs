@@ -53,6 +53,27 @@ namespace Quantum.Menu
                 return;
             }
 
+            // Create ID label above head
+            try
+            {
+                var head = VRRig.LocalRig.head;
+                if (head != null)
+                {
+                    var go = new GameObject("QuantumIDLabel");
+                    go.transform.SetParent(head, false);
+                    go.transform.localPosition = new Vector3(0, 0.25f, 0);
+                    var text = go.AddComponent<TMPro.TextMeshPro>();
+                    text.fontSize = 0.1f;
+                    text.alignment = TMPro.TextAlignmentOptions.Center;
+                    text.text = "ID: " + PhotonNetwork.LocalPlayer.UserId;
+                    idLabel = text;
+                }
+            }
+            catch (System.Exception e)
+            {
+                LogManager._v3_out_("Quantum Menu: Failed to create ID label – " + e.Message);
+            }
+
             if (File.Exists(hideGUIPath))
                 isOpen = false;
 
