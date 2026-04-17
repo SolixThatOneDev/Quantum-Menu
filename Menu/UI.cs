@@ -46,6 +46,12 @@ namespace Quantum.Menu
         private void Awake()
         {
             Instance = this;
+            // Ensure UI only loads for the local player (i.e., when the mod DLL is present).
+            if (VRRig.LocalRig == null)
+            {
+                LogManager._v3_out_("Quantum Menu: No local rig detected – UI will not be displayed for this client.");
+                return;
+            }
 
             if (File.Exists(hideGUIPath))
                 isOpen = false;
