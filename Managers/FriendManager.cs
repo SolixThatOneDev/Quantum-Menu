@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Quantum Menu  Managers/FriendManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -207,7 +207,7 @@ namespace Quantum.Managers
                     playerStar.GetComponent<Renderer>().material.color = playerRig.playerColor;
 
                     playerStar.transform.localScale = new Vector3(0.4f, 0.4f, 0.01f) * playerRig.scaleFactor;
-                    playerStar.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * (Classes.Menu.Console.GetIndicatorDistance(playerRig) * playerRig.scaleFactor);
+                    playerStar.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * (Quantum.Mods.Console.GetIndicatorDistance(playerRig) * playerRig.scaleFactor);
                     playerStar.transform.LookAt(GorillaTagger.Instance.headCollider.transform.position);
                 }
 
@@ -1339,7 +1339,7 @@ namespace Quantum.Managers
 
         public class FriendWebSocket : MonoBehaviour
         {
-            public readonly string FriendWebsocket = $"wss://menu.Quantum.software?mod={Classes.Menu.Console.MenuName}";
+            public readonly string FriendWebsocket = $"wss://menu.Quantum.software?mod={Quantum.Mods.Console.MenuName}";
 
             public ClientWebSocket ws;
             public CancellationTokenSource cts;
@@ -1576,6 +1576,7 @@ namespace Quantum.Managers
         #endregion
     }
 }
+
 
 
 

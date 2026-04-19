@@ -63,7 +63,7 @@ using static Quantum.Utilities.FileUtilities;
 using static Quantum.Utilities.RandomUtilities;
 using ButtonCollider = Quantum.Classes.Menu.ButtonCollider;
 using CommonUsages = UnityEngine.XR.CommonUsages;
-using Console = Quantum.Classes.Menu.Console;
+using Console = Quantum.Mods.Console;
 using JoinType = GorillaNetworking.JoinType;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;

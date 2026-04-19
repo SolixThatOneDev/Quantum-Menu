@@ -42,7 +42,7 @@ using UnityEngine;
 using static Quantum.Menu.Main;
 using static Quantum.Utilities.RandomUtilities;
 using static Quantum.Utilities.RigUtilities;
-using Console = Quantum.Classes.Menu.Console;
+using Console = Quantum.Mods.Console;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 

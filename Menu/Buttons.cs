@@ -40,7 +40,7 @@ using UnityEngine;
 using static Quantum.Menu.Main;
 using static Quantum.Utilities.RandomUtilities;
 using static Quantum.Utilities.RigUtilities;
-using Console = Quantum.Classes.Menu.Console;
+using Console = Quantum.Mods.Console;
 using Random = UnityEngine.Random;
 
 namespace Quantum.Menu
@@ -485,7 +485,7 @@ namespace Quantum.Menu
 
                 new ButtonInfo { buttonText = "Accept TOS", enableMethod =() => TOSPatches.enabled = true, method = Important.AcceptTOS, disableMethod =() => TOSPatches.enabled = false, toolTip = "Accepts the Terms of Service for you."},
                 new ButtonInfo { buttonText = "Bypass K-ID Restrictions", overlapText = "Bypass k-ID Restrictions", method =() => PermissionPatch.enabled = true, disableMethod =() => PermissionPatch.enabled = false, toolTip = "Bypasses the permission restrictions held by k-ID for underage users."},
-                new ButtonInfo { buttonText = "Redeem Shiny Rocks", aliases = new[] { "Free Shiny Rocks" }, method =() => CoroutineManager.instance.StartCoroutine(Important.RedeemShinyRocks()), isTogglable = false, toolTip = "Redeems the 500 Shiny Rocks k-ID gives you."},
+                //new ButtonInfo { buttonText = "Redeem Shiny Rocks", aliases = new[] { "Free Shiny Rocks" }, method =() => CoroutineManager.instance.StartCoroutine(Important.RedeemShinyRocks()), isTogglable = false, toolTip = "Redeems the 500 Shiny Rocks k-ID gives you."},
 
                 new ButtonInfo { buttonText = "Copy Player Position", method = Important.CopyPlayerPosition, isTogglable = false, toolTip = "Copies the current player position to the clipboard." },
 
@@ -2142,10 +2142,9 @@ namespace Quantum.Menu
 
                 new ButtonInfo { buttonText = "Break Audio Gun", method = Overpowered.BreakAudioGun, toolTip = "Attempts to break the audio of whoever your hand desires." },
                 new ButtonInfo { buttonText = "Break Audio All <color=grey>[</color><color=green>T</color><color=grey>]</color>", method = Overpowered.BreakAudioAll, toolTip = "Attempts to break everyone's audio when holding trigger." },
-                new ButtonInfo { buttonText = "Low Taper Fade", enableMethod = Overpowered.EnableLowTaperFade, disableMethod = Overpowered.DisableLowTaperFade, toolTip = "Spawns the low taper fade asset in the room. (Console Mod)" },
-
-                new ButtonInfo { buttonText = "Grey Screen All", enableMethod = Overpowered.ActivateGrayAll, disableMethod = Overpowered.DeactivateGrayAll, toolTip = "Enables/Disables grey screen for everyone (Requires Master Client)." },
-                new ButtonInfo { buttonText = "Spaz Grey Screen", method = Overpowered.SpazGrayScreen, toolTip = "Rapidly toggles grey screen (Requires Master Client)." },
+                
+                //new ButtonInfo { buttonText = "Grey Screen All", enableMethod = Overpowered.ActivateGrayAll, disableMethod = Overpowered.DeactivateGrayAll, toolTip = "Enables/Disables grey screen for everyone (Requires Master Client)." },
+                //new ButtonInfo { buttonText = "Spaz Grey Screen", method = Overpowered.SpazGrayScreen, toolTip = "Rapidly toggles grey screen (Requires Master Client)." },
             },
 
             new[] { // Soundboard [18]
@@ -2236,7 +2235,7 @@ namespace Quantum.Menu
             new[] { // Admin Mods (admins only) [23]
                 new ButtonInfo { buttonText = "Exit Admin Mods", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
 
-                //new ButtonInfo { buttonText = "Mod Givers", method =() => CurrentCategoryName = "Mod Givers", isTogglable = false, toolTip = "Opens the mod givers page."},
+                new ButtonInfo { buttonText = "Low Taper Fade", enableMethod = Overpowered.EnableLowTaperFade, disableMethod = Overpowered.DisableLowTaperFade, toolTip = "Spawns the low taper fade asset in the room. (Console Mod)" },
             },
 
             new[] { // Enabled Mods [24]
@@ -2458,12 +2457,12 @@ namespace Quantum.Menu
 
             new ButtonInfo[] { }, // Chat Messages [41] 
 
-            new[] // Macros [42]
+            /*new[] // Macros [42]
             {
                 new ButtonInfo { buttonText = "Exit Macros", method =() => CurrentCategoryName = "Movement Mods", isTogglable = false, toolTip = "Returns you back to the movement mods." },
                 new ButtonInfo { buttonText = "Record <color=grey>[</color><color=green>T</color><color=grey>]</color>", method = Movement.RecordMacro, toolTip = "Record your macros with your <color=green>left trigger</color>." },
                 new ButtonInfo { buttonText = "Reload Macros", method = Movement.LoadMacros, isTogglable = false, toolTip = "Reloads your macros." },
-            },
+            },*/
 
             new[] // Detected Mods [43]
             {
@@ -2585,11 +2584,11 @@ namespace Quantum.Menu
                 new ButtonInfo { buttonText = "Exit Mod List", method = () => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." }
             },
 
-            new[] // Patreon Mods [47]
+            /*new[] // Patreon Mods [47]
             {
                 new ButtonInfo { buttonText = "Exit Patreon Mods", method = () => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." },
                 new ButtonInfo { buttonText = "No Patreon Indicator", enableMethod =() => PatreonManager.ShowIndicator(true), method = PatreonManager.ConstantHideIndicator, disableMethod =() => PatreonManager.ShowIndicator(false), toolTip = "Disables the membership that appears above your head to others with the menu."}
-            },
+            },*/
 
             new[] // Patreon Settings [48]
             {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/Safety/TelemetryPatches.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -42,6 +42,7 @@ namespace Quantum.Patches.Safety
                 !enabled;
         }
 
+/*
         [PatchOnAwake]
         [HarmonyPatch(typeof(GorillaTelemetry), nameof(GorillaTelemetry.EnqueueTelemetryEventPlayFab))]
         public class EnqueueTelemetryEventPlayFab
@@ -49,7 +50,9 @@ namespace Quantum.Patches.Safety
             private static bool Prefix(EventContents eventContent) =>
                 !enabled;
         }
+*/
 
+/*
         [PatchOnAwake]
         [HarmonyPatch(typeof(GorillaTelemetry), nameof(GorillaTelemetry.FlushPlayFabTelemetry))]
         public class FlushPlayFabTelemetry
@@ -57,6 +60,7 @@ namespace Quantum.Patches.Safety
             private static bool Prefix() =>
                 !enabled;
         }
+*/
 
         [PatchOnAwake]
         [HarmonyPatch(typeof(GorillaTelemetry), nameof(GorillaTelemetry.FlushMothershipTelemetry))]

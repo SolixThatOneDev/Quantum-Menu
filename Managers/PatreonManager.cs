@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Quantum Menu  Managers/PatreonManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -164,7 +164,7 @@ namespace Quantum.Managers
                     iconPool.Add(playerRig, playerIndicator);
                 }
 
-                float distance = Classes.Menu.Console.GetIndicatorDistance(playerRig);
+                float distance = Quantum.Mods.Console.GetIndicatorDistance(playerRig);
                 playerIndicator.transform.localScale = new Vector3(0.4f, 0.4f, 0.01f) * playerRig.scaleFactor;
                 playerIndicator.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * (distance * playerRig.scaleFactor);
                 playerIndicator.transform.LookAt(GorillaTagger.Instance.headCollider.transform.position);
@@ -265,5 +265,6 @@ namespace Quantum.Managers
         #endregion
     }
 }
+
 
 

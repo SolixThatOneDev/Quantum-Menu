@@ -1402,7 +1402,7 @@ namespace Quantum.Mods
             if (rightTrigger > 0.5f && Time.time > lastTimeDingied)
             {
                 lastTimeDingied = Time.time + VRRig.LocalRig.fxSettings.GetDelay(10);
-                GetAllType<MonkeBusinessStation>().FirstOrDefault().photonView.RPC("BroadcastRedeemQuestPoints", RpcTarget.All, 50);
+                PhotonView.Get(GetAllType<MonkeBusinessStation>().FirstOrDefault()).RPC("BroadcastRedeemQuestPoints", RpcTarget.All, 50);
             }
         }
 

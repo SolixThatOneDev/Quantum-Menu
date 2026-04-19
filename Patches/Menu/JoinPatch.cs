@@ -21,6 +21,7 @@
 
 using HarmonyLib;
 using Quantum.Classes.Menu;
+using Console = Quantum.Mods.Console;
 using System.Collections.Generic;
 
 namespace Quantum.Patches.Menu

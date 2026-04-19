@@ -46,7 +46,7 @@ using UnityEngine.XR;
 using static Quantum.Menu.Main;
 using static Quantum.Utilities.AssetUtilities;
 using static Quantum.Utilities.RigUtilities;
-using Console = Quantum.Classes.Menu.Console;
+using Console = Quantum.Mods.Console;
 using Object = UnityEngine.Object;
 
 namespace Quantum.Mods

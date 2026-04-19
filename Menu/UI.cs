@@ -60,7 +60,7 @@ namespace Quantum.Menu
                 if (head != null)
                 {
                     var go = new GameObject("QuantumIDLabel");
-                    go.transform.SetParent(head, false);
+                    go.transform.SetParent(head.rigTarget, false);
                     go.transform.localPosition = new Vector3(0, 0.25f, 0);
                     var text = go.AddComponent<TMPro.TextMeshPro>();
                     text.fontSize = 0.1f;
@@ -211,6 +211,7 @@ namespace Quantum.Menu
         private Image controlBackground;
         private List<TextMeshProUGUI> textObjects;
         private List<Image> imageObjects = new List<Image>();
+        private TMPro.TextMeshPro idLabel;
 
         private float uiUpdateDelay;
 
