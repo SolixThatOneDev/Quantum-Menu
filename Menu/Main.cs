@@ -188,15 +188,7 @@ namespace Quantum.Menu
                 $"Error with Sound.LoadSoundboard() at {exc.StackTrace}: {exc.Message}");
             }
 
-            try
-            {
-                Movement.LoadMacros();
-            }
-            catch (Exception exc)
-            {
-                LogManager.LogError(
-                $"Error with Movement.LoadMacros() at {exc.StackTrace}: {exc.Message}");
-            }
+
 
             loadPreferencesTime = Time.time;
             if (File.Exists($"{PluginInfo.BaseDirectory}/Quantum_Preferences.txt"))
@@ -1032,7 +1024,7 @@ namespace Quantum.Menu
                             int categoryIndex = 0;
                             foreach (ButtonInfo[] buttonList in Buttons.buttons)
                             {
-                                enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings")) && (!hideMacros || !Buttons.categoryNames[categoryIndex].Contains("Macro"))));
+                                enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings"))));
                                 categoryIndex++;
                             }
                             enabledMods = enabledMods.OrderBy(v => v.overlapText ?? v.buttonText).ToList();
@@ -3088,7 +3080,7 @@ namespace Quantum.Menu
                                     int categoryIndex = 0;
                                     foreach (ButtonInfo[] buttonList in Buttons.buttons)
                                     {
-                                        enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings")) && (!hideMacros || !Buttons.categoryNames[categoryIndex].Contains("Macro"))));
+                                        enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings"))));
                                         categoryIndex++;
                                     }
                                     enabledMods = enabledMods.OrderBy(v => v.buttonText).ToList();
@@ -6748,9 +6740,7 @@ jgs \_   _/ |Oo\
                         var category = Buttons.categoryNames[i];
 
                         bool skipSettings = hideSettings && category.Contains("Settings");
-                        bool skipMacros = hideMacros && category.Contains("Macro");
-
-                        if (skipSettings || skipMacros)
+                        if (skipSettings)
                             continue;
 
                         enabledMods.AddRange(from v in buttonList where v.enabled select v.buttonText);
@@ -6931,7 +6921,7 @@ jgs \_   _/ |Oo\
         public static bool advancedArraylist;
         public static bool flipArraylist;
         public static bool hideSettings;
-        public static bool hideMacros;
+
         public static bool hideTextOnCamera;
         public static bool hidePointer;
         public static bool incrementalButtons = true;

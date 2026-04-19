@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/FriendManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -112,7 +112,7 @@ namespace Quantum.Managers
         public static bool InviteNotifications = true;
         public static bool PreferenceSharing = true;
         public static bool ThemeSharing = true;
-        public static bool MacroSharing = true;
+
 
         public static bool SoundEffects = true;
         public static bool Messaging = true;
@@ -812,27 +812,7 @@ namespace Quantum.Managers
             NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully shared theme.", 5000);
         }
 
-        public static void ShareMacro(string uid, string name)
-        {
-            Movement.Macro sendingMacro = null;
-            foreach (var macroItem in Movement.macros.Select(macroData => macroData.Value).Where(macroItem => String.Equals(macroItem.name.ToLower(), name.ToLower())))
-                sendingMacro = macroItem;
 
-            if (sendingMacro == null)
-            {
-                NotificationManager._v3_msg_("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Macro \"" + name + "\" does not exist.", 5000);
-                return;
-            }
-
-            _ = FriendWebSocket.Instance.Send(JsonConvert.SerializeObject(new
-            {
-                command = "macro",
-                target = uid,
-                macro = sendingMacro.DumpJSON()
-            }));
-
-            NotificationManager._v3_msg_("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully shared macro.", 5000);
-        }
 
         public static void SendFriendMessage(string uid, string message)
         {
@@ -1190,14 +1170,7 @@ namespace Quantum.Managers
                         isTogglable = false,
                         toolTip = $"Sends your theme to {friend.currentName}."
                     },
-                    new ButtonInfo
-                    {
-                        buttonText = $"ShareMacro{friendTarget}",
-                        overlapText = "Share Macro",
-                        method = () => PromptText("What is the name of the macro you would like to send?", () => { ShareMacro(friendTarget, keyboardInput); }, null, "Done", "Cancel"),
-                        isTogglable = false,
-                        toolTip = $"Sends a macro to {friend.currentName}."
-                    },
+
                     new ButtonInfo
                     {
                         buttonText = $"MessageLogs{friendTarget}",
@@ -1524,19 +1497,7 @@ namespace Quantum.Managers
                             });
                             break;
                         }
-                    case "macro":
-                        {
-                            if (!MacroSharing)
-                                break;
 
-                            if (SoundEffects)
-                                LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Friends/alert.ogg", "Audio/Friends/alert.ogg", clip => Play2DAudio(clip, buttonClickVolume / 10f));
-
-                            Movement.Macro macro = Movement.Macro.LoadJSON((string)obj["data"]);
-                            NotificationManager._v3_msg_($"<color=grey>[</color><color=green>FRIENDS</color><color=grey>]</color> {friendName} has shared their macro " + macro.name + " with you.", 5000);
-                            Prompt($"{friendName} has shared their macro " + macro.name + " with you, would you like to use it?", () => { Movement.macros[Movement.FormatMacroName(macro.name)] = macro; });
-                            break;
-                        }
                     case "notification":
                         {
                             string message = (string)obj["message"];

@@ -5503,7 +5503,7 @@ namespace Quantum.Mods
                 int categoryIndex = 0;
                 foreach (ButtonInfo[] buttonList in Buttons.buttons)
                 {
-                    enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings")) && (!hideMacros || !Buttons.categoryNames[categoryIndex].Contains("Macro"))));
+                    enabledMods.AddRange(buttonList.Where(v => v.enabled && (!hideSettings || !Buttons.categoryNames[categoryIndex].Contains("Settings"))));
                     categoryIndex++;
                 }
                 enabledMods = enabledMods.OrderBy(v => v.overlapText ?? v.buttonText).ToList();
@@ -6049,7 +6049,7 @@ namespace Quantum.Mods
                 Movement.playspaceAbuseIndex.ToString(),
                 Movement.wallWalkStrengthIndex.ToString(),
                 Fun.headSpinIndex.ToString(),
-                Movement.macroPlaybackRangeIndex.ToString(),
+
                 joystickMenuPosition.ToString(),
                 Movement.multiplicationAmount.ToString(),
                 Fun.targetFOV.ToString(),
@@ -6308,8 +6308,7 @@ namespace Quantum.Mods
                 Fun.headSpinIndex = int.Parse(data[56]) - 1;
                 Fun.ChangeHeadSpinSpeed();
 
-                Movement.macroPlaybackRangeIndex = int.Parse(data[57]) - 1;
-                Movement.ChangeMacroPlaybackRange();
+
 
                 joystickMenuPosition = int.Parse(data[58]) - 1;
                 ChangeJoystickMenuPosition();
