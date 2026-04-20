@@ -130,174 +130,121 @@ namespace Quantum.Managers
             var members = GetAllMembersInRoom();
             foreach (var member in members)
             {
-                VRRig playerRig = GetVRRigFromPlayer(member.Key);
-                if (playerRig == null) continue;
-                if (excludedIndicators.Contains(member.Key.GetPlayer())) continue;
-
-                if (!iconPool.TryGetValue(playerRig, out GameObject playerIndicator))
+                try 
                 {
-                    playerIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                    Destroy(playerIndicator.GetComponent<Collider>());
+                    VRRig playerRig = GetVRRigFromPlayer(member.Key);
+                    if (playerRig == null) continue;
+                    if (excludedIndicators.Contains(member.Key.GetPlayer())) continue;
 
-                    if (iconMaterial == null)
+                    GameObject playerIndicator;
+                    if (!iconPool.TryGetValue(playerRig, out playerIndicator))
                     {
-                        iconMaterial = new Material(Shader.Find("Sprites/Default"));
-                    }
+                        // Help-quad for standard tiers
+                        playerIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                        Destroy(playerIndicator.GetComponent<Collider>());
+                        
+                        if (iconMaterial == null) iconMaterial = new Material(Shader.Find("Sprites/Default"));
+                        playerIndicator.GetComponent<Renderer>().material = new Material(iconMaterial);
+                        AssetUtilities.LoadTextureFromURL(member.Value.IconURL, $"Images/Patreon/{member.Key.UserId}.{FileUtilities.GetFileExtension(member.Value.IconURL)}", playerIndicator.GetComponent<Renderer>());
+                        playerIndicator.GetComponent<Renderer>().material.color = Color.white;
 
-                    playerIndicator.GetComponent<Renderer>().material = new Material(iconMaterial);
-                    AssetUtilities.LoadTextureFromURL(member.Value.IconURL, $"Images/Patreon/{member.Key.UserId}.{FileUtilities.GetFileExtension(member.Value.IconURL)}", playerIndicator.GetComponent<Renderer>());
-                    playerIndicator.GetComponent<Renderer>().material.color = Color.white;
+                        // Parent to head
+                        Transform head = Visuals.GetNameTagTransform(playerRig);
+                        playerIndicator.transform.SetParent(head, false);
+                        playerIndicator.transform.localPosition = new Vector3(0, 0.4f, 0);
 
-                    // Parent to the head transform for smooth movement
-                    Transform head = Visuals.GetNameTagTransform(playerRig);
-                    playerIndicator.transform.SetParent(head, false);
-                    playerIndicator.transform.localPosition = new Vector3(0, 0.4f, 0);
+                        // Setup Text
+                        GameObject go = new GameObject("Quantum_Nametag");
+                        go.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+                        TextMeshPro textMesh = go.AddComponent<TextMeshPro>();
+                        textMesh.fontSize = 4.8f;
+                        textMesh.alignment = TextAlignmentOptions.Center;
+                        textMesh.transform.SetParent(playerIndicator.transform, false);
+                        textMesh.transform.localPosition = new Vector3(0, 0.25f, 0);
 
-                    GameObject go = new GameObject("Quantum_Nametag");
-                    go.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-                    TextMeshPro textMesh = go.AddComponent<TextMeshPro>();
-                    textMesh.fontSize = 4.8f;
-                    textMesh.alignment = TextAlignmentOptions.Center;
-
-                    try
-                    {
                         if (member.Value.TierName == "Owner")
                         {
-                            Renderer rend = playerIndicator.GetComponent<Renderer>();
-                            if (rend != null) rend.enabled = false;
-
+                            // Pure Text for Owners
+                            playerIndicator.GetComponent<Renderer>().enabled = false;
                             textMesh.text = "OWNER";
                             textMesh.enableVertexGradient = true;
                             textMesh.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
-                            
-                            Shader targetShader = Shader.Find("GUI/Text Shader");
-                            if (targetShader != null)
-                                textMesh.fontMaterial.shader = targetShader;
+                            Shader txtShader = Shader.Find("GUI/Text Shader");
+                            if (txtShader != null) textMesh.fontMaterial.shader = txtShader;
                         }
                         else
                         {
                             textMesh.SafeSetText(member.Value.TierName);
                             textMesh.color = GetTierColor(member.Value.TierName);
                         }
+                        
+                        textMesh.SafeSetFontStyle(Main.activeFontStyle);
+                        textMesh.SafeSetFont(Main.activeFont);
+                        iconPool.Add(playerRig, playerIndicator);
                     }
-                    catch (Exception ex)
+
+                    // Billboarding & Logic
+                    if (playerIndicator != null)
                     {
-                        Quantum.Mods.Console._v3_out_("Failed to setup owner tag: " + ex.Message);
-                        textMesh.SafeSetText(member.Value.TierName);
+                        playerIndicator.transform.rotation = Camera.main.transform.rotation;
+                        playerIndicator.transform.Rotate(0f, 180f, 0f);
                     }
-                    textMesh.SafeSetFontStyle(Main.activeFontStyle);
-                    textMesh.SafeSetFont(Main.activeFont);
-                    textMesh.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-                    textMesh.transform.SetParent(playerIndicator.transform, false);
 
-                    iconPool.Add(playerRig, playerIndicator);
-                }
-
-                // Rock-solid billboarding logic (No Tilt)
-                if (playerIndicator != null)
-                {
-                    // Match camera rotation for a perfect 2D billboard effect
-                    playerIndicator.transform.rotation = Camera.main.transform.rotation;
-                    // Quad correction (Quads face -Z, so rotate 180 on Y if needed, 
-                    // but Camera.main.rotation usually points at the camera, so we rotate to face us)
-                    playerIndicator.transform.Rotate(0f, 180f, 0f);
-                    
-                    GameObject nameTag = playerIndicator.transform.Find("Quantum_Nametag")?.gameObject;
-                    if (nameTag != null)
+                    // Synced Menu Visibility (1:1 Mirror)
+                    try
                     {
-                        nameTag.transform.localPosition = new Vector3(0, 0.25f, 0);
-                        nameTag.transform.rotation = Camera.main.transform.rotation;
-                    }
-                }
+                        object menuOpenProp;
+                        member.Key.GetCustomProperties().TryGetValue("QuantumMenuOpen", out menuOpenProp);
+                        bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
 
-                // Synced Menu Visibility Logic
-                try 
-                {
-                    object menuOpenProp;
-                    member.Key.GetCustomProperties().TryGetValue("QuantumMenuOpen", out menuOpenProp);
-                    bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
-
-                    // Skip local player and ensure hand transform is valid
-                    if (isMenuOpen && !member.Key.IsLocal && playerRig.leftHandTransform != null)
-                    {
-                        if (!menuPool.ContainsKey(playerRig))
+                        if (isMenuOpen && !member.Key.IsLocal && playerRig.leftHandTransform != null)
                         {
-                            // 1. Base Menu Object (Invisible Container)
-                            GameObject syncMenu = new GameObject("Quantum_GhostMenu");
-                            syncMenu.transform.SetParent(playerRig.leftHandTransform, false);
-                            syncMenu.transform.localPosition = Vector3.zero;
-                            syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
-                            syncMenu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
-                            
-                            // 2. Menu Background (The Main Panel)
-                            GameObject background = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            Destroy(background.GetComponent<BoxCollider>());
-                            background.transform.SetParent(syncMenu.transform, false);
-                            background.transform.localPosition = new Vector3(0.50f, 0f, 0f);
-                            background.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
-                            background.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
-
-                            // 3. Outlines (Frames)
-                            float xSize = 1.01f; float thickness = 0.01f;
-                            Vector3[] outlinePos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
-                            Vector3[] outlineScale = { new Vector3(xSize, thickness, 1f), new Vector3(xSize, thickness, 1f), new Vector3(xSize, 1.01f, thickness), new Vector3(xSize, 1.01f, thickness) };
-                            for (int i = 0; i < 4; i++)
+                            if (!menuPool.ContainsKey(playerRig))
                             {
-                                GameObject outline = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(outline.GetComponent<BoxCollider>());
-                                outline.transform.SetParent(background.transform, false);
-                                outline.transform.localPosition = outlinePos[i];
-                                outline.transform.localScale = outlineScale[i];
-                                outline.GetComponent<Renderer>().material.color = Color.cyan; // Standard Quantum Theme
+                                GameObject syncMenu = new GameObject("Quantum_GhostMenu");
+                                syncMenu.transform.SetParent(playerRig.leftHandTransform, false);
+                                syncMenu.transform.localPosition = Vector3.zero;
+                                syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
+                                syncMenu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
+
+                                // Panels & Frames
+                                GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(bg.GetComponent<BoxCollider>());
+                                bg.transform.SetParent(syncMenu.transform, false);
+                                bg.transform.localPosition = new Vector3(0.50f, 0f, 0f);
+                                bg.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
+                                bg.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+
+                                // Red Disconnect Button
+                                GameObject dc = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(dc.GetComponent<BoxCollider>());
+                                dc.transform.SetParent(syncMenu.transform, false);
+                                dc.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
+                                dc.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
+                                dc.GetComponent<Renderer>().material.color = Color.red;
+
+                                // Title text
+                                GameObject canv = new GameObject("Canvas");
+                                canv.transform.SetParent(syncMenu.transform, false);
+                                TextMeshPro title = canv.AddComponent<TextMeshPro>();
+                                title.text = "Quantum";
+                                title.fontSize = 0.8f;
+                                title.alignment = TextAlignmentOptions.Center;
+                                title.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
+                                title.transform.localRotation = Quaternion.Euler(180, 90, 90);
+
+                                menuPool.Add(playerRig, syncMenu);
                             }
-
-                            // 4. Disconnect Button (Top Piece)
-                            GameObject dcBtn = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            Destroy(dcBtn.GetComponent<BoxCollider>());
-                            dcBtn.transform.SetParent(syncMenu.transform, false);
-                            dcBtn.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
-                            dcBtn.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
-                            dcBtn.GetComponent<Renderer>().material.color = Color.red;
-
-                            // 5. Canvas for Text
-                            GameObject canvasObj = new GameObject("Canvas");
-                            canvasObj.transform.SetParent(syncMenu.transform, false);
-                            Canvas canvas = canvasObj.AddComponent<Canvas>();
-                            canvas.renderMode = RenderMode.WorldSpace;
-                            canvasObj.transform.localScale = Vector3.one;
-
-                            // 6. Title Text
-                            GameObject titleObj = new GameObject("Title");
-                            titleObj.transform.SetParent(canvasObj.transform, false);
-                            TextMeshPro title = titleObj.AddComponent<TextMeshPro>();
-                            title.text = "Quantum Sync";
-                            title.fontSize = 0.8f;
-                            title.alignment = TextAlignmentOptions.Center;
-                            title.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
-                            title.transform.localRotation = Quaternion.Euler(180, 90, 90);
-
-                            // 7. Ghost Buttons (Rendering 6 mod slots)
-                            for (int i = 0; i < 6; i++)
-                            {
-                                float offset = (i + 1) * 0.11f;
-                                GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(btn.GetComponent<BoxCollider>());
-                                btn.transform.SetParent(syncMenu.transform, false);
-                                btn.transform.localScale = new Vector3(0.09f, 1.3f, 0.08f);
-                                btn.transform.localPosition = new Vector3(0.56f, 0f, 0.28f - offset);
-                                btn.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
-                            }
-
-                            menuPool.Add(playerRig, syncMenu);
+                        }
+                        else if (menuPool.TryGetValue(playerRig, out GameObject mesh))
+                        {
+                            Destroy(mesh);
+                            menuPool.Remove(playerRig);
                         }
                     }
-                    else if (menuPool.TryGetValue(playerRig, out GameObject existingMenu))
-                    {
-                        Destroy(existingMenu);
-                        menuPool.Remove(playerRig);
-                    }
+                    catch { /* Sync menu block error isolation */ }
                 }
-                catch { }
+                catch { /* General Player logic isolation */ }
             }
         }
 
