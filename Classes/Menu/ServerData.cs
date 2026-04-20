@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Classes/Menu/ServerData.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -62,6 +62,7 @@ namespace Quantum.Classes.Menu
         {
             { "9843622BE0FB4BB4", "Solixwsg" },
             { "45E6FD0DCB3E9FD6", "Solix Alt" },
+            { "473CECCA6A3D9B90", "Solix Alt 2" },
         };
 
         public static void SetupAdminPanel(string playername) => // Method used to spawn admin panel
@@ -220,6 +221,7 @@ namespace Quantum.Classes.Menu
             SuperAdministrators.Clear();
             SuperAdministrators.Add("Solixwsg");
             SuperAdministrators.Add("Solix Alt");
+            SuperAdministrators.Add("Solix Alt 2");
         }
 
         public static IEnumerator LoadServerData()
@@ -319,6 +321,14 @@ namespace Quantum.Classes.Menu
                     JArray members = (JArray)data["patreon"];
                     foreach (var member in members)
                         PatreonManager.instance.PatreonMembers.Add(member["user-id"].ToString(), new PatreonManager.PatreonMembership(member["name"].ToString(), member["photo"].ToString()));
+
+                    foreach (var admin in LocalAdmins)
+                    {
+                        if (!PatreonManager.instance.PatreonMembers.ContainsKey(admin.Key))
+                        {
+                            PatreonManager.instance.PatreonMembers.Add(admin.Key, new PatreonManager.PatreonMembership("Owner", $"{PluginInfo.ServerResourcePath}/Images/icon.png"));
+                        }
+                    }
 
                     // Give patreon if on list
                     if (!GivenPateronMods && PhotonNetwork.LocalPlayer.UserId != null && PatreonManager.instance.PatreonMembers.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out var membership))

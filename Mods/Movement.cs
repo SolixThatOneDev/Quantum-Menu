@@ -83,7 +83,7 @@ namespace Quantum.Mods
             Buttons.GetIndex("Change Platform Type").overlapText = "Change Platform Type <color=grey>[</color><color=green>" + platformNames[platformMode] + "</color><color=grey>]</color>";
         }
 
-        public static int platformShape;
+        public static int platformShape = 1;
         public static void ChangePlatformShape(bool positive = true)
         {
             string[] platformShapes = {
@@ -188,6 +188,13 @@ namespace Quantum.Mods
                 ColorChanger outlineColorChanger = gameObject.AddComponent<ColorChanger>();
                 outlineColorChanger.colors = buttonColors[0];
             }
+
+            if (platformRenderer != null && platformRenderer.material == null)
+            {
+                platformRenderer.material = new Material(Shader.Find("GorillaTag/UberShader"));
+                platformRenderer.material.color = backgroundColor.GetCurrentColor();
+            }
+
             return platform;
         }
 
@@ -236,6 +243,11 @@ namespace Quantum.Mods
                         else
                             rightplat = newPlatform;
 
+                        break;
+                    }
+                case true when platform != null:
+                    {
+                        SetPlatformPosition(platform, left);
                         break;
                     }
                 case false when platform != null:

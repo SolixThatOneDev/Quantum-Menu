@@ -112,6 +112,7 @@ namespace Quantum
             Loader.AddComponent<CustomBoardManager>();
             Loader.AddComponent<UI>();
             Loader.AddComponent<Main>();
+            Loader.AddComponent<Quantum.Handlers.larpHandler>();
             UnityEngine.Object.DontDestroyOnLoad(Loader);
 
             LogManager._v3_out_("Quantum Menu: Loader components added.");

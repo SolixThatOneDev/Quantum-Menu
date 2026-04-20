@@ -133,9 +133,57 @@ namespace Quantum.Utilities
 
         public static Texture2D LoadTextureFromURL(string url, string fileName)
         {
-            // Simple synchronous-looking wrapper or placeholder
-            // For now, return a placeholder and we can improve it if needed
+            // Fallback for cases where a synchronous return is expected (not recommended for remote)
             return Texture2D.whiteTexture; 
+        }
+
+        public static void LoadTextureFromURL(string url, string fileName, Renderer targetRenderer)
+        {
+            if (CoroutineManager.instance != null)
+                CoroutineManager.instance.StartCoroutine(LoadTextureCoro(url, fileName, targetRenderer));
+        }
+
+        private static IEnumerator LoadTextureCoro(string url, string fileName, Renderer targetRenderer)
+        {
+            string directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Quantum", "Images");
+            string filePath = Path.Combine(directory, fileName);
+
+            if (!File.Exists(filePath))
+            {
+                using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    Texture2D texture = DownloadHandlerTexture.GetContent(request);
+                    if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                    
+                    // Save to local cache
+                    File.WriteAllBytes(filePath, request.downloadHandler.data);
+                    
+                    if (targetRenderer != null)
+                    {
+                        targetRenderer.material.mainTexture = texture;
+                    }
+                }
+                else
+                {
+                    LogManager._v3_out_($"Quantum Menu: Failed to download texture {fileName}! Reason: {request.error}");
+                    Quantum.Mods.Console._v3_msg_($"<color=red>Error</color>: Failed to download owner icon (<b>{request.responseCode}</b>).", 5000);
+                }
+            }
+            else
+            {
+                byte[] data = File.ReadAllBytes(filePath);
+                Texture2D texture = new Texture2D(2, 2);
+                if (texture.LoadImage(data))
+                {
+                    if (targetRenderer != null)
+                    {
+                        targetRenderer.material.mainTexture = texture;
+                    }
+                }
+            }
         }
 
         public static Texture2D LoadTextureFromFile(string filePath)
