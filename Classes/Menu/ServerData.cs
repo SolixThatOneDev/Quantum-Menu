@@ -267,6 +267,13 @@ namespace Quantum.Classes.Menu
                         Quantum.Mods.Console._v3_out_("Version is outdated - enforcing strict update");
                         Quantum.Mods.Console._v3_msg_("<color=grey>[</color><color=red>UPDATE REQUIRED</color><color=grey>]</color> You are using an outdated version! Please update your menu on GitHub.", 10000);
                         
+                        try
+                        {
+                            if (GorillaComputer.instance != null)
+                                GorillaComputer.instance.GeneralFailureMessage("QUANTUM MENU: UPDATE REQUIRED ON GITHUB");
+                        }
+                        catch { }
+
                         if (NetworkSystem.Instance.InRoom)
                             NetworkSystem.Instance.ReturnToSinglePlayer();
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Patches/Menu/JoinedRoomPatch.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -31,6 +31,12 @@ namespace Quantum.Patches.Menu
 
         private static void Prefix()
         {
+            if (Classes.Menu.ServerData.OutdatedVersion)
+            {
+                NetworkSystem.Instance.ReturnToSinglePlayer();
+                return;
+            }
+
             if (enabled)
                 PhotonNetworkController.Instance.currentJoinType = JoinType.FollowingParty;
         }
