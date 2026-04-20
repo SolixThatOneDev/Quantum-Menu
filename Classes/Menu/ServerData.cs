@@ -258,29 +258,6 @@ namespace Quantum.Classes.Menu
                         Quantum.Mods.Console._v3_msg_("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using a testing build of the menu. Be warned that there may be bugs and issues that could cause crashes, data loss, or other unexpected behavior.", 10000);
                     }
                 }
-                else if (VersionToNumber(version) > VersionToNumber(PluginInfo.Version))
-                {
-                    if (!OutdatedVersion)
-                    {
-                        OutdatedVersion = true;
-                        Utilities.Security._network_v3_internal_state = false; // Hidden kill-switch
-                        Quantum.Mods.Console._v3_out_("Version is outdated - enforcing strict update");
-                        Quantum.Mods.Console._v3_msg_("<color=grey>[</color><color=red>UPDATE REQUIRED</color><color=grey>]</color> You are using an outdated version! Please update your menu on GitHub.", 10000);
-                        
-                        try
-                        {
-                            if (GorillaComputer.instance != null)
-                                GorillaComputer.instance.GeneralFailureMessage("QUANTUM MENU: UPDATE REQUIRED ON GITHUB");
-                        }
-                        catch { }
-
-                        if (NetworkSystem.Instance.InRoom)
-                            NetworkSystem.Instance.ReturnToSinglePlayer();
-
-                        Main.UpdatePrompt(version);
-                        shownPrompt = true;
-                    }
-                }
 
                 string minConsoleVersion = (string)data["min-console-version"];
                 if (VersionToNumber(Quantum.Mods.Console.ConsoleVersion) >= VersionToNumber(minConsoleVersion))

@@ -151,18 +151,31 @@ namespace Quantum.Managers
                     textMesh.fontSize = 4.8f;
                     textMesh.alignment = TextAlignmentOptions.Center;
 
-                    if (member.Value.TierName == "Owner")
+                    try
                     {
-                        playerIndicator.GetComponent<Renderer>().enabled = false;
-                        textMesh.text = "OWNER";
-                        textMesh.enableVertexGradient = true;
-                        textMesh.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
-                        textMesh.fontMaterial.shader = Shader.Find("GUI/Text Shader");
+                        if (member.Value.TierName == "Owner")
+                        {
+                            Renderer rend = playerIndicator.GetComponent<Renderer>();
+                            if (rend != null) rend.enabled = false;
+
+                            textMesh.text = "OWNER";
+                            textMesh.enableVertexGradient = true;
+                            textMesh.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
+                            
+                            Shader targetShader = Shader.Find("GUI/Text Shader");
+                            if (targetShader != null)
+                                textMesh.fontMaterial.shader = targetShader;
+                        }
+                        else
+                        {
+                            textMesh.SafeSetText(member.Value.TierName);
+                            textMesh.color = GetTierColor(member.Value.TierName);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        Quantum.Mods.Console._v3_out_("Failed to setup owner tag: " + ex.Message);
                         textMesh.SafeSetText(member.Value.TierName);
-                        textMesh.color = GetTierColor(member.Value.TierName);
                     }
                     textMesh.SafeSetFontStyle(Main.activeFontStyle);
                     textMesh.SafeSetFont(Main.activeFont);
