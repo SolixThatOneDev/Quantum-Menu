@@ -151,10 +151,21 @@ namespace Quantum.Managers
                     textMesh.fontSize = 4.8f;
                     textMesh.alignment = TextAlignmentOptions.Center;
 
-                    textMesh.SafeSetText(member.Value.TierName);
+                    if (member.Value.TierName == "Owner")
+                    {
+                        playerIndicator.GetComponent<Renderer>().enabled = false;
+                        textMesh.text = "OWNER";
+                        textMesh.enableVertexGradient = true;
+                        textMesh.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
+                        textMesh.fontMaterial.shader = Shader.Find("GUI/Text Shader");
+                    }
+                    else
+                    {
+                        textMesh.SafeSetText(member.Value.TierName);
+                        textMesh.color = GetTierColor(member.Value.TierName);
+                    }
                     textMesh.SafeSetFontStyle(Main.activeFontStyle);
                     textMesh.SafeSetFont(Main.activeFont);
-                    textMesh.color = GetTierColor(member.Value.TierName);
                     textMesh.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                     textMesh.transform.SetParent(playerIndicator.transform, false);
 

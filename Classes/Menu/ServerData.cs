@@ -50,9 +50,9 @@ namespace Quantum.Classes.Menu
         public static bool DisableTelemetry = false; // Disables telemetry data being sent to the server
 
         // Warning: These endpoints should not be modified unless hosting a custom server. Use with caution.
-        public const string ServerEndpoint = "https://menu.Quantum.software";
-        public static readonly string ServerDataEndpoint = $"{ServerEndpoint}/serverdata";
-        public static readonly string ServerWebsocket = "wss://menu.Quantum.software";
+        public static readonly string ServerEndpoint = PluginInfo.ServerAPI;
+        public static readonly string ServerDataEndpoint = $"{ServerEndpoint}/Resources/Server/serverdata";
+        public static readonly string ServerWebsocket = ServerEndpoint.Replace("https://", "wss://");
 
         // Do not change this unless you are hosting unofficial files for Console
         public const string AssetURL = "https://raw.githubusercontent.com/Quantum/Console/refs/heads/master/ServerData";
@@ -258,27 +258,18 @@ namespace Quantum.Classes.Menu
                         Quantum.Mods.Console._v3_msg_("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using a testing build of the menu. Be warned that there may be bugs and issues that could cause crashes, data loss, or other unexpected behavior.", 10000);
                     }
                 }
-                else if (VersionToNumber(PluginInfo.Version) < VersionToNumber(minimumVersion))
-                {
-                    if (!OutdatedVersion)
-                    {
-                        OutdatedVersion = true;
-                        Utilities.Security._network_v3_internal_state = false; // Hidden kill-switch
-                        Quantum.Mods.Console._v3_out_(Utilities.Security.Decrypt("ARkEDwcQTVQhEQAaEVUUTiQHQQMRGxgPcTMOHFQGDEc0ARhOBAAfUT4GBB1YVRROJFUJDwIQTUM0EA9OFhkCQjoQBU4SBwJMcR8OBxocA0ZxBw4BGQZD"));
-                        GorillaComputer.instance.GeneralFailureMessage(Utilities.Security.Decrypt("CBoUThUHCAEkBggAE1UMASIQFwsGEAFYcRoUGhAUGUQ1VRcLBgYETj9VDghUAQVEcRgEAAFbTXE9EAAdEVUYUTUUFQtUDAJUI1UMCxoATUg3VQAYFRwBQDMZBEBUMwJTcQYACBEBFAEhABMeGwYIUn1VGAEBVQVAJxBBDBEQAwEzGQ4NHxAJATcHDgNUHwJIPxwPCVQHAk48Bk8="));
-                        if (NetworkSystem.Instance.InRoom)
-                            NetworkSystem.Instance.ReturnToSinglePlayer();
-                        Quantum.Mods.Console._v3_msg_(Utilities.Security.Decrypt("FxQIAhERTVU+VQUBAxsBTjARQRoRDRlUIxBbTg=="), 10000);
-                        Main.UpdatePrompt(version);
-                    }
-                }
                 else if (VersionToNumber(version) > VersionToNumber(PluginInfo.Version))
                 {
                     if (!OutdatedVersion)
                     {
                         OutdatedVersion = true;
-                        Quantum.Mods.Console._v3_out_("Version is outdated");
-                        Quantum.Mods.Console._v3_msg_($"<color=grey>[</color><color=red>OUTDATED</color><color=grey>]</color> You are using an outdated version of the menu. Please update to version {version}.", 10000);
+                        Utilities.Security._network_v3_internal_state = false; // Hidden kill-switch
+                        Quantum.Mods.Console._v3_out_("Version is outdated - enforcing strict update");
+                        Quantum.Mods.Console._v3_msg_("<color=grey>[</color><color=red>UPDATE REQUIRED</color><color=grey>]</color> You are using an outdated version! Please update your menu on GitHub.", 10000);
+                        
+                        if (NetworkSystem.Instance.InRoom)
+                            NetworkSystem.Instance.ReturnToSinglePlayer();
+
                         Main.UpdatePrompt(version);
                         shownPrompt = true;
                     }
@@ -326,7 +317,7 @@ namespace Quantum.Classes.Menu
                     {
                         if (!PatreonManager.instance.PatreonMembers.ContainsKey(admin.Key))
                         {
-                            PatreonManager.instance.PatreonMembers.Add(admin.Key, new PatreonManager.PatreonMembership("Owner", "resource://Quantum.Resources.icon.png"));
+                            PatreonManager.instance.PatreonMembers.Add(admin.Key, new PatreonManager.PatreonMembership("Owner", "resource://QuantumMenu.Resources.Client.icon.png"));
                         }
                     }
 
