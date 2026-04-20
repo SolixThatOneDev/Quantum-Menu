@@ -128,85 +128,88 @@ namespace Quantum.Managers
 
             if (!NetworkSystem.Instance.InRoom) return;
             var members = GetAllMembersInRoom();
-            foreach (var member in members)
+            // Universal Player Processing Loop (Modders + Patreon)
+            foreach (NetPlayer player in NetworkSystem.Instance.AllNetPlayers)
             {
-                try 
+                try
                 {
-                    VRRig playerRig = GetVRRigFromPlayer(member.Key);
+                    if (player.IsLocal) continue;
+                    VRRig playerRig = player.VRRig();
                     if (playerRig == null) continue;
-                    if (excludedIndicators.Contains(member.Key.GetPlayer())) continue;
 
-                    GameObject playerIndicator;
-                    if (!iconPool.TryGetValue(playerRig, out playerIndicator))
+                    // --- 1. Patreon & Tag Logic ---
+                    if (PatreonMembers.TryGetValue(player.UserId, out PatreonMembership membership))
                     {
-                        // Help-quad for standard tiers
-                        playerIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                        Destroy(playerIndicator.GetComponent<Collider>());
-                        
-                        if (iconMaterial == null) iconMaterial = new Material(Shader.Find("Sprites/Default"));
-                        playerIndicator.GetComponent<Renderer>().material = new Material(iconMaterial);
-                        AssetUtilities.LoadTextureFromURL(member.Value.IconURL, $"Images/Patreon/{member.Key.UserId}.{FileUtilities.GetFileExtension(member.Value.IconURL)}", playerIndicator.GetComponent<Renderer>());
-                        playerIndicator.GetComponent<Renderer>().material.color = Color.white;
+                        if (!iconPool.TryGetValue(playerRig, out GameObject iconObj))
+                        {
+                            bool isOwner = membership.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase);
+                            
+                            // Nuclear Fix: For owners, create a BLANK object (No Quad, No Block)
+                            if (isOwner)
+                            {
+                                iconObj = new GameObject("Quantum_OwnerTag");
+                            }
+                            else
+                            {
+                                iconObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                                Destroy(iconObj.GetComponent<Collider>());
+                                if (iconMaterial == null) iconMaterial = new Material(Shader.Find("Sprites/Default"));
+                                iconObj.GetComponent<Renderer>().material = new Material(iconMaterial);
+                                AssetUtilities.LoadTextureFromURL(membership.IconURL, $"Images/Patreon/{player.UserId}.{FileUtilities.GetFileExtension(membership.IconURL)}", iconObj.GetComponent<Renderer>());
+                            }
 
-                        // Parent to head
-                        Transform head = Visuals.GetNameTagTransform(playerRig);
-                        playerIndicator.transform.SetParent(head, false);
-                        playerIndicator.transform.localPosition = new Vector3(0, 0.4f, 0);
+                            // Shared Parenting
+                            Transform head = Visuals.GetNameTagTransform(playerRig);
+                            iconObj.transform.SetParent(head, false);
+                            iconObj.transform.localPosition = new Vector3(0, 0.4f, 0);
 
-                        // Setup Text Container
-                        GameObject go = new GameObject("Quantum_Nametag");
-                        go.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-                        TextMeshPro textMesh = go.AddComponent<TextMeshPro>();
-                        textMesh.fontSize = 4.8f;
-                        textMesh.alignment = TextAlignmentOptions.Center;
-                        textMesh.transform.SetParent(playerIndicator.transform, false);
-                        textMesh.transform.localPosition = new Vector3(0, 0.25f, 0);
-                        
-                        iconPool.Add(playerRig, playerIndicator);
+                            // Text Creation
+                            GameObject txtContainer = new GameObject("Quantum_Nametag");
+                            txtContainer.transform.SetParent(iconObj.transform, false);
+                            txtContainer.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+                            txtContainer.transform.localPosition = new Vector3(0, isOwner ? 0f : 0.25f, 0);
+                            
+                            TextMeshPro tmp = txtContainer.AddComponent<TextMeshPro>();
+                            tmp.fontSize = 4.8f;
+                            tmp.alignment = TextAlignmentOptions.Center;
+                            tmp.SafeSetFontStyle(Main.activeFontStyle);
+                            tmp.SafeSetFont(Main.activeFont);
+
+                            if (isOwner)
+                            {
+                                tmp.text = "OWNER";
+                                tmp.enableVertexGradient = true;
+                                tmp.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
+                                Shader txtShader = Shader.Find("GUI/Text Shader");
+                                if (txtShader != null) tmp.fontMaterial.shader = txtShader;
+                            }
+                            else
+                            {
+                                tmp.SafeSetText(membership.TierName);
+                                tmp.color = GetTierColor(membership.TierName);
+                            }
+
+                            iconPool.Add(playerRig, iconObj);
+                        }
+
+                        // Billboarding (If not null)
+                        if (iconPool.TryGetValue(playerRig, out GameObject liveIcon))
+                        {
+                            liveIcon.transform.rotation = Camera.main.transform.rotation;
+                            liveIcon.transform.Rotate(0f, 180f, 0f);
+                        }
                     }
 
-                    // --- Per-Frame Styling & Visibility (Iron-Clad) ---
-                    TextMeshPro tmp = playerIndicator.GetComponentInChildren<TextMeshPro>();
-                    if (tmp != null)
-                    {
-                        bool isOwner = member.Value.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase);
-                        
-                        // Force green block to be invisible if Owner
-                        playerIndicator.GetComponent<Renderer>().enabled = !isOwner;
-
-                        if (isOwner)
-                        {
-                            tmp.text = "OWNER";
-                            tmp.enableVertexGradient = true;
-                            tmp.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
-                            Shader txtShader = Shader.Find("GUI/Text Shader");
-                            if (txtShader != null) tmp.fontMaterial.shader = txtShader;
-                        }
-                        else
-                        {
-                            tmp.SafeSetText(member.Value.TierName);
-                            tmp.color = GetTierColor(member.Value.TierName);
-                        }
-
-                        tmp.SafeSetFontStyle(Main.activeFontStyle);
-                        tmp.SafeSetFont(Main.activeFont);
-                    }
-
-                    // Billboarding
-                    playerIndicator.transform.rotation = Camera.main.transform.rotation;
-                    playerIndicator.transform.Rotate(0f, 180f, 0f);
-
-                    // --- Synced Menu Visibility (1:1 Mirror) ---
+                    // --- 2. Universal Sync Menu Logic (Works for ALL Quantum Users) ---
                     try
                     {
                         object menuOpenProp = null;
-                        Hashtable props = member.Key.GetCustomProperties();
+                        Hashtable props = player.GetCustomProperties();
                         if (props != null) props.TryGetValue("QuantumMenuOpen", out menuOpenProp);
                         
                         bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
 
-                        // Skip local player and ensure hand transform is valid
-                        if (isMenuOpen && !member.Key.IsLocal && playerRig.leftHandTransform != null)
+                        if (isMenuOpen && playerRig.leftHandTransform != null)
                         {
                             if (!menuPool.ContainsKey(playerRig))
                             {
@@ -216,45 +219,35 @@ namespace Quantum.Managers
                                 syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
                                 syncMenu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
 
-                                // Panels & Frames
+                                // Main Panel
                                 GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(bg.GetComponent<BoxCollider>());
                                 bg.transform.SetParent(syncMenu.transform, false);
                                 bg.transform.localPosition = new Vector3(0.50f, 0f, 0f);
                                 bg.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
-                                bg.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+                                bg.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f, 0.95f);
 
                                 // Outlines
-                                float xSize = 1.01f; float thickness = 0.01f;
+                                float xSize = 1.01f; float thick = 0.01f;
                                 Vector3[] oPos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
-                                Vector3[] oScale = { new Vector3(xSize, thickness, 1f), new Vector3(xSize, thickness, 1f), new Vector3(xSize, 1.01f, thickness), new Vector3(xSize, 1.01f, thickness) };
+                                Vector3[] oSca = { new Vector3(xSize, thick, 1f), new Vector3(xSize, thick, 1f), new Vector3(xSize, 1.01f, thick), new Vector3(xSize, 1.01f, thick) };
                                 for (int i = 0; i < 4; i++)
                                 {
                                     GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                     Destroy(o.GetComponent<BoxCollider>());
                                     o.transform.SetParent(bg.transform, false);
                                     o.transform.localPosition = oPos[i];
-                                    o.transform.localScale = oScale[i];
+                                    o.transform.localScale = oSca[i];
                                     o.GetComponent<Renderer>().material.color = Color.cyan;
                                 }
 
-                                // Red Disconnect Button
+                                // Disconnect
                                 GameObject dc = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(dc.GetComponent<BoxCollider>());
                                 dc.transform.SetParent(syncMenu.transform, false);
                                 dc.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
                                 dc.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
                                 dc.GetComponent<Renderer>().material.color = Color.red;
-
-                                // Title text (using a canvas for correct rendering)
-                                GameObject canv = new GameObject("SyncCanvas");
-                                canv.transform.SetParent(syncMenu.transform, false);
-                                TextMeshPro t = canv.AddComponent<TextMeshPro>();
-                                t.text = "Quantum";
-                                t.fontSize = 0.8f;
-                                t.alignment = TextAlignmentOptions.Center;
-                                t.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
-                                t.transform.localRotation = Quaternion.Euler(180, 90, 90);
 
                                 menuPool.Add(playerRig, syncMenu);
                             }
@@ -265,9 +258,9 @@ namespace Quantum.Managers
                             menuPool.Remove(playerRig);
                         }
                     }
-                    catch { /* Sync block catch */ }
+                    catch { /* Sync failure isolation */ }
                 }
-                catch { /* General Player logic isolation */ }
+                catch { /* Player failure isolation */ }
             }
         }
 
