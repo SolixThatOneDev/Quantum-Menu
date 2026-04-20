@@ -3385,40 +3385,18 @@ namespace Quantum.Menu
             try
             {
                 OnMenuOpened?.Invoke();
+                if (PhotonNetwork.InRoom)
+                {
+                    ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
+                    hash.Add("QuantumMenuOpen", true);
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+                }
             }
             catch { }
 
             if (dynamicSounds)
                 SoundManager.Play(SoundManager.DefaultSounds["Open"]);
 
-            CreateMenu();
-
-            if (dynamicAnimations)
-                CoroutineManager.instance.StartCoroutine(GrowCoroutine());
-
-            if (particleSpawnEffect)
-            {
-                for (int i = 0; i < 25; i++)
-                {
-                    GameObject Particle = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Particle.transform.position = menu.transform.position;
-                    Particle.transform.localScale = Vector3.one * (0.025f * (scaleWithPlayer ? GorillaLocomotion.GTPlayer.Instance.scale : 1f));
-                    Particle.AddComponent<CustomParticle>();
-                    Destroy(Particle.GetComponent<Collider>());
-                }
-            }
-
-            menuOpenCount++;
-            if (menuOpenCount == 100)
-                AchievementManager.UnlockAchievement(new AchievementManager.Achievement
-                {
-                    name = "Persistent",
-                    description = "Open the menu 100 times.",
-                    icon = "Images/Achievements/persistent.png"
-
-                });
-
-            if (joystickMenu) return;
             if (reference == null)
                 CreateReference();
         }
@@ -3429,20 +3407,11 @@ namespace Quantum.Menu
             try
             {
                 OnMenuClosed?.Invoke();
-            }
-            catch { }
-
-            GetObject("Shoulder Camera").transform.Find("CM vcam1").gameObject.SetActive(true);
-            if (dynamicSounds)
-                SoundManager.Play(SoundManager.DefaultSounds["Close"]);
-
-            try
-            {
-                if ((isOnPC || keyboardWithToggleButton || isKeyboardPc) && TPC != null && TPC.transform.parent.gameObject.name.Contains("CameraTablet"))
+                if (PhotonNetwork.InRoom)
                 {
-                    isOnPC = false;
-                    TPC.transform.position = TPC.transform.parent.position;
-                    TPC.transform.rotation = TPC.transform.parent.rotation;
+                    ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
+                    hash.Add("QuantumMenuOpen", false);
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
                 }
             }
             catch { }

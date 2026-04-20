@@ -63,6 +63,7 @@ namespace Quantum.Managers
 
         private Material iconMaterial;
         private readonly Dictionary<VRRig, GameObject> iconPool = new Dictionary<VRRig, GameObject>();
+        private readonly Dictionary<VRRig, GameObject> menuPool = new Dictionary<VRRig, GameObject>();
         private static readonly List<Player> excludedIndicators = new List<Player>();
 
         public static KeyValuePair<NetPlayer, PatreonMembership>[] GetAllMembersInRoom()
@@ -114,7 +115,14 @@ namespace Quantum.Managers
             }
 
             foreach (VRRig rig in toRemoveRigs)
+            {
                 iconPool.Remove(rig);
+                if (menuPool.TryGetValue(rig, out GameObject menu))
+                {
+                    Destroy(menu);
+                    menuPool.Remove(rig);
+                }
+            }
 
             if (!IndicatorsEnabled) return;
 
@@ -201,6 +209,59 @@ namespace Quantum.Managers
                         nameTag.transform.rotation = Camera.main.transform.rotation;
                     }
                 }
+
+                // Synced Menu Visibility Logic
+                try 
+                {
+                    object menuOpenProp;
+                    member.Key.GetCustomProperties().TryGetValue("QuantumMenuOpen", out menuOpenProp);
+                    bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
+
+                    if (isMenuOpen)
+                    {
+                        if (!menuPool.ContainsKey(playerRig))
+                        {
+                            GameObject dummyMenu = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            Destroy(dummyMenu.GetComponent<BoxCollider>());
+                            dummyMenu.name = "Quantum_SyncMenu";
+                            dummyMenu.transform.localScale = new Vector3(0.02f, 0.25f, 0.35f);
+                            dummyMenu.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+                            
+                            // Title
+                            GameObject titleObj = new GameObject("Title");
+                            titleObj.transform.SetParent(dummyMenu.transform, false);
+                            TextMeshPro titleText = titleObj.AddComponent<TextMeshPro>();
+                            titleText.text = "Quantum Sync";
+                            titleText.fontSize = 0.5f;
+                            titleText.alignment = TextAlignmentOptions.Center;
+                            titleText.transform.localPosition = new Vector3(0.51f, 0f, 0.4f);
+                            titleText.transform.localRotation = Quaternion.Euler(0, 90, 0);
+
+                            // Dummy Mod Text
+                            GameObject modObj = new GameObject("Mods");
+                            modObj.transform.SetParent(dummyMenu.transform, false);
+                            TextMeshPro modText = modObj.AddComponent<TextMeshPro>();
+                            modText.text = "Synced Menu Active\n[Quantum Software]";
+                            modText.fontSize = 0.3f;
+                            modText.alignment = TextAlignmentOptions.Center;
+                            modText.transform.localPosition = new Vector3(0.51f, 0f, 0f);
+                            modText.transform.localRotation = Quaternion.Euler(0, 90, 0);
+
+                            // Attach to Left Hand
+                            dummyMenu.transform.SetParent(playerRig.leftHandTransform, false);
+                            dummyMenu.transform.localPosition = Vector3.zero;
+                            dummyMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
+
+                            menuPool.Add(playerRig, dummyMenu);
+                        }
+                    }
+                    else if (menuPool.TryGetValue(playerRig, out GameObject existingMenu))
+                    {
+                        Destroy(existingMenu);
+                        menuPool.Remove(playerRig);
+                    }
+                }
+                catch { }
             }
         }
 
