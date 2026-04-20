@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Quantum Menu  Mods/Visuals.cs
  * A community driven mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -2806,9 +2806,12 @@ namespace Quantum.Mods
                 {
                     if (!vrrig.isLocal || selfNameTag)
                     {
+                        string userId = GetPlayerFromVRRig(vrrig).UserId;
+                        if (PatreonManager.instance != null && PatreonManager.instance.PatreonMembers.TryGetValue(userId, out var m) && m.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
                         if (!verifiedNameTags.ContainsKey(vrrig))
                         {
-                            string userId = GetPlayerFromVRRig(vrrig).UserId;
                             if (verifiedDictionary.TryGetValue(userId, out string name))
                             {
                                 GameObject go = new GameObject("Quantum_Verifiedtag");
@@ -2892,6 +2895,10 @@ namespace Quantum.Mods
                 {
                     if (!vrrig.isLocal || selfNameTag)
                     {
+                        string userId = vrrig.GetPhotonPlayer().UserId;
+                        if (PatreonManager.instance != null && PatreonManager.instance.PatreonMembers.TryGetValue(userId, out var m) && m.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
                         if (!crashedNameTags.ContainsKey(vrrig))
                         {
                             int crashPower = vrrig.GetTruePing();

@@ -213,41 +213,61 @@ namespace Quantum.Managers
                         {
                             if (!menuPool.ContainsKey(playerRig))
                             {
+                                // 1. Ghost Menu Base (Attached to palm)
                                 GameObject syncMenu = new GameObject("Quantum_GhostMenu");
-                                syncMenu.transform.SetParent(playerRig.leftHandTransform, false);
+                                Transform hand = playerRig.leftHand.rigTarget;
+                                syncMenu.transform.SetParent(hand, false);
                                 syncMenu.transform.localPosition = Vector3.zero;
                                 syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
-                                syncMenu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
+                                
+                                // Normalized scale fix (prevents the "massive" bug)
+                                float s = 1f;
+                                if (hand.lossyScale.x != 0) s = 1f / hand.lossyScale.x;
+                                syncMenu.transform.localScale = new Vector3(s * 0.1f, s * 0.3f, s * 0.3825f);
 
-                                // Main Panel
+                                // 2. Spectral Main Surface (No Cyan)
                                 GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(bg.GetComponent<BoxCollider>());
                                 bg.transform.SetParent(syncMenu.transform, false);
-                                bg.transform.localPosition = new Vector3(0.50f, 0f, 0f);
-                                bg.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
-                                bg.GetComponent<Renderer>().material.color = new Color(0.05f, 0.05f, 0.05f, 0.95f);
+                                bg.transform.localPosition = new Vector3(0.50f, 0f, 0.05f);
+                                bg.transform.localScale = new Vector3(0.1f, 1.3f, 1f);
+                                bg.GetComponent<Renderer>().material.color = new Color(0.15f, 0.15f, 0.15f);
 
-                                // Outlines
-                                float xSize = 1.01f; float thick = 0.01f;
-                                Vector3[] oPos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
-                                Vector3[] oSca = { new Vector3(xSize, thick, 1f), new Vector3(xSize, thick, 1f), new Vector3(xSize, 1.01f, thick), new Vector3(xSize, 1.01f, thick) };
-                                for (int i = 0; i < 4; i++)
+                                // 3. Spectral Side Panels
+                                float sideWidth = 0.3f;
+                                float sideX = 0.52f;
+                                GameObject leftPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(leftPanel.GetComponent<BoxCollider>());
+                                leftPanel.transform.SetParent(syncMenu.transform, false);
+                                leftPanel.transform.localPosition = new Vector3(sideX, -0.6f, 0.05f);
+                                leftPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
+                                leftPanel.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+
+                                GameObject rightPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(rightPanel.GetComponent<BoxCollider>());
+                                rightPanel.transform.SetParent(syncMenu.transform, false);
+                                rightPanel.transform.localPosition = new Vector3(sideX, 0.6f, 0.05f);
+                                rightPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
+                                rightPanel.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+
+                                // 4. Top Panel (Disconnect Bar)
+                                GameObject topBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(topBar.GetComponent<BoxCollider>());
+                                topBar.transform.SetParent(syncMenu.transform, false);
+                                topBar.transform.localPosition = new Vector3(0.52f, 0f, 0.62f);
+                                topBar.transform.localScale = new Vector3(0.08f, 1.25f, 0.15f);
+                                topBar.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+
+                                // 5. Vertical Buttons (Matching the original layout)
+                                for (int i = 0; i < 6; i++)
                                 {
-                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                    Destroy(o.GetComponent<BoxCollider>());
-                                    o.transform.SetParent(bg.transform, false);
-                                    o.transform.localPosition = oPos[i];
-                                    o.transform.localScale = oSca[i];
-                                    o.GetComponent<Renderer>().material.color = Color.cyan;
+                                    GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                    Destroy(btn.GetComponent<BoxCollider>());
+                                    btn.transform.SetParent(bg.transform, false);
+                                    btn.transform.localScale = new Vector3(1.1f, 0.13f, 0.07f);
+                                    btn.transform.localPosition = new Vector3(0.01f, 0f, 0.28f - (i * 0.12f));
+                                    btn.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
                                 }
-
-                                // Disconnect
-                                GameObject dc = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(dc.GetComponent<BoxCollider>());
-                                dc.transform.SetParent(syncMenu.transform, false);
-                                dc.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
-                                dc.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
-                                dc.GetComponent<Renderer>().material.color = Color.red;
 
                                 menuPool.Add(playerRig, syncMenu);
                             }
