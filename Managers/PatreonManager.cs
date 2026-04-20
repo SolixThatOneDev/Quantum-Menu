@@ -137,13 +137,23 @@ namespace Quantum.Managers
                     VRRig playerRig = player.VRRig();
                     if (playerRig == null) continue;
 
-                    // --- 1. Patreon & Tag Logic ---
-                    if (PatreonMembers.TryGetValue(player.UserId, out PatreonMembership membership))
+                    // --- 1. Universal Patreon & Tag Logic ---
+                    bool isOwner = false;
+                    string userId = player.UserId;
+                    string nick = player.GetPlayer()?.NickName ?? "";
+
+                    // Multi-layered Owner Check (ID + Alias + Nickname fallback)
+                    if (ServerData.LocalAdmins.ContainsKey(userId) || 
+                        ServerData.Administrators.ContainsKey(userId) || 
+                        nick.IndexOf("Solix", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        isOwner = true;
+                    }
+
+                    if (PatreonMembers.TryGetValue(userId, out PatreonMembership membership) || isOwner)
                     {
                         if (!iconPool.TryGetValue(playerRig, out GameObject iconObj))
                         {
-                            bool isOwner = membership.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase);
-                            
                             // Nuclear Fix: For owners, create a BLANK object (No Quad, No Block)
                             if (isOwner)
                             {
@@ -200,7 +210,7 @@ namespace Quantum.Managers
                         }
                     }
 
-                    // --- 2. Universal Sync Menu Logic (Works for ALL Quantum Users) ---
+                    // --- 2. Master Overhaul Sync Menu (High-Fidelity Canvas Rebuild) ---
                     try
                     {
                         object menuOpenProp = null;
@@ -209,103 +219,100 @@ namespace Quantum.Managers
                         
                         bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
 
-                        if (isMenuOpen && playerRig.leftHandTransform != null)
+                        if (isMenuOpen && playerRig.leftHand.rigTarget != null)
                         {
                             if (!menuPool.ContainsKey(playerRig))
                             {
-                                // 1. Ghost Menu Base (Attached to palm)
-                                GameObject syncMenu = new GameObject("Quantum_GhostMenu");
+                                // 1. Ghost Menu Root
+                                GameObject syncMenu = new GameObject("Quantum_GhostMenu_Canvas");
                                 Transform hand = playerRig.leftHand.rigTarget;
                                 syncMenu.transform.SetParent(hand, false);
                                 syncMenu.transform.localPosition = Vector3.zero;
                                 syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
                                 
-                                // Normalized scale fix (prevents the "massive" bug)
+                                // Normalized scale fix
                                 float s = 1f;
                                 if (hand.lossyScale.x != 0) s = 1f / hand.lossyScale.x;
-                                syncMenu.transform.localScale = new Vector3(s * 0.1f, s * 0.3f, s * 0.3825f);
+                                syncMenu.transform.localScale = new Vector3(s, s, s);
 
-                                // 2. Quantum Main Surface (With Cyan Neon)
-                                GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(bg.GetComponent<BoxCollider>());
-                                bg.transform.SetParent(syncMenu.transform, false);
-                                bg.transform.localPosition = new Vector3(0.50f, 0f, 0.05f);
-                                bg.transform.localScale = new Vector3(0.1f, 1.3f, 1f);
-                                bg.GetComponent<Renderer>().material.color = new Color(0.15f, 0.15f, 0.15f);
+                                // 2. World Space Canvas
+                                Canvas canvas = syncMenu.AddComponent<Canvas>();
+                                canvas.renderMode = RenderMode.WorldSpace;
+                                RectTransform rect = syncMenu.GetComponent<RectTransform>();
+                                rect.sizeDelta = new Vector2(0.5f, 0.8f);
+                                rect.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
-                                // Main Outlines
-                                Vector3[] mOPos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
-                                Vector3[] mOSca = { new Vector3(1.02f, 0.015f, 1f), new Vector3(1.02f, 0.015f, 1f), new Vector3(1.02f, 1.015f, 0.015f), new Vector3(1.02f, 1.015f, 0.015f) };
-                                for (int i = 0; i < 4; i++)
-                                {
-                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                    Destroy(o.GetComponent<BoxCollider>());
-                                    o.transform.SetParent(bg.transform, false);
-                                    o.transform.localPosition = mOPos[i];
-                                    o.transform.localScale = mOSca[i];
-                                    o.GetComponent<Renderer>().material.color = Color.cyan;
-                                }
+                                // 3. Main UI Background (Rectangle)
+                                GameObject bgObj = new GameObject("Background");
+                                bgObj.transform.SetParent(syncMenu.transform, false);
+                                UnityEngine.UI.Image bgImg = bgObj.AddComponent<UnityEngine.UI.Image>();
+                                bgImg.color = new Color(0.15f, 0.15f, 0.15f, 1f);
+                                bgImg.rectTransform.sizeDelta = new Vector2(0.8f, 1.2f);
 
-                                // 3. Quantum Side Panels (With Outlines)
-                                float sideWidth = 0.3f;
-                                float sideX = 0.52f;
-                                Color sideCol = new Color(0.12f, 0.12f, 0.12f);
-                                
-                                GameObject leftPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(leftPanel.GetComponent<BoxCollider>());
-                                leftPanel.transform.SetParent(syncMenu.transform, false);
-                                leftPanel.transform.localPosition = new Vector3(sideX, -0.6f, 0.05f);
-                                leftPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
-                                leftPanel.GetComponent<Renderer>().material.color = sideCol;
+                                // 4. Side Panels
+                                float panelWidth = 0.15f;
+                                GameObject leftP = new GameObject("LeftPanel");
+                                leftP.transform.SetParent(syncMenu.transform, false);
+                                UnityEngine.UI.Image lImg = leftP.AddComponent<UnityEngine.UI.Image>();
+                                lImg.color = new Color(0.12f, 0.12f, 0.12f);
+                                lImg.rectTransform.sizeDelta = new Vector2(panelWidth, 1.1f);
+                                lImg.rectTransform.localPosition = new Vector3(-0.5f, 0f, 0.01f);
 
-                                GameObject rightPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(rightPanel.GetComponent<BoxCollider>());
-                                rightPanel.transform.SetParent(syncMenu.transform, false);
-                                rightPanel.transform.localPosition = new Vector3(sideX, 0.6f, 0.05f);
-                                rightPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
-                                rightPanel.GetComponent<Renderer>().material.color = sideCol;
+                                GameObject rightP = new GameObject("RightPanel");
+                                rightP.transform.SetParent(syncMenu.transform, false);
+                                UnityEngine.UI.Image rImg = rightP.AddComponent<UnityEngine.UI.Image>();
+                                rImg.color = new Color(0.12f, 0.12f, 0.12f);
+                                rImg.rectTransform.sizeDelta = new Vector2(panelWidth, 1.1f);
+                                rImg.rectTransform.localPosition = new Vector3(0.5f, 0f, 0.01f);
 
-                                // Side Outlines (Shared loop)
-                                foreach (GameObject p in new[] { leftPanel, rightPanel })
-                                {
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                        Destroy(o.GetComponent<BoxCollider>());
-                                        o.transform.SetParent(p.transform, false);
-                                        o.transform.localPosition = mOPos[i];
-                                        o.transform.localScale = mOSca[i];
-                                        o.GetComponent<Renderer>().material.color = Color.cyan;
-                                    }
-                                }
-
-                                // 4. Top Panel (Disconnect Bar with Outline)
-                                GameObject topBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                Destroy(topBar.GetComponent<BoxCollider>());
+                                // 5. Top Bar (Disconnect)
+                                GameObject topBar = new GameObject("TopBar");
                                 topBar.transform.SetParent(syncMenu.transform, false);
-                                topBar.transform.localPosition = new Vector3(0.52f, 0f, 0.62f);
-                                topBar.transform.localScale = new Vector3(0.08f, 1.25f, 0.15f);
-                                topBar.GetComponent<Renderer>().material.color = sideCol;
+                                UnityEngine.UI.Image tImg = topBar.AddComponent<UnityEngine.UI.Image>();
+                                tImg.color = new Color(0.12f, 0.12f, 0.12f);
+                                tImg.rectTransform.sizeDelta = new Vector2(0.75f, 0.15f);
+                                tImg.rectTransform.localPosition = new Vector3(0f, 0.72f, 0.01f);
 
-                                for (int i = 0; i < 4; i++)
-                                {
-                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                    Destroy(o.GetComponent<BoxCollider>());
-                                    o.transform.SetParent(topBar.transform, false);
-                                    o.transform.localPosition = mOPos[i];
-                                    o.transform.localScale = mOSca[i];
-                                    o.GetComponent<Renderer>().material.color = Color.cyan;
-                                }
+                                // 6. Text Labels (The "High-Fidelity" touch)
+                                GameObject titleObj = new GameObject("Title");
+                                titleObj.transform.SetParent(syncMenu.transform, false);
+                                titleObj.transform.localPosition = new Vector3(0f, 0.52f, -0.01f);
+                                TextMeshPro titleTxt = titleObj.AddComponent<TextMeshPro>();
+                                titleTxt.text = "Quantum [1]";
+                                titleTxt.fontSize = 0.8f;
+                                titleTxt.alignment = TextAlignmentOptions.Center;
+                                titleTxt.color = Color.white;
+                                titleTxt.SafeSetFont(Main.activeFont);
 
-                                // 5. Vertical Buttons
+                                GameObject fpsObj = new GameObject("FPS");
+                                fpsObj.transform.SetParent(syncMenu.transform, false);
+                                fpsObj.transform.localPosition = new Vector3(0f, 0.45f, -0.01f);
+                                TextMeshPro fpsTxt = fpsObj.AddComponent<TextMeshPro>();
+                                fpsTxt.text = "FPS: 82";
+                                fpsTxt.fontSize = 0.35f;
+                                fpsTxt.alignment = TextAlignmentOptions.Center;
+                                fpsTxt.color = new Color(0.8f, 0.8f, 0.8f);
+
+                                // 7. 6 Menu Buttons
+                                string[] btnLabels = { "Join Discord", "Settings", "Friends", "Players", "Favorite Mods", "Enabled Mods" };
                                 for (int i = 0; i < 6; i++)
                                 {
-                                    GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                    Destroy(btn.GetComponent<BoxCollider>());
-                                    btn.transform.SetParent(bg.transform, false);
-                                    btn.transform.localScale = new Vector3(1.1f, 0.13f, 0.07f);
-                                    btn.transform.localPosition = new Vector3(0.01f, 0f, 0.28f - (i * 0.12f));
-                                    btn.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+                                    GameObject btnObj = new GameObject($"Btn_{i}");
+                                    btnObj.transform.SetParent(syncMenu.transform, false);
+                                    btnObj.transform.localPosition = new Vector3(0f, 0.3f - (i * 0.14f), -0.01f);
+                                    
+                                    UnityEngine.UI.Image bImg = btnObj.AddComponent<UnityEngine.UI.Image>();
+                                    bImg.color = new Color(0.2f, 0.2f, 0.2f);
+                                    bImg.rectTransform.sizeDelta = new Vector2(0.7f, 0.11f);
+
+                                    GameObject t = new GameObject("Label");
+                                    t.transform.SetParent(btnObj.transform, false);
+                                    TextMeshPro lbl = t.AddComponent<TextMeshPro>();
+                                    lbl.text = btnLabels[i];
+                                    lbl.fontSize = 0.4f;
+                                    lbl.alignment = TextAlignmentOptions.Center;
+                                    lbl.color = Color.white;
+                                    lbl.SafeSetFont(Main.activeFont);
                                 }
 
                                 menuPool.Add(playerRig, syncMenu);
