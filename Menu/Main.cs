@@ -3397,6 +3397,8 @@ namespace Quantum.Menu
             if (dynamicSounds)
                 SoundManager.Play(SoundManager.DefaultSounds["Open"]);
 
+            CreateMenu();
+
             if (reference == null)
                 CreateReference();
         }

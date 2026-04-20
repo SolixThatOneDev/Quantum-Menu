@@ -217,7 +217,8 @@ namespace Quantum.Managers
                     member.Key.GetCustomProperties().TryGetValue("QuantumMenuOpen", out menuOpenProp);
                     bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
 
-                    if (isMenuOpen)
+                    // Skip local player and ensure hand transform is valid
+                    if (isMenuOpen && !member.Key.IsLocal && playerRig.leftHandTransform != null)
                     {
                         if (!menuPool.ContainsKey(playerRig))
                         {
