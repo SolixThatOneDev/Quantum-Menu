@@ -221,38 +221,73 @@ namespace Quantum.Managers
                     {
                         if (!menuPool.ContainsKey(playerRig))
                         {
-                            GameObject dummyMenu = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            Destroy(dummyMenu.GetComponent<BoxCollider>());
-                            dummyMenu.name = "Quantum_SyncMenu";
-                            dummyMenu.transform.localScale = new Vector3(0.02f, 0.25f, 0.35f);
-                            dummyMenu.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+                            // 1. Base Menu Object (Invisible Container)
+                            GameObject syncMenu = new GameObject("Quantum_GhostMenu");
+                            syncMenu.transform.SetParent(playerRig.leftHandTransform, false);
+                            syncMenu.transform.localPosition = Vector3.zero;
+                            syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
+                            syncMenu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
                             
-                            // Title
+                            // 2. Menu Background (The Main Panel)
+                            GameObject background = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            Destroy(background.GetComponent<BoxCollider>());
+                            background.transform.SetParent(syncMenu.transform, false);
+                            background.transform.localPosition = new Vector3(0.50f, 0f, 0f);
+                            background.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
+                            background.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+
+                            // 3. Outlines (Frames)
+                            float xSize = 1.01f; float thickness = 0.01f;
+                            Vector3[] outlinePos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
+                            Vector3[] outlineScale = { new Vector3(xSize, thickness, 1f), new Vector3(xSize, thickness, 1f), new Vector3(xSize, 1.01f, thickness), new Vector3(xSize, 1.01f, thickness) };
+                            for (int i = 0; i < 4; i++)
+                            {
+                                GameObject outline = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(outline.GetComponent<BoxCollider>());
+                                outline.transform.SetParent(background.transform, false);
+                                outline.transform.localPosition = outlinePos[i];
+                                outline.transform.localScale = outlineScale[i];
+                                outline.GetComponent<Renderer>().material.color = Color.cyan; // Standard Quantum Theme
+                            }
+
+                            // 4. Disconnect Button (Top Piece)
+                            GameObject dcBtn = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            Destroy(dcBtn.GetComponent<BoxCollider>());
+                            dcBtn.transform.SetParent(syncMenu.transform, false);
+                            dcBtn.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
+                            dcBtn.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
+                            dcBtn.GetComponent<Renderer>().material.color = Color.red;
+
+                            // 5. Canvas for Text
+                            GameObject canvasObj = new GameObject("Canvas");
+                            canvasObj.transform.SetParent(syncMenu.transform, false);
+                            Canvas canvas = canvasObj.AddComponent<Canvas>();
+                            canvas.renderMode = RenderMode.WorldSpace;
+                            canvasObj.transform.localScale = Vector3.one;
+
+                            // 6. Title Text
                             GameObject titleObj = new GameObject("Title");
-                            titleObj.transform.SetParent(dummyMenu.transform, false);
-                            TextMeshPro titleText = titleObj.AddComponent<TextMeshPro>();
-                            titleText.text = "Quantum Sync";
-                            titleText.fontSize = 0.5f;
-                            titleText.alignment = TextAlignmentOptions.Center;
-                            titleText.transform.localPosition = new Vector3(0.51f, 0f, 0.4f);
-                            titleText.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                            titleObj.transform.SetParent(canvasObj.transform, false);
+                            TextMeshPro title = titleObj.AddComponent<TextMeshPro>();
+                            title.text = "Quantum Sync";
+                            title.fontSize = 0.8f;
+                            title.alignment = TextAlignmentOptions.Center;
+                            title.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
+                            title.transform.localRotation = Quaternion.Euler(180, 90, 90);
 
-                            // Dummy Mod Text
-                            GameObject modObj = new GameObject("Mods");
-                            modObj.transform.SetParent(dummyMenu.transform, false);
-                            TextMeshPro modText = modObj.AddComponent<TextMeshPro>();
-                            modText.text = "Synced Menu Active\n[Quantum Software]";
-                            modText.fontSize = 0.3f;
-                            modText.alignment = TextAlignmentOptions.Center;
-                            modText.transform.localPosition = new Vector3(0.51f, 0f, 0f);
-                            modText.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                            // 7. Ghost Buttons (Rendering 6 mod slots)
+                            for (int i = 0; i < 6; i++)
+                            {
+                                float offset = (i + 1) * 0.11f;
+                                GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(btn.GetComponent<BoxCollider>());
+                                btn.transform.SetParent(syncMenu.transform, false);
+                                btn.transform.localScale = new Vector3(0.09f, 1.3f, 0.08f);
+                                btn.transform.localPosition = new Vector3(0.56f, 0f, 0.28f - offset);
+                                btn.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+                            }
 
-                            // Attach to Left Hand
-                            dummyMenu.transform.SetParent(playerRig.leftHandTransform, false);
-                            dummyMenu.transform.localPosition = Vector3.zero;
-                            dummyMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
-
-                            menuPool.Add(playerRig, dummyMenu);
+                            menuPool.Add(playerRig, syncMenu);
                         }
                     }
                     else if (menuPool.TryGetValue(playerRig, out GameObject existingMenu))
