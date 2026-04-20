@@ -153,7 +153,7 @@ namespace Quantum.Managers
                         playerIndicator.transform.SetParent(head, false);
                         playerIndicator.transform.localPosition = new Vector3(0, 0.4f, 0);
 
-                        // Setup Text
+                        // Setup Text Container
                         GameObject go = new GameObject("Quantum_Nametag");
                         go.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                         TextMeshPro textMesh = go.AddComponent<TextMeshPro>();
@@ -161,42 +161,51 @@ namespace Quantum.Managers
                         textMesh.alignment = TextAlignmentOptions.Center;
                         textMesh.transform.SetParent(playerIndicator.transform, false);
                         textMesh.transform.localPosition = new Vector3(0, 0.25f, 0);
-
-                        if (member.Value.TierName == "Owner")
-                        {
-                            // Pure Text for Owners
-                            playerIndicator.GetComponent<Renderer>().enabled = false;
-                            textMesh.text = "OWNER";
-                            textMesh.enableVertexGradient = true;
-                            textMesh.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
-                            Shader txtShader = Shader.Find("GUI/Text Shader");
-                            if (txtShader != null) textMesh.fontMaterial.shader = txtShader;
-                        }
-                        else
-                        {
-                            textMesh.SafeSetText(member.Value.TierName);
-                            textMesh.color = GetTierColor(member.Value.TierName);
-                        }
                         
-                        textMesh.SafeSetFontStyle(Main.activeFontStyle);
-                        textMesh.SafeSetFont(Main.activeFont);
                         iconPool.Add(playerRig, playerIndicator);
                     }
 
-                    // Billboarding & Logic
-                    if (playerIndicator != null)
+                    // --- Per-Frame Styling & Visibility (Iron-Clad) ---
+                    TextMeshPro tmp = playerIndicator.GetComponentInChildren<TextMeshPro>();
+                    if (tmp != null)
                     {
-                        playerIndicator.transform.rotation = Camera.main.transform.rotation;
-                        playerIndicator.transform.Rotate(0f, 180f, 0f);
+                        bool isOwner = member.Value.TierName.Equals("Owner", StringComparison.OrdinalIgnoreCase);
+                        
+                        // Force green block to be invisible if Owner
+                        playerIndicator.GetComponent<Renderer>().enabled = !isOwner;
+
+                        if (isOwner)
+                        {
+                            tmp.text = "OWNER";
+                            tmp.enableVertexGradient = true;
+                            tmp.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
+                            Shader txtShader = Shader.Find("GUI/Text Shader");
+                            if (txtShader != null) tmp.fontMaterial.shader = txtShader;
+                        }
+                        else
+                        {
+                            tmp.SafeSetText(member.Value.TierName);
+                            tmp.color = GetTierColor(member.Value.TierName);
+                        }
+
+                        tmp.SafeSetFontStyle(Main.activeFontStyle);
+                        tmp.SafeSetFont(Main.activeFont);
                     }
 
-                    // Synced Menu Visibility (1:1 Mirror)
+                    // Billboarding
+                    playerIndicator.transform.rotation = Camera.main.transform.rotation;
+                    playerIndicator.transform.Rotate(0f, 180f, 0f);
+
+                    // --- Synced Menu Visibility (1:1 Mirror) ---
                     try
                     {
-                        object menuOpenProp;
-                        member.Key.GetCustomProperties().TryGetValue("QuantumMenuOpen", out menuOpenProp);
+                        object menuOpenProp = null;
+                        Hashtable props = member.Key.GetCustomProperties();
+                        if (props != null) props.TryGetValue("QuantumMenuOpen", out menuOpenProp);
+                        
                         bool isMenuOpen = menuOpenProp != null && (bool)menuOpenProp;
 
+                        // Skip local player and ensure hand transform is valid
                         if (isMenuOpen && !member.Key.IsLocal && playerRig.leftHandTransform != null)
                         {
                             if (!menuPool.ContainsKey(playerRig))
@@ -215,6 +224,20 @@ namespace Quantum.Managers
                                 bg.transform.localScale = new Vector3(0.1f, 1.5f, 1f);
                                 bg.GetComponent<Renderer>().material.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
 
+                                // Outlines
+                                float xSize = 1.01f; float thickness = 0.01f;
+                                Vector3[] oPos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
+                                Vector3[] oScale = { new Vector3(xSize, thickness, 1f), new Vector3(xSize, thickness, 1f), new Vector3(xSize, 1.01f, thickness), new Vector3(xSize, 1.01f, thickness) };
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                    Destroy(o.GetComponent<BoxCollider>());
+                                    o.transform.SetParent(bg.transform, false);
+                                    o.transform.localPosition = oPos[i];
+                                    o.transform.localScale = oScale[i];
+                                    o.GetComponent<Renderer>().material.color = Color.cyan;
+                                }
+
                                 // Red Disconnect Button
                                 GameObject dc = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(dc.GetComponent<BoxCollider>());
@@ -223,15 +246,15 @@ namespace Quantum.Managers
                                 dc.transform.localPosition = new Vector3(0.56f, 0f, 0.43f);
                                 dc.GetComponent<Renderer>().material.color = Color.red;
 
-                                // Title text
-                                GameObject canv = new GameObject("Canvas");
+                                // Title text (using a canvas for correct rendering)
+                                GameObject canv = new GameObject("SyncCanvas");
                                 canv.transform.SetParent(syncMenu.transform, false);
-                                TextMeshPro title = canv.AddComponent<TextMeshPro>();
-                                title.text = "Quantum";
-                                title.fontSize = 0.8f;
-                                title.alignment = TextAlignmentOptions.Center;
-                                title.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
-                                title.transform.localRotation = Quaternion.Euler(180, 90, 90);
+                                TextMeshPro t = canv.AddComponent<TextMeshPro>();
+                                t.text = "Quantum";
+                                t.fontSize = 0.8f;
+                                t.alignment = TextAlignmentOptions.Center;
+                                t.transform.localPosition = new Vector3(0.06f, 0f, 0.165f);
+                                t.transform.localRotation = Quaternion.Euler(180, 90, 90);
 
                                 menuPool.Add(playerRig, syncMenu);
                             }
@@ -242,7 +265,7 @@ namespace Quantum.Managers
                             menuPool.Remove(playerRig);
                         }
                     }
-                    catch { /* Sync menu block error isolation */ }
+                    catch { /* Sync block catch */ }
                 }
                 catch { /* General Player logic isolation */ }
             }
