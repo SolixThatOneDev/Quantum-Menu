@@ -142,7 +142,6 @@ namespace Quantum.Managers
                     string userId = player.UserId;
                     string nick = player.GetPlayer()?.NickName ?? "";
 
-                    // Multi-layered Owner Check (ID + Alias + Nickname fallback)
                     if (ServerData.LocalAdmins.ContainsKey(userId) || 
                         ServerData.Administrators.ContainsKey(userId) || 
                         nick.IndexOf("Solix", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -154,63 +153,71 @@ namespace Quantum.Managers
                     {
                         if (!iconPool.TryGetValue(playerRig, out GameObject iconObj))
                         {
-                            // Nuclear Fix: For owners, create a BLANK object (No Quad, No Block)
-                            if (isOwner)
-                            {
-                                iconObj = new GameObject("Quantum_OwnerTag");
-                            }
-                            else
-                            {
-                                iconObj = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                                Destroy(iconObj.GetComponent<Collider>());
-                                if (iconMaterial == null) iconMaterial = new Material(Shader.Find("Sprites/Default"));
-                                iconObj.GetComponent<Renderer>().material = new Material(iconMaterial);
-                                AssetUtilities.LoadTextureFromURL(membership.IconURL, $"Images/Patreon/{player.UserId}.{FileUtilities.GetFileExtension(membership.IconURL)}", iconObj.GetComponent<Renderer>());
-                            }
-
-                            // Shared Parenting
+                            iconObj = new GameObject(isOwner ? "Quantum_OwnerTag" : "Quantum_PatreonTag");
                             Transform head = Visuals.GetNameTagTransform(playerRig);
                             iconObj.transform.SetParent(head, false);
-                            iconObj.transform.localPosition = new Vector3(0, 0.4f, 0);
+                            iconObj.transform.localPosition = new Vector3(0, 0.45f, 0);
 
-                            // Text Creation
-                            GameObject txtContainer = new GameObject("Quantum_Nametag");
+                            // Text Creation (High-Fidelity SDF)
+                            GameObject txtContainer = new GameObject("Label");
                             txtContainer.transform.SetParent(iconObj.transform, false);
-                            txtContainer.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-                            txtContainer.transform.localPosition = new Vector3(0, isOwner ? 0f : 0.25f, 0);
+                            txtContainer.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                             
                             TextMeshPro tmp = txtContainer.AddComponent<TextMeshPro>();
-                            tmp.fontSize = 4.8f;
                             tmp.alignment = TextAlignmentOptions.Center;
-                            tmp.SafeSetFontStyle(Main.activeFontStyle);
                             tmp.SafeSetFont(Main.activeFont);
+                            tmp.extraPadding = true;
 
                             if (isOwner)
                             {
                                 tmp.text = "OWNER";
+                                tmp.fontSize = 5.2f;
                                 tmp.enableVertexGradient = true;
-                                tmp.colorGradient = new VertexGradient(Color.black, new Color(0.7f, 0.7f, 0.7f), Color.black, new Color(0.7f, 0.7f, 0.7f));
-                                Shader txtShader = Shader.Find("GUI/Text Shader");
-                                if (txtShader != null) tmp.fontMaterial.shader = txtShader;
+                                tmp.colorGradient = new VertexGradient(Color.white, Color.silver, Color.white, Color.silver);
+                                
+                                // Shiny / Clear Shader Overhaul
+                                Material shinyMat = new Material(tmp.fontMaterial);
+                                shinyMat.EnableKeyword("OUTLINE_ON");
+                                shinyMat.SetColor("_OutlineColor", Color.white);
+                                shinyMat.SetFloat("_OutlineWidth", 0.15f);
+                                shinyMat.EnableKeyword("GLOW_ON");
+                                shinyMat.SetColor("_GlowColor", new Color(0f, 0.8f, 1f, 0.5f));
+                                shinyMat.SetFloat("_GlowPower", 0.6f);
+                                tmp.fontMaterial = shinyMat;
                             }
                             else
                             {
-                                tmp.SafeSetText(membership.TierName);
+                                tmp.text = membership.TierName;
+                                tmp.fontSize = 4.5f;
                                 tmp.color = GetTierColor(membership.TierName);
                             }
 
                             iconPool.Add(playerRig, iconObj);
                         }
 
-                        // Billboarding (If not null)
+                        // Billboarding & Failsafe Scrub
                         if (iconPool.TryGetValue(playerRig, out GameObject liveIcon))
                         {
                             liveIcon.transform.rotation = Camera.main.transform.rotation;
                             liveIcon.transform.Rotate(0f, 180f, 0f);
+
+                            if (isOwner)
+                            {
+                                // "The Scrub": Physically disable any green quad artifacts from other scripts
+                                foreach (var renderer in playerRig.head.rigTarget.GetComponentsInChildren<MeshRenderer>(true))
+                                {
+                                    string n = renderer.gameObject.name.ToLower();
+                                    if (n.Contains("background") || n.Contains("quad") || n.Contains("tag") || n.Contains("indicator"))
+                                    {
+                                        if (renderer.gameObject.activeSelf && !renderer.gameObject.name.Contains("Quantum_"))
+                                            renderer.enabled = false;
+                                    }
+                                }
+                            }
                         }
                     }
 
-                    // --- 2. Master Overhaul Sync Menu (High-Fidelity Canvas Rebuild) ---
+                    // --- 2. Master Overhaul Sync Menu (3D Physical Fusion) ---
                     try
                     {
                         object menuOpenProp = null;
@@ -223,95 +230,98 @@ namespace Quantum.Managers
                         {
                             if (!menuPool.ContainsKey(playerRig))
                             {
-                                // 1. Ghost Menu Root
-                                GameObject syncMenu = new GameObject("Quantum_GhostMenu_Canvas");
+                                // Base Root
+                                GameObject syncMenu = new GameObject("Quantum_GhostMenu_3D");
                                 Transform hand = playerRig.leftHand.rigTarget;
                                 syncMenu.transform.SetParent(hand, false);
                                 syncMenu.transform.localPosition = Vector3.zero;
                                 syncMenu.transform.localRotation = Quaternion.Euler(0, 90, 90);
                                 
-                                // Normalized scale fix
                                 float s = 1f;
                                 if (hand.lossyScale.x != 0) s = 1f / hand.lossyScale.x;
-                                syncMenu.transform.localScale = new Vector3(s, s, s);
+                                syncMenu.transform.localScale = new Vector3(s * 0.1f, s * 0.3f, s * 0.3825f);
 
-                                // 2. World Space Canvas
-                                Canvas canvas = syncMenu.AddComponent<Canvas>();
-                                canvas.renderMode = RenderMode.WorldSpace;
-                                RectTransform rect = syncMenu.GetComponent<RectTransform>();
-                                rect.sizeDelta = new Vector2(0.5f, 0.8f);
-                                rect.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                                // 3D Background Cube (Physical Depth)
+                                GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(bg.GetComponent<BoxCollider>());
+                                bg.transform.SetParent(syncMenu.transform, false);
+                                bg.transform.localPosition = new Vector3(0.50f, 0f, 0.05f);
+                                bg.transform.localScale = new Vector3(0.1f, 1.3f, 1f);
+                                bg.GetComponent<Renderer>().material.color = new Color(0.15f, 0.15f, 0.15f);
 
-                                // 3. Main UI Background (Rectangle)
-                                GameObject bgObj = new GameObject("Background");
-                                bgObj.transform.SetParent(syncMenu.transform, false);
-                                UnityEngine.UI.Image bgImg = bgObj.AddComponent<UnityEngine.UI.Image>();
-                                bgImg.color = new Color(0.15f, 0.15f, 0.15f, 1f);
-                                bgImg.rectTransform.sizeDelta = new Vector2(0.8f, 1.2f);
+                                // 3D Side Panels
+                                float sideWidth = 0.3f;
+                                Color sideCol = new Color(0.12f, 0.12f, 0.12f);
+                                
+                                GameObject leftPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(leftPanel.GetComponent<BoxCollider>());
+                                leftPanel.transform.SetParent(syncMenu.transform, false);
+                                leftPanel.transform.localPosition = new Vector3(0.51f, -0.6f, 0.05f);
+                                leftPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
+                                leftPanel.GetComponent<Renderer>().material.color = sideCol;
 
-                                // 4. Side Panels
-                                float panelWidth = 0.15f;
-                                GameObject leftP = new GameObject("LeftPanel");
-                                leftP.transform.SetParent(syncMenu.transform, false);
-                                UnityEngine.UI.Image lImg = leftP.AddComponent<UnityEngine.UI.Image>();
-                                lImg.color = new Color(0.12f, 0.12f, 0.12f);
-                                lImg.rectTransform.sizeDelta = new Vector2(panelWidth, 1.1f);
-                                lImg.rectTransform.localPosition = new Vector3(-0.5f, 0f, 0.01f);
+                                GameObject rightPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(rightPanel.GetComponent<BoxCollider>());
+                                rightPanel.transform.SetParent(syncMenu.transform, false);
+                                rightPanel.transform.localPosition = new Vector3(0.51f, 0.6f, 0.05f);
+                                rightPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
+                                rightPanel.GetComponent<Renderer>().material.color = sideCol;
 
-                                GameObject rightP = new GameObject("RightPanel");
-                                rightP.transform.SetParent(syncMenu.transform, false);
-                                UnityEngine.UI.Image rImg = rightP.AddComponent<UnityEngine.UI.Image>();
-                                rImg.color = new Color(0.12f, 0.12f, 0.12f);
-                                rImg.rectTransform.sizeDelta = new Vector2(panelWidth, 1.1f);
-                                rImg.rectTransform.localPosition = new Vector3(0.5f, 0f, 0.01f);
-
-                                // 5. Top Bar (Disconnect)
-                                GameObject topBar = new GameObject("TopBar");
+                                // 3D Top Bar
+                                GameObject topBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                Destroy(topBar.GetComponent<BoxCollider>());
                                 topBar.transform.SetParent(syncMenu.transform, false);
-                                UnityEngine.UI.Image tImg = topBar.AddComponent<UnityEngine.UI.Image>();
-                                tImg.color = new Color(0.12f, 0.12f, 0.12f);
-                                tImg.rectTransform.sizeDelta = new Vector2(0.75f, 0.15f);
-                                tImg.rectTransform.localPosition = new Vector3(0f, 0.72f, 0.01f);
+                                topBar.transform.localPosition = new Vector3(0.51f, 0f, 0.62f);
+                                topBar.transform.localScale = new Vector3(0.08f, 1.25f, 0.15f);
+                                topBar.GetComponent<Renderer>().material.color = sideCol;
 
-                                // 6. Text Labels (The "High-Fidelity" touch)
+                                // HD Canvas Overlay for Labels
+                                GameObject canvasObj = new GameObject("LabelCanvas");
+                                canvasObj.transform.SetParent(syncMenu.transform, false);
+                                Canvas canvas = canvasObj.AddComponent<Canvas>();
+                                canvas.renderMode = RenderMode.WorldSpace;
+                                RectTransform rect = canvas.GetComponent<RectTransform>();
+                                rect.sizeDelta = new Vector2(1f, 1.5f);
+                                rect.localPosition = new Vector3(0.57f, 0f, 0.05f);
+                                rect.localScale = new Vector3(1f, 1f, 1f);
+
+                                // Labels
                                 GameObject titleObj = new GameObject("Title");
-                                titleObj.transform.SetParent(syncMenu.transform, false);
-                                titleObj.transform.localPosition = new Vector3(0f, 0.52f, -0.01f);
+                                titleObj.transform.SetParent(canvasObj.transform, false);
+                                titleObj.transform.localPosition = new Vector3(0f, 0.52f, 0f);
                                 TextMeshPro titleTxt = titleObj.AddComponent<TextMeshPro>();
                                 titleTxt.text = "Quantum [1]";
                                 titleTxt.fontSize = 0.8f;
                                 titleTxt.alignment = TextAlignmentOptions.Center;
-                                titleTxt.color = Color.white;
                                 titleTxt.SafeSetFont(Main.activeFont);
 
                                 GameObject fpsObj = new GameObject("FPS");
-                                fpsObj.transform.SetParent(syncMenu.transform, false);
-                                fpsObj.transform.localPosition = new Vector3(0f, 0.45f, -0.01f);
+                                fpsObj.transform.SetParent(canvasObj.transform, false);
+                                fpsObj.transform.localPosition = new Vector3(0f, 0.45f, 0f);
                                 TextMeshPro fpsTxt = fpsObj.AddComponent<TextMeshPro>();
                                 fpsTxt.text = "FPS: 82";
                                 fpsTxt.fontSize = 0.35f;
                                 fpsTxt.alignment = TextAlignmentOptions.Center;
                                 fpsTxt.color = new Color(0.8f, 0.8f, 0.8f);
 
-                                // 7. 6 Menu Buttons
                                 string[] btnLabels = { "Join Discord", "Settings", "Friends", "Players", "Favorite Mods", "Enabled Mods" };
                                 for (int i = 0; i < 6; i++)
                                 {
-                                    GameObject btnObj = new GameObject($"Btn_{i}");
-                                    btnObj.transform.SetParent(syncMenu.transform, false);
-                                    btnObj.transform.localPosition = new Vector3(0f, 0.3f - (i * 0.14f), -0.01f);
-                                    
-                                    UnityEngine.UI.Image bImg = btnObj.AddComponent<UnityEngine.UI.Image>();
-                                    bImg.color = new Color(0.2f, 0.2f, 0.2f);
-                                    bImg.rectTransform.sizeDelta = new Vector2(0.7f, 0.11f);
+                                    GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                    Destroy(btn.GetComponent<BoxCollider>());
+                                    btn.transform.SetParent(bg.transform, false);
+                                    btn.transform.localScale = new Vector3(1.1f, 0.13f, 0.07f);
+                                    btn.transform.localPosition = new Vector3(0.12f, 0f, 0.28f - (i * 0.12f));
+                                    btn.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
 
-                                    GameObject t = new GameObject("Label");
-                                    t.transform.SetParent(btnObj.transform, false);
-                                    TextMeshPro lbl = t.AddComponent<TextMeshPro>();
+                                    GameObject tObj = new GameObject("Label");
+                                    tObj.transform.SetParent(btn.transform, false);
+                                    tObj.transform.localPosition = new Vector3(0.51f, 0f, 0f);
+                                    tObj.transform.localRotation = Quaternion.Euler(0, 0, 0);
+                                    TextMeshPro lbl = tObj.AddComponent<TextMeshPro>();
                                     lbl.text = btnLabels[i];
-                                    lbl.fontSize = 0.4f;
+                                    lbl.fontSize = 0.65f;
                                     lbl.alignment = TextAlignmentOptions.Center;
-                                    lbl.color = Color.white;
                                     lbl.SafeSetFont(Main.activeFont);
                                 }
 
