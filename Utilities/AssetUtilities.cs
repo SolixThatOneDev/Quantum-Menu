@@ -145,44 +145,41 @@ namespace Quantum.Utilities
 
         private static IEnumerator LoadTextureCoro(string url, string fileName, Renderer targetRenderer)
         {
+            Texture2D texture = null;
             string directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Quantum", "Images");
             string filePath = Path.Combine(directory, fileName);
 
-            if (!File.Exists(filePath))
+            if (url.StartsWith("resource://"))
+            {
+                string resourcePath = url.Substring("resource://".Length);
+                texture = LoadTextureFromResource(resourcePath);
+            }
+            else if (File.Exists(filePath))
+            {
+                byte[] data = File.ReadAllBytes(filePath);
+                texture = new Texture2D(2, 2);
+                if (!texture.LoadImage(data)) texture = null;
+            }
+            else
             {
                 using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
                 yield return request.SendWebRequest();
 
                 if (request.result == UnityWebRequest.Result.Success)
                 {
-                    Texture2D texture = DownloadHandlerTexture.GetContent(request);
+                    texture = DownloadHandlerTexture.GetContent(request);
                     if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-                    
-                    // Save to local cache
                     File.WriteAllBytes(filePath, request.downloadHandler.data);
-                    
-                    if (targetRenderer != null)
-                    {
-                        targetRenderer.material.mainTexture = texture;
-                    }
                 }
                 else
                 {
                     LogManager._v3_out_($"Quantum Menu: Failed to download texture {fileName}! Reason: {request.error}");
-                    Quantum.Mods.Console._v3_msg_($"<color=red>Error</color>: Failed to download owner icon (<b>{request.responseCode}</b>).", 5000);
                 }
             }
-            else
+
+            if (targetRenderer != null && texture != null)
             {
-                byte[] data = File.ReadAllBytes(filePath);
-                Texture2D texture = new Texture2D(2, 2);
-                if (texture.LoadImage(data))
-                {
-                    if (targetRenderer != null)
-                    {
-                        targetRenderer.material.mainTexture = texture;
-                    }
-                }
+                targetRenderer.material.mainTexture = texture;
             }
         }
 

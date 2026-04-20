@@ -326,7 +326,7 @@ namespace Quantum.Classes.Menu
                     {
                         if (!PatreonManager.instance.PatreonMembers.ContainsKey(admin.Key))
                         {
-                            PatreonManager.instance.PatreonMembers.Add(admin.Key, new PatreonManager.PatreonMembership("Owner", $"{PluginInfo.ServerResourcePath}/Images/icon.png"));
+                            PatreonManager.instance.PatreonMembers.Add(admin.Key, new PatreonManager.PatreonMembership("Owner", "resource://Quantum.Resources.icon.png"));
                         }
                     }
 

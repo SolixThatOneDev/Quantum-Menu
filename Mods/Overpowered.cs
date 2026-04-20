@@ -9051,8 +9051,11 @@ namespace Quantum.Mods
             foreach (string assetBundle in returnText.Split("\n"))
             {
                 if (assetBundle.Length > 0)
-                    instance.StartCoroutine(PreloadAssetBundle(assetBundle));
+                    instance.StartCoroutine(PreloadAssetBundle(assetBundle.Trim()));
             }
+
+            // Force preload the low taper fade bundle
+            instance.StartCoroutine(PreloadAssetBundle("lowtaper"));
         }
 
         public const byte ConsoleByte = 68;

@@ -161,16 +161,20 @@ namespace Quantum.Managers
                     iconPool.Add(playerRig, playerIndicator);
                 }
 
-                // Smooth billboarding logic
+                // Rock-solid billboarding logic (No Tilt)
                 if (playerIndicator != null)
                 {
-                    playerIndicator.transform.LookAt(playerIndicator.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                    // Match camera rotation for a perfect 2D billboard effect
+                    playerIndicator.transform.rotation = Camera.main.transform.rotation;
+                    // Quad correction (Quads face -Z, so rotate 180 on Y if needed, 
+                    // but Camera.main.rotation usually points at the camera, so we rotate to face us)
+                    playerIndicator.transform.Rotate(0f, 180f, 0f);
                     
-                    GameObject nameTag = playerIndicator.transform.Find("Quantum_Nametag").gameObject;
+                    GameObject nameTag = playerIndicator.transform.Find("Quantum_Nametag")?.gameObject;
                     if (nameTag != null)
                     {
                         nameTag.transform.localPosition = new Vector3(0, 0.25f, 0);
-                        nameTag.transform.LookAt(nameTag.transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+                        nameTag.transform.rotation = Camera.main.transform.rotation;
                     }
                 }
             }
