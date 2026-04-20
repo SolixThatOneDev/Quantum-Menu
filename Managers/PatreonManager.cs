@@ -225,7 +225,7 @@ namespace Quantum.Managers
                                 if (hand.lossyScale.x != 0) s = 1f / hand.lossyScale.x;
                                 syncMenu.transform.localScale = new Vector3(s * 0.1f, s * 0.3f, s * 0.3825f);
 
-                                // 2. Spectral Main Surface (No Cyan)
+                                // 2. Quantum Main Surface (With Cyan Neon)
                                 GameObject bg = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(bg.GetComponent<BoxCollider>());
                                 bg.transform.SetParent(syncMenu.transform, false);
@@ -233,32 +233,71 @@ namespace Quantum.Managers
                                 bg.transform.localScale = new Vector3(0.1f, 1.3f, 1f);
                                 bg.GetComponent<Renderer>().material.color = new Color(0.15f, 0.15f, 0.15f);
 
-                                // 3. Spectral Side Panels
+                                // Main Outlines
+                                Vector3[] mOPos = { new Vector3(0f, 0.5f, 0f), new Vector3(0f, -0.5f, 0f), new Vector3(0f, 0f, 0.5f), new Vector3(0f, 0f, -0.5f) };
+                                Vector3[] mOSca = { new Vector3(1.02f, 0.015f, 1f), new Vector3(1.02f, 0.015f, 1f), new Vector3(1.02f, 1.015f, 0.015f), new Vector3(1.02f, 1.015f, 0.015f) };
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                    Destroy(o.GetComponent<BoxCollider>());
+                                    o.transform.SetParent(bg.transform, false);
+                                    o.transform.localPosition = mOPos[i];
+                                    o.transform.localScale = mOSca[i];
+                                    o.GetComponent<Renderer>().material.color = Color.cyan;
+                                }
+
+                                // 3. Quantum Side Panels (With Outlines)
                                 float sideWidth = 0.3f;
                                 float sideX = 0.52f;
+                                Color sideCol = new Color(0.12f, 0.12f, 0.12f);
+                                
                                 GameObject leftPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(leftPanel.GetComponent<BoxCollider>());
                                 leftPanel.transform.SetParent(syncMenu.transform, false);
                                 leftPanel.transform.localPosition = new Vector3(sideX, -0.6f, 0.05f);
                                 leftPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
-                                leftPanel.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+                                leftPanel.GetComponent<Renderer>().material.color = sideCol;
 
                                 GameObject rightPanel = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(rightPanel.GetComponent<BoxCollider>());
                                 rightPanel.transform.SetParent(syncMenu.transform, false);
                                 rightPanel.transform.localPosition = new Vector3(sideX, 0.6f, 0.05f);
                                 rightPanel.transform.localScale = new Vector3(0.08f, sideWidth, 0.95f);
-                                rightPanel.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+                                rightPanel.GetComponent<Renderer>().material.color = sideCol;
 
-                                // 4. Top Panel (Disconnect Bar)
+                                // Side Outlines (Shared loop)
+                                foreach (GameObject p in new[] { leftPanel, rightPanel })
+                                {
+                                    for (int i = 0; i < 4; i++)
+                                    {
+                                        GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                        Destroy(o.GetComponent<BoxCollider>());
+                                        o.transform.SetParent(p.transform, false);
+                                        o.transform.localPosition = mOPos[i];
+                                        o.transform.localScale = mOSca[i];
+                                        o.GetComponent<Renderer>().material.color = Color.cyan;
+                                    }
+                                }
+
+                                // 4. Top Panel (Disconnect Bar with Outline)
                                 GameObject topBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
                                 Destroy(topBar.GetComponent<BoxCollider>());
                                 topBar.transform.SetParent(syncMenu.transform, false);
                                 topBar.transform.localPosition = new Vector3(0.52f, 0f, 0.62f);
                                 topBar.transform.localScale = new Vector3(0.08f, 1.25f, 0.15f);
-                                topBar.GetComponent<Renderer>().material.color = new Color(0.12f, 0.12f, 0.12f);
+                                topBar.GetComponent<Renderer>().material.color = sideCol;
 
-                                // 5. Vertical Buttons (Matching the original layout)
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    GameObject o = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                                    Destroy(o.GetComponent<BoxCollider>());
+                                    o.transform.SetParent(topBar.transform, false);
+                                    o.transform.localPosition = mOPos[i];
+                                    o.transform.localScale = mOSca[i];
+                                    o.GetComponent<Renderer>().material.color = Color.cyan;
+                                }
+
+                                // 5. Vertical Buttons
                                 for (int i = 0; i < 6; i++)
                                 {
                                     GameObject btn = GameObject.CreatePrimitive(PrimitiveType.Cube);
