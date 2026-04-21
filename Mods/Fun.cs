@@ -635,7 +635,7 @@ namespace Quantum.Mods
                 LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Mods/Fun/TagSounds/{sound}.ogg", $"Audio/Mods/Fun/TagSounds/{sound}.ogg");
         }
 
-        private static GameObject FreeCamObject;
+        public static GameObject FreeCamObject;
         private static Vector3 CameraVelocity;
         public static void Freecam()
         {

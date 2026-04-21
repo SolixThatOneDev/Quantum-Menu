@@ -2874,7 +2874,7 @@ public class UpdateButtonText : MonoBehaviour
         textTransform.sizeDelta = new Vector2(button != null && button.incremental && incrementalButtons ? .18f : .2f, .03f * (ButtonDistance / 0.1f));
         if (NoAutoSizeText) textTransform.sizeDelta = new Vector2(9f, 0.015f);
         if (hideTextOnCamera) textTransform.gameObject.layer = 19;
-        textTransform.localPosition = new Vector3(.064f, 0, .111f - offset / 2.6f);
+        textTransform.localPosition = new Vector3(.064f, Mathf.Sin(Time.time * 3f + buttonIndex) * 0.005f, .111f - offset / 2.6f);
         textTransform.localRotation = Quaternion.Euler(180f, 90f, 90f);
 
         tmp.font = activeFont;
@@ -2885,6 +2885,9 @@ public class UpdateButtonText : MonoBehaviour
         tmp.fontStyle = activeFontStyle;
         tmp.enableAutoSizing = true;
         tmp.fontSizeMin = 0;
+
+        tmp.enableVertexGradient = true;
+        tmp.colorGradient = new VertexGradient(Color.gray, Color.gray, Color.black, Color.black);
     }
 
     public void UpdateText()
@@ -2901,7 +2904,9 @@ public class UpdateButtonText : MonoBehaviour
         if (joystickMenu && buttonIndex == joystickButtonSelected && themeType == 30)
             tmp.color = Color.red;
         else
-            colorChanger.colors = textColors[button.enabled ? 2 : 1];
+            tmp.color = Color.white;
+            // colorChanger.colors = textColors[button.enabled ? 2 : 1];
+
     }
 
     private void LateUpdate()
@@ -2910,18 +2915,21 @@ public class UpdateButtonText : MonoBehaviour
         EnsureReferences();
 
         string targetButtonText = ButtonText();
+        lastRendered = targetButtonText;
+        tmp.SafeSetText(RichtextGradient(targetButtonText, new[] { 
+            new GradientColorKey(Color.gray, 0f), 
+            new GradientColorKey(Color.black, 1f) 
+        }));
+        FollowMenuSettings(tmp);
 
-        if (lastRendered != targetButtonText || string.IsNullOrEmpty(tmp.text))
-        {
-            lastRendered = targetButtonText;
-            tmp.SafeSetText(targetButtonText);
-            FollowMenuSettings(tmp);
-        }
+        ApplyLayout();
 
         if (joystickMenu && buttonIndex == joystickButtonSelected && themeType == 30)
             tmp.color = Color.red;
         else
-            colorChanger.colors = textColors[button.enabled ? 2 : 1];
+            tmp.color = Color.white;
+            // colorChanger.colors = textColors[button.enabled ? 2 : 1];
+
     }
 
     private string ButtonText()

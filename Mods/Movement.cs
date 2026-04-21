@@ -668,17 +668,20 @@ namespace Quantum.Mods
                 else if (Alt)
                     speed /= 2;
 
+                // Use FreeCam orientation if active, otherwise fallback to main camera/controller parent
+                Transform lookTransform = (Fun.FreeCamObject != null) ? Fun.FreeCamObject.transform : GorillaTagger.Instance.mainCamera.transform;
+
                 if (W)
-                    GorillaTagger.Instance.rigidbody.transform.position += GorillaLocomotion.GTPlayer.Instance.GetControllerTransform(false).parent.forward * (Time.deltaTime * speed);
+                    GorillaTagger.Instance.rigidbody.transform.position += lookTransform.forward * (Time.deltaTime * speed);
 
                 if (S)
-                    GorillaTagger.Instance.rigidbody.transform.position += GorillaLocomotion.GTPlayer.Instance.GetControllerTransform(false).parent.forward * (Time.deltaTime * -speed);
+                    GorillaTagger.Instance.rigidbody.transform.position += lookTransform.forward * (Time.deltaTime * -speed);
 
                 if (A)
-                    GorillaTagger.Instance.rigidbody.transform.position += GorillaLocomotion.GTPlayer.Instance.GetControllerTransform(false).parent.right * (Time.deltaTime * -speed);
+                    GorillaTagger.Instance.rigidbody.transform.position += lookTransform.right * (Time.deltaTime * -speed);
 
                 if (D)
-                    GorillaTagger.Instance.rigidbody.transform.position += GorillaLocomotion.GTPlayer.Instance.GetControllerTransform(false).parent.right * (Time.deltaTime * speed);
+                    GorillaTagger.Instance.rigidbody.transform.position += lookTransform.right * (Time.deltaTime * speed);
 
                 if (Space)
                     GorillaTagger.Instance.rigidbody.transform.position += new Vector3(0f, Time.deltaTime * speed, 0f);
@@ -690,11 +693,18 @@ namespace Quantum.Mods
             }
 
             if (!W && !A && !S && !D && !Space && !Ctrl && lastPosition != Vector3.zero && stationary)
-                GorillaTagger.Instance.rigidbody.transform.position = lastPosition;
+            {
+                // Detect teleport/spawn and update lastPosition if we are far away (prevents "snap to spawn" bug)
+                if (Vector3.Distance(GorillaTagger.Instance.rigidbody.transform.position, lastPosition) > 5f)
+                    lastPosition = GorillaTagger.Instance.rigidbody.transform.position;
+                else
+                    GorillaTagger.Instance.rigidbody.transform.position = lastPosition;
+            }
             else
+            {
                 lastPosition = GorillaTagger.Instance.rigidbody.transform.position;
+            }
         }
-
 
         private static float driveSpeed;
         public static int driveInt;

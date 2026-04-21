@@ -133,7 +133,7 @@ namespace Quantum.Managers
             {
                 try
                 {
-                    if (player.IsLocal) continue;
+                    // if (player.IsLocal) continue;
                     VRRig playerRig = player.VRRig();
                     if (playerRig == null) continue;
 
@@ -170,11 +170,12 @@ namespace Quantum.Managers
 
                             if (isOwner)
                             {
-                                tmp.text = "OWNER";
+                                tmp.text = Main.RichtextGradient("OWNER", Main.textColors[1].colors);
                                 tmp.fontSize = 5.2f;
-                                tmp.enableVertexGradient = true;
-                                tmp.colorGradient = new VertexGradient(Color.white, Color.silver, Color.white, Color.silver);
+                                tmp.enableVertexGradient = false;
+                                // tmp.colorGradient = new VertexGradient(Color.white, Color.silver, Color.white, Color.silver);
                                 
+                                /*
                                 // Shiny / Clear Shader Overhaul
                                 Material shinyMat = new Material(tmp.fontMaterial);
                                 shinyMat.EnableKeyword("OUTLINE_ON");
@@ -184,6 +185,7 @@ namespace Quantum.Managers
                                 shinyMat.SetColor("_GlowColor", new Color(0f, 0.8f, 1f, 0.5f));
                                 shinyMat.SetFloat("_GlowPower", 0.6f);
                                 tmp.fontMaterial = shinyMat;
+                                */
                             }
                             else
                             {
@@ -199,17 +201,29 @@ namespace Quantum.Managers
                         if (iconPool.TryGetValue(playerRig, out GameObject liveIcon))
                         {
                             liveIcon.transform.rotation = Camera.main.transform.rotation;
-                            liveIcon.transform.Rotate(0f, 180f, 0f);
+                            // liveIcon.transform.Rotate(0f, 180f, 0f);
+                            liveIcon.transform.localPosition = new Vector3(0, 0.45f + Mathf.Sin(Time.time * 2f) * 0.05f, 0);
 
                             if (isOwner)
                             {
-                                // "The Scrub": Physically disable any green quad artifacts from other scripts
+                                TextMeshPro tmp = liveIcon.GetComponentInChildren<TextMeshPro>();
+                                if (tmp != null)
+                                {
+                                    tmp.text = Main.RichtextGradient(" QUANTUM OWNER", new[] { 
+                                        new GradientColorKey(Color.gray, 0f), 
+                                        new GradientColorKey(Color.black, 1f) 
+                                    });
+                                    tmp.richText = true;
+                                }
+
+                                // "The Scrub": Physically disable any box/quad artifacts from other scripts
                                 foreach (var renderer in playerRig.head.rigTarget.GetComponentsInChildren<MeshRenderer>(true))
                                 {
                                     string n = renderer.gameObject.name.ToLower();
-                                    if (n.Contains("background") || n.Contains("quad") || n.Contains("tag") || n.Contains("indicator"))
+                                    // Disable ALL meshes that aren't the Quantum_OwnerTag's text label or the default NameTag
+                                    if (renderer.gameObject != liveIcon && !n.Contains("label") && !n.Contains("nametag"))
                                     {
-                                        if (renderer.gameObject.activeSelf && !renderer.gameObject.name.Contains("Quantum_"))
+                                        if (n.Contains("bg") || n.Contains("quad") || n.Contains("indicator") || n.Contains("tag") || n.Contains("background"))
                                             renderer.enabled = false;
                                     }
                                 }
@@ -228,6 +242,7 @@ namespace Quantum.Managers
 
                         if (isMenuOpen && playerRig.leftHand.rigTarget != null)
                         {
+                            /*
                             if (!menuPool.ContainsKey(playerRig))
                             {
                                 // Base Root
@@ -327,6 +342,7 @@ namespace Quantum.Managers
 
                                 menuPool.Add(playerRig, syncMenu);
                             }
+                            */
                         }
                         else if (menuPool.TryGetValue(playerRig, out GameObject mesh))
                         {

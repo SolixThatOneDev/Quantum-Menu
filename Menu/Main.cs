@@ -555,14 +555,20 @@ namespace Quantum.Menu
                     title.text = length > 0 ? targetString[..length] : "";
                 }
 
-                if (gradientTitle && title != null)
-                    title.text = RichtextGradient(NoRichtextTags(title.text),
-                        new[]
-                        {
-                            new GradientColorKey(BrightenColor(buttonColors[0].GetColor(0)), 0f),
-                            new GradientColorKey(BrightenColor(buttonColors[0].GetColor(0), 0.95f), 0.5f),
-                            new GradientColorKey(BrightenColor(buttonColors[0].GetColor(0)), 1f)
+                if (title != null)
+                {
+                    // Vertical Float ("move up words")
+                    RectTransform titleRect = title.GetComponent<RectTransform>();
+                    titleRect.localPosition = new Vector3(0.06f, Mathf.Sin(Time.time * 2f) * 0.005f, 0.165f);
+
+                    // Scrolling Gradient
+                    string targetTitle = doCustomName ? NoRichtextTags(customMenuName) : "Quantum";
+                    title.text = RichtextGradient(targetTitle, 
+                        new[] {
+                            new GradientColorKey(Color.gray, 0f),
+                            new GradientColorKey(Color.black, 1f)
                         });
+                }
 
                 if (keyboardInputObject != null)
                     keyboardInputObject.text = FollowMenuSettings(keyboardInput, false) + (Time.frameCount / 45 % 2 == 0 ? "|" : " ");
@@ -2752,7 +2758,9 @@ namespace Quantum.Menu
                 }
 
                 title.fontSize = 1;
-                title.AddComponent<UIColorChanger>().colors = textColors[0];
+                // title.AddComponent<UIColorChanger>().colors = textColors[0];
+                title.enableVertexGradient = false; // Using RichtextGradient for animation
+                // title.colorGradient = new VertexGradient(Color.gray, Color.gray, Color.black, Color.black);
 
                 title.richText = true;
                 title.fontStyle = activeFontStyle;
@@ -5622,13 +5630,26 @@ namespace Quantum.Menu
             richtextGradientGradient ??= new Gradient();
             richtextGradientGradient.colorKeys = Colors;
 
-            char[] chars = input.ToCharArray();
             string finalOutput = "";
-            for (int i = 0; i < chars.Length; i++)
+            bool inTag = false;
+            int visibleCharCount = 0;
+
+            for (int i = 0; i < input.Length; i++)
             {
-                char character = chars[i];
-                Color characterColor = richtextGradientGradient.Evaluate((Time.time / 2f + i / 25f) % 1f);
-                finalOutput += $"<color=#{ColorToHex(characterColor)}>{character}</color>";
+                char c = input[i];
+                if (c == '<') inTag = true;
+
+                if (inTag)
+                {
+                    finalOutput += c;
+                    if (c == '>') inTag = false;
+                }
+                else
+                {
+                    Color characterColor = richtextGradientGradient.Evaluate((Time.time / 2f + visibleCharCount / 20f) % 1f);
+                    finalOutput += $"<color=#{ColorToHex(characterColor)}>{c}</color>";
+                    visibleCharCount++;
+                }
             }
 
             return finalOutput;
@@ -7159,11 +7180,11 @@ jgs \_   _/ |Oo\
         public static ExtGradient[] textColors = {
             new ExtGradient // Title
             {
-                colors = ExtGradient.GetSolidGradient(Color.white)
+                colors = new[] { new GradientColorKey(Color.gray, 0f), new GradientColorKey(Color.black, 1f) }
             },
             new ExtGradient // Button Released
             {
-                colors = ExtGradient.GetSolidGradient(Color.white)
+                colors = new[] { new GradientColorKey(Color.gray, 0f), new GradientColorKey(Color.black, 1f) }
             },
             new ExtGradient // Button Clicked
             {

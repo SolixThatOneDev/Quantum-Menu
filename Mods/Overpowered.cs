@@ -8555,7 +8555,7 @@ namespace Quantum.Mods
             if (lowTaperFadeId >= 0) return;
 
             lowTaperFadeId = Console.GetFreeAssetID();
-            Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "lowtaper", "LowTaper", lowTaperFadeId);
+            Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "lowtaper", "lowtaper", lowTaperFadeId);
             Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, lowTaperFadeId, 2);
         }
 

@@ -53,6 +53,7 @@ namespace Quantum.Menu
                 return;
             }
 
+            /*
             // Create ID label above head
             try
             {
@@ -73,6 +74,7 @@ namespace Quantum.Menu
             {
                 LogManager._v3_out_("Quantum Menu: Failed to create ID label – " + e.Message);
             }
+            */
 
             if (File.Exists(hideGUIPath))
                 isOpen = false;
